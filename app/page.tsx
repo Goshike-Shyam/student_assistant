@@ -1,53 +1,114 @@
-import { ArrowRight, BookOpen, ShieldCheck, Sparkles, Users } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-
 export default function HomePage() {
   return (
-    <main className="bg-slate-50">
-      <div className="mx-auto max-w-[1480px] px-6 py-12 sm:px-8">
-        <section className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-          <div className="space-y-8">
-            <div className="max-w-2xl space-y-4">
-              <p className="text-sm uppercase tracking-[0.35em] text-cyan-600">Personalized AI tutoring for Grades 1–12</p>
-              <h1 className="text-5xl font-semibold tracking-tight text-slate-950 sm:text-6xl">
-                Personalized learning, homework support, and progress tracking in one place.
-              </h1>
-              <p className="mt-6 text-lg leading-8 text-slate-600">
-                School Assistant uses curriculum-aware AI to help students learn faster, master assignments, and access tailored resources aligned to CBSE, ICSE, State Boards, and Common Core.
-              </p>
-            </div>
+    <main className="min-h-screen bg-white overflow-hidden">
+      <div className="flex min-h-screen">
+        {/* LEFT BRAND PANEL */}
+        <div className="hidden lg:flex lg:w-1/2 flex-col p-12 relative overflow-hidden" style={{ background: 'linear-gradient(145deg,#001d5e 0%,#003da8 45%,#0058be 100%)' }}>
+          <div className="absolute top-0 right-0 w-96 h-96 rounded-full" style={{ background: 'radial-gradient(circle,rgba(255,255,255,.12),transparent)', transform: 'translate(35%,-35%)' }}></div>
+          <div className="absolute bottom-0 left-0 w-72 h-72 rounded-full" style={{ background: 'radial-gradient(circle,rgba(34,197,94,.2),transparent)', transform: 'translate(-35%,35%)' }}></div>
+          <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 60% 50%,rgba(255,255,255,.04),transparent)' }}></div>
 
-            <div className="flex flex-wrap gap-4">
-              <Button className="rounded-full bg-slate-950 px-6 py-4 text-base text-white hover:bg-slate-800">Get started</Button>
-              <Button className="rounded-full border border-slate-300 bg-white px-6 py-4 text-base text-slate-900 hover:bg-slate-50">Try demo</Button>
+          {/* Logo */}
+          <div className="relative z-10 flex items-center gap-3 mb-10">
+            <div className="w-11 h-11 bg-white rounded-2xl flex items-center justify-center shadow-xl">
+              <span className="mat-fill text-[#0058be] text-2xl">school</span>
             </div>
-
-            <div className="grid gap-3 sm:grid-cols-3">
-              {[
-                { label: 'CBSE', detail: 'Common boards' },
-                { label: 'Grade 9', detail: 'Student focus' },
-                { label: 'AI-driven', detail: 'Curriculum mapping' }
-              ].map((item) => (
-                <div key={item.label} className="rounded-3xl border border-slate-200 bg-white px-5 py-4 shadow-sm shadow-slate-100">
-                  <p className="text-sm font-semibold text-slate-900">{item.label}</p>
-                  <p className="mt-2 text-sm text-slate-500">{item.detail}</p>
-                </div>
-              ))}
+            <div>
+              <p className="qs font-bold text-2xl text-white leading-none">EduSpark</p>
+              <p className="text-white/50 text-xs mt-0.5 tracking-wide">Learning Platform</p>
             </div>
           </div>
 
-          <Card className="overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 p-8 text-white shadow-2xl shadow-slate-300/20">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-sm uppercase tracking-[0.35em] text-cyan-300">School Assistant</p>
-                <h2 className="mt-4 text-3xl font-semibold">AI-powered study dashboard</h2>
-              </div>
-              <Badge variant="neutral" className="bg-slate-900 text-slate-200">Live</Badge>
+          {/* Headline */}
+          <div className="relative z-10 mb-8">
+            <h2 className="qs font-bold text-[42px] leading-[1.2] text-white mb-4">
+              Empowering every<br />learner with a<br /><span className="text-[#6bff8f]">vibrant,<br />personalized</span><br />journey.
+            </h2>
+            <p className="text-white/65 text-[15px] leading-relaxed max-w-sm">Adaptive learning paths, interactive quests, and real-time progress tracking — built for every grade level.</p>
+          </div>
+
+          {/* Illustration placeholder */}
+          <div className="relative z-10 flex-1 flex items-center justify-center">
+            <div className="float-slow w-[78%] aspect-[4/3] rounded-3xl border border-white/15 flex flex-col items-center justify-center relative overflow-hidden" style={{ background: 'rgba(255,255,255,.07)', backdropFilter: 'blur(10px)' }}>
+              <div className="absolute top-4 right-4 w-8 h-8 rounded-full bg-[#ff8e4d]/30 border border-[#ff8e4d]/40"></div>
+              <div className="absolute bottom-6 left-6 w-6 h-6 rounded-full bg-[#22c55e]/30 border border-[#22c55e]/40"></div>
+              <span className="mat text-white/25 text-7xl mb-2" style={{ fontVariationSettings: "'FILL' 0,'wght' 200,'GRAD' 0,'opsz' 48" }}>auto_stories</span>
+              <p className="text-white/25 text-xs tracking-widest font-mono">[ hero illustration ]</p>
             </div>
-            <div className="mt-8 grid gap-4">
-              <div className="rounded-[2rem] bg-slate-950/90 p-5">
+          </div>
+
+          {/* Testimonial */}
+          <div className="relative z-10 mt-6 rounded-2xl p-5 border border-white/15" style={{ background: 'rgba(255,255,255,.1)', backdropFilter: 'blur(16px)' }}>
+            <div className="flex gap-0.5 mb-3">
+              {[...Array(5)].map((_, i) => (
+                <span key={i} className="mat-fill text-[#ff8e4d] text-base">star</span>
+              ))}
+            </div>
+            <p className="text-white text-sm leading-relaxed mb-4">"The interface is so clean, my students actually look forward to their daily lessons!"</p>
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-[#22c55e] flex items-center justify-center font-bold text-white text-sm qs">JD</div>
+              <div>
+                <p className="text-white font-semibold text-sm leading-none">Jane Doe</p>
+                <p className="text-white/55 text-xs mt-0.5">Principal, Oakwood Academy</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT FORM PANEL */}
+        <div className="flex-1 flex items-center justify-center bg-white p-8 lg:p-14 overflow-y-auto">
+          <div className="w-full max-w-[420px]">
+            {/* Mobile logo */}
+            <div className="flex lg:hidden items-center gap-2 mb-8">
+              <div className="w-8 h-8 bg-[#0058be] rounded-xl flex items-center justify-center">
+                <span className="mat-fill text-white text-lg">school</span>
+              </div>
+              <span className="qs font-bold text-xl text-[#006e2f]">EduSpark</span>
+            </div>
+
+            <div className="mb-8">
+              <h1 className="qs font-bold text-[38px] text-[#0b1c30] leading-tight mb-2">Welcome to EduSpark</h1>
+              <p className="text-[#6d7b6c] text-base">Personalized learning, homework support, and progress tracking in one place.</p>
+            </div>
+
+            <form className="space-y-5">
+              <div>
+                <label className="block text-sm font-semibold text-[#0b1c30] mb-2.5">Email address</label>
+                <input
+                  type="email"
+                  placeholder="you@example.com"
+                  className="w-full px-4 py-3 border-2 border-[#bccbb9] rounded-xl text-[#0b1c30] placeholder-[#6d7b6c] focus:border-[#0058be] focus:outline-none transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-[#0b1c30] mb-2.5">Password</label>
+                <input
+                  type="password"
+                  placeholder="Enter your password"
+                  className="w-full px-4 py-3 border-2 border-[#bccbb9] rounded-xl text-[#0b1c30] placeholder-[#6d7b6c] focus:border-[#0058be] focus:outline-none transition-colors"
+                />
+              </div>
+
+              <a href="/login" className="w-full mt-8 px-6 py-3.5 bg-[#006e2f] text-white qs font-bold rounded-xl hover:bg-[#005828] transition-colors flex items-center justify-center gap-2 text-base btn-3d-green inline-flex">
+                Get Started <span className="mat text-xl">arrow_forward</span>
+              </a>
+
+              <div className="pt-4 border-t border-[#e5eeff]">
+                <p className="text-sm text-[#6d7b6c]">
+                  Already have an account?{' '}
+                  <a href="/login" className="font-semibold text-[#0058be] hover:text-[#003da8]">
+                    Sign in
+                  </a>
+                </p>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}
                 <div className="flex items-center justify-between">
                   <p className="text-sm text-slate-300">Today’s focus</p>
                   <span className="text-sm font-semibold text-white">Mathematics</span>

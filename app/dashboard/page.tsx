@@ -1,208 +1,122 @@
-import { Activity, Bell, CalendarDays, CheckCircle2, CircleDashed, Download, FolderOpen, ListChecks, Send, Sparkles, Target } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-
-const stats = [
-  { label: 'Completed lessons', value: '12', icon: CheckCircle2 },
-  { label: 'Study time', value: '06h 45m', icon: Activity },
-  { label: 'On-time tasks', value: '92%', icon: Target },
-  { label: 'Mastery score', value: '74%', icon: Sparkles }
-];
+import { Sidebar } from '@/components/ui/sidebar';
 
 export default function DashboardPage() {
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-[1480px] space-y-8">
-        <section className="rounded-[2rem] border border-slate-200/80 bg-white/95 p-6 shadow-xl shadow-slate-200/40">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <p className="text-sm font-medium uppercase tracking-[0.35em] text-cyan-600">Student Dashboard</p>
-              <h1 className="mt-3 text-3xl font-semibold text-slate-900 sm:text-4xl">Your learning overview</h1>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <Button className="rounded-full bg-slate-950 px-5 py-3 text-sm text-white hover:bg-slate-800">Ask AI</Button>
-              <Button className="rounded-full border border-slate-300 bg-white text-sm text-slate-900 hover:bg-slate-50">Upload Assignment</Button>
-              <Button className="rounded-full border border-slate-300 bg-white text-sm text-slate-900 hover:bg-slate-50">Browse Resources</Button>
-            </div>
-          </div>
+    <div className="flex pt-16 min-h-screen">
+      {/* SIDEBAR */}
+      <Sidebar activeSubject="Mathematics" />
 
-          <div className="mt-8 grid gap-4 md:grid-cols-4">
-            {stats.map((item) => {
-              const Icon = item.icon;
-              return (
-                <div key={item.label} className="rounded-[1.75rem] border border-slate-200/80 bg-slate-50 p-5">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-medium text-slate-500">{item.label}</p>
-                      <p className="mt-3 text-2xl font-semibold text-slate-900">{item.value}</p>
-                    </div>
-                    <div className="flex h-12 w-12 items-center justify-center rounded-3xl bg-white text-cyan-600 shadow-sm shadow-slate-200">
-                      <Icon className="h-5 w-5" />
-                    </div>
-                  </div>
+      {/* MAIN */}
+      <main className="flex-1 overflow-x-hidden">
+        {/* HERO */}
+        <section className="px-10 py-12 relative overflow-hidden" style={{ background: 'linear-gradient(135deg,#f8f9ff 0%,#eff4ff 100%)' }}>
+          <div className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-40" style={{ background: 'radial-gradient(circle,#e5eeff,transparent)', transform: 'translate(30%,-30%)' }}></div>
+          <div className="flex gap-12 items-center">
+            {/* Left content */}
+            <div className="flex-1 max-w-xl">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#22c55e]/15 text-[#006e2f] rounded-full text-xs font-semibold mb-5">
+                <span className="mat-fill text-sm text-[#22c55e]">emoji_events</span>Level 12 Achieved! ✨
+              </span>
+              <h1 className="qs font-bold text-5xl leading-[1.15] text-[#0b1c30] mb-4">
+                Your Learning<br /><span className="text-[#0058be]">Superpower!</span>
+              </h1>
+              <p className="text-[#3d4a3d] text-lg leading-relaxed mb-8 max-w-md">
+                Unleash your potential with EduSpark's tactile learning experience. Master new subjects through high-energy challenges and interactive quests designed just for you.
+              </p>
+              <div className="flex items-center gap-3">
+                <a href="/practice">
+                  <button className="btn-3d-green px-7 py-3.5 bg-[#006e2f] text-white qs font-bold rounded-xl hover:bg-[#005828] transition-colors flex items-center gap-2 text-[15px]">
+                    Let's Start Learning <span className="mat text-xl">rocket_launch</span>
+                  </button>
+                </a>
+                <button className="px-7 py-3.5 border-2 border-[#bccbb9] text-[#3d4a3d] qs font-bold rounded-xl hover:bg-[#e5eeff] hover:border-[#adc6ff] transition-all text-[15px]">
+                  View Curriculum
+                </button>
+              </div>
+            </div>
+            {/* Right illustration */}
+            <div className="hidden lg:flex flex-1 items-center justify-center relative min-h-[340px]">
+              <div className="float-slow w-72 h-64 rounded-3xl border border-white/40 relative overflow-hidden flex items-center justify-center" style={{ background: 'linear-gradient(145deg,#1a2d4d,#0b1c30)', boxShadow: '0 20px 60px rgba(0,30,80,.3)' }}>
+                <span className="mat text-white/20 text-8xl" style={{ fontVariationSettings: "'FILL' 0,'wght' 200,'GRAD' 0,'opsz' 48" }}>person_play</span>
+                <p className="absolute bottom-4 text-white/30 text-xs tracking-widest font-mono">[ student illustration ]</p>
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#22c55e] to-[#4ae176]"></div>
+              </div>
+              {/* Floating streak card */}
+              <div className="float-fast absolute left-0 top-1/4 bg-white rounded-xl px-3.5 py-2.5 flex items-center gap-2.5" style={{ boxShadow: '0 8px 24px rgba(0,88,190,.16)' }}>
+                <div className="w-9 h-9 bg-[#006e2f] rounded-xl flex items-center justify-center">
+                  <span className="mat-fill text-white text-lg">bolt</span>
                 </div>
-              );
-            })}
+                <div>
+                  <p className="text-[10px] font-bold text-[#3d4a3d] uppercase tracking-wide">Daily Streak</p>
+                  <p className="font-bold text-[#006e2f] text-sm qs">5 Days</p>
+                </div>
+              </div>
+              {/* Floating XP card */}
+              <div className="float-slow absolute right-0 bottom-1/4 bg-white rounded-xl px-3.5 py-2.5 flex items-center gap-2.5" style={{ boxShadow: '0 8px 24px rgba(0,88,190,.16)' }}>
+                <div className="w-9 h-9 bg-[#ff8e4d] rounded-xl flex items-center justify-center">
+                  <span className="mat-fill text-white text-lg">star</span>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-[#3d4a3d] uppercase tracking-wide">XP Earned</p>
+                  <p className="font-bold text-[#9d4300] text-sm qs">2,450</p>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
-        <div className="grid gap-6 xl:grid-cols-[300px_1fr]">
-          <aside className="space-y-6">
-            <Card className="space-y-5 p-6">
-              <CardHeader>
-                <CardTitle>Subjects</CardTitle>
-                <CardDescription>Focus areas for today.</CardDescription>
-              </CardHeader>
-              <div className="space-y-3">
-                {['Mathematics', 'Physics', 'Chemistry', 'English'].map((subject) => (
-                  <label key={subject} className="flex cursor-pointer items-center gap-3 rounded-3xl border border-slate-200/80 bg-white px-4 py-3 text-sm text-slate-700 transition hover:bg-slate-50">
-                    <input type="checkbox" className="h-4 w-4 accent-cyan-600" />
-                    {subject}
-                  </label>
-                ))}
-              </div>
-            </Card>
-
-            <Card className="space-y-5 p-6">
-              <CardHeader>
-                <CardTitle>Quick filters</CardTitle>
-                <CardDescription>Filter tasks and resources.</CardDescription>
-              </CardHeader>
-              <div className="space-y-2">
-                {['Homework', 'Revision', 'Past Papers'].map((filter) => (
-                  <div key={filter} className="rounded-3xl border border-slate-200/80 bg-white px-4 py-3 text-sm text-slate-700">{filter}</div>
-                ))}
-              </div>
-            </Card>
-
-            <Card className="space-y-5 p-6">
-              <CardHeader>
-                <CardTitle>Quick actions</CardTitle>
-              </CardHeader>
-              <div className="space-y-3">
-                <Button className="w-full rounded-full bg-slate-950 px-4 py-3 text-sm text-white hover:bg-slate-800">Ask AI</Button>
-                <Button className="w-full rounded-full border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 hover:bg-slate-50">Upload Assignment</Button>
-                <Button className="w-full rounded-full border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 hover:bg-slate-50">Browse Resources</Button>
-              </div>
-            </Card>
-
-            <Card className="space-y-5 p-6">
-              <CardHeader>
-                <CardTitle>Active filters</CardTitle>
-              </CardHeader>
-              <div className="space-y-2 text-sm text-slate-700">
-                <p>Due this week</p>
-                <p>All answers</p>
-                <p>Saved</p>
-              </div>
-            </Card>
-          </aside>
-
-          <div className="space-y-6">
-            <div className="grid gap-6 xl:grid-cols-[1.35fr_0.65fr]">
-              <Card className="p-6">
-                <CardHeader>
-                  <CardTitle>Today's assignments</CardTitle>
-                  <CardDescription>3 due today</CardDescription>
-                </CardHeader>
-                <div className="mt-6 space-y-4">
-                  {[
-                    { title: 'Quadratic Equations – Practice Set', subject: 'Mathematics', due: '5:00 PM', action: 'Submit' },
-                    { title: 'Hooke’s Law Lab Report', subject: 'Physics', due: 'Due 8:00 PM', action: 'Upload' },
-                    { title: 'Comprehension: The Merchant’s Letter', subject: 'English', due: 'Due 8:00 PM', action: 'Open' }
-                  ].map((item) => (
-                    <div key={item.title} className="flex flex-col gap-4 rounded-[1.75rem] border border-slate-200/80 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between">
-                      <div>
-                        <p className="font-semibold text-slate-900">{item.title}</p>
-                        <p className="text-sm text-slate-500">{item.subject} • {item.due}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="success">{item.action}</Badge>
-                      </div>
-                    </div>
-                  ))}
+        {/* TOOLS BENTO GRID */}
+        <section className="px-10 py-12">
+          <div className="text-center mb-10">
+            <h2 className="qs font-bold text-3xl text-[#0b1c30] mb-2">Unlock Your Tools</h2>
+            <p className="text-[#3d4a3d]">Everything you need to master your education in one place.</p>
+          </div>
+          <div className="grid grid-cols-12 gap-5">
+            {/* Homework Help */}
+            <div className="col-span-6 md:col-span-3 card p-6 flex flex-col justify-between min-h-[280px]" style={{ background: 'linear-gradient(135deg,rgba(34,197,94,.08),rgba(34,197,94,.02))' }}>
+              <div>
+                <div className="w-12 h-12 bg-[#22c55e]/20 rounded-xl flex items-center justify-center mb-4">
+                  <span className="mat text-[#006e2f] text-2xl">help_outline</span>
                 </div>
-              </Card>
-
-              <Card className="p-6">
-                <CardHeader>
-                  <CardTitle>Notifications</CardTitle>
-                  <CardDescription>Latest teacher updates.</CardDescription>
-                </CardHeader>
-                <div className="mt-6 space-y-3">
-                  {[
-                    'AI replied to your question: Integrals tips',
-                    'Mrs. Reynolds provided feedback on Hooke’s law lab',
-                    'Study reminder: Revision session at 6 PM'
-                  ].map((note) => (
-                    <div key={note} className="rounded-3xl border border-slate-200/80 bg-white px-4 py-4 text-sm text-slate-700">{note}</div>
-                  ))}
-                </div>
-              </Card>
+                <h3 className="qs font-bold text-lg text-[#0b1c30] mb-2">Homework Help</h3>
+                <p className="text-[#6d7b6c] text-sm">Get instant solutions with step-by-step explanations.</p>
+              </div>
+              <button className="mt-4 text-[#006e2f] font-semibold text-sm flex items-center gap-1 hover:gap-2 transition-all">
+                Get Started <span className="mat">arrow_forward</span>
+              </button>
             </div>
 
-            <div className="grid gap-6 lg:grid-cols-[1.18fr_0.82fr]">
-              <Card className="p-6">
-                <CardHeader>
-                  <CardTitle>Saved resources</CardTitle>
-                  <CardDescription>Fast access to revision materials.</CardDescription>
-                </CardHeader>
-                <div className="mt-6 space-y-4">
-                  {[
-                    { title: 'Integration techniques – Cheat Sheet', meta: 'Mathematics • Saved 2 days ago' },
-                    { title: 'GCSE Physics Past Paper 2019', meta: 'Physics • Saved 1 week ago' },
-                    { title: 'English literature timeline', meta: 'English • Saved 3 days ago' }
-                  ].map((item) => (
-                    <div key={item.title} className="flex flex-col gap-2 rounded-[1.75rem] border border-slate-200/80 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between">
-                      <div>
-                        <p className="font-semibold text-slate-900">{item.title}</p>
-                        <p className="text-sm text-slate-500">{item.meta}</p>
-                      </div>
-                      <Button className="rounded-full bg-slate-950 px-4 py-2 text-sm text-white hover:bg-slate-800">Open</Button>
-                    </div>
-                  ))}
+            {/* Topic Research */}
+            <div className="col-span-6 md:col-span-3 card p-6 flex flex-col justify-between min-h-[280px]" style={{ background: 'linear-gradient(135deg,rgba(0,88,190,.08),rgba(0,88,190,.02))' }}>
+              <div>
+                <div className="w-12 h-12 bg-[#0058be]/20 rounded-xl flex items-center justify-center mb-4">
+                  <span className="mat text-[#0058be] text-2xl">search</span>
                 </div>
-              </Card>
+                <h3 className="qs font-bold text-lg text-[#0b1c30] mb-2">Topic Research</h3>
+                <p className="text-[#6d7b6c] text-sm">Curriculum-aligned content for your grade level.</p>
+              </div>
+              <button className="mt-4 text-[#0058be] font-semibold text-sm flex items-center gap-1 hover:gap-2 transition-all">
+                Explore <span className="mat">arrow_forward</span>
+              </button>
+            </div>
 
-              <div className="grid gap-6">
-                <Card className="p-6">
-                  <CardHeader>
-                    <CardTitle>Progress snapshot</CardTitle>
-                    <CardDescription>Performance by subject.</CardDescription>
-                  </CardHeader>
-                  <div className="mt-6 space-y-4">
-                    {[
-                      { label: 'Mathematics', value: '86%' },
-                      { label: 'Physics', value: '78%' },
-                      { label: 'Chemistry', value: '71%' }
-                    ].map((item) => (
-                      <div key={item.label} className="flex items-center justify-between text-sm text-slate-700">
-                        <span>{item.label}</span>
-                        <span className="font-semibold text-slate-900">{item.value}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-5 h-[160px] rounded-[1.75rem] bg-gradient-to-br from-cyan-500/15 to-slate-200" />
-                </Card>
-
-                <Card className="p-6">
-                  <CardHeader>
-                    <CardTitle>Mini calendar</CardTitle>
-                    <CardDescription>Upcoming deadlines</CardDescription>
-                  </CardHeader>
-                  <div className="mt-6 grid grid-cols-7 gap-2 text-center text-sm text-slate-700">
-                    {['M','T','W','T','F','S','S'].map((day) => (<div key={day} className="rounded-2xl bg-slate-100 py-3">{day}</div>))}
-                    {Array.from({ length: 28 }).map((_, idx) => (
-                      <div key={idx} className={`rounded-2xl py-3 ${idx === 7 ? 'bg-cyan-500 text-white' : 'bg-slate-100 text-slate-700'}`}>{idx + 1}</div>
-                    ))}
-                  </div>
-                </Card>
+            {/* Progress Tracking */}
+            <div className="col-span-12 md:col-span-6 card p-6 flex flex-col justify-between min-h-[280px]" style={{ background: 'linear-gradient(135deg,rgba(255,142,77,.08),rgba(255,142,77,.02))' }}>
+              <div>
+                <div className="w-12 h-12 bg-[#ff8e4d]/20 rounded-xl flex items-center justify-center mb-4">
+                  <span className="mat text-[#ff8e4d] text-2xl">trending_up</span>
+                </div>
+                <h3 className="qs font-bold text-lg text-[#0b1c30] mb-2">Progress Tracking</h3>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </main>
+        </section>
+      </main>
+    </div>
+  );
+}
+        </section>
+      </main>
+    </div>
   );
 }

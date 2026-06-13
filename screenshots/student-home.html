@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduSpark — Home</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#f8f9ff;color:#0b1c30}
+.qs{font-family:'Quicksand',sans-serif}
+.mat{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;vertical-align:middle;font-family:'Material Symbols Outlined'}
+.matf{font-variation-settings:'FILL' 1,'wght' 600,'GRAD' 0,'opsz' 24;vertical-align:middle;font-family:'Material Symbols Outlined'}
+.btn-3d{box-shadow:0 4px 0 rgba(0,80,0,.22);transition:transform .1s,box-shadow .1s}
+.btn-3d:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,80,0,.22)}
+.btn-3db{box-shadow:0 4px 0 rgba(0,55,140,.22);transition:transform .1s,box-shadow .1s}
+.btn-3db:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,55,140,.22)}
+.card{background:#fff;border:1px solid #e5eeff;border-radius:1.25rem;box-shadow:0 1px 3px rgba(0,88,190,.05),0 4px 12px rgba(0,88,190,.06)}
+.nav-link{display:flex;align-items:center;padding:.4rem .85rem;border-radius:.6rem;font-size:.875rem;font-weight:600;color:#3d4a3d;text-decoration:none;transition:all .15s;white-space:nowrap}
+.nav-link:hover{background:#eff4ff;color:#0058be}
+.nav-link.active{color:#006e2f;border-bottom:2px solid #006e2f;border-radius:0;padding-bottom:.3rem}
+.sub-link{display:flex;align-items:center;gap:.625rem;padding:.6rem .75rem;border-radius:.75rem;font-size:.875rem;color:#3d4a3d;text-decoration:none;transition:all .15s;font-weight:500}
+.sub-link:hover{background:#eff4ff;color:#0058be}
+.sub-link.active{background:#eff4ff;color:#0058be;font-weight:600}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.float-slow{animation:float 5s ease-in-out infinite}
+.float-fast{animation:float 3.5s ease-in-out infinite .5s}
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="fixed top-0 left-0 right-0 z-50 h-16 bg-white border-b border-[#e5eeff] flex items-center justify-between px-10" style="box-shadow:0 2px 12px rgba(0,88,190,.06)">
+  <div class="flex items-center gap-10">
+    <a href="index.html" class="qs font-bold text-[22px] text-[#006e2f] no-underline">EduSpark</a>
+    <div class="flex items-center gap-0.5">
+      <a href="student-home.html" class="nav-link active">Home</a>
+      <a href="practice.html" class="nav-link">Practice</a>
+      <a href="research.html" class="nav-link">Research</a>
+      <a href="assignments.html" class="nav-link">Assignments</a>
+    </div>
+  </div>
+  <div class="flex items-center gap-2">
+    <button class="w-9 h-9 rounded-full hover:bg-[#eff4ff] flex items-center justify-center transition-colors text-[#3d4a3d]"><span class="mat">notifications</span></button>
+    <button class="w-9 h-9 rounded-full hover:bg-[#eff4ff] flex items-center justify-center transition-colors text-[#3d4a3d]"><span class="mat">settings</span></button>
+    <div class="relative">
+      <button onclick="document.getElementById('umenu').classList.toggle('hidden')" class="w-9 h-9 rounded-full bg-[#d3e4fe] border-2 border-[#22c55e] flex items-center justify-center font-bold text-[#006e2f] text-sm qs">AJ</button>
+      <div id="umenu" class="hidden absolute top-11 right-0 bg-white rounded-2xl border border-[#e5eeff] py-2 min-w-[200px]" style="box-shadow:0 8px 32px rgba(0,88,190,.14)">
+        <div class="px-4 py-3 border-b border-[#f8f9ff]">
+          <p class="font-semibold text-sm">Alex Johnson</p>
+          <p class="text-xs text-[#6d7b6c]">Grade 10 · Student</p>
+        </div>
+        <a href="parent-portal.html" class="flex items-center gap-2 px-4 py-2.5 text-sm text-[#0b1c30] hover:bg-[#eff4ff] transition-colors no-underline"><span class="mat text-[#006e2f] text-lg">family_restroom</span>Parent View</a>
+        <a href="admin-users.html" class="flex items-center gap-2 px-4 py-2.5 text-sm text-[#0b1c30] hover:bg-[#eff4ff] transition-colors no-underline"><span class="mat text-[#0058be] text-lg">admin_panel_settings</span>Admin Portal</a>
+        <div class="border-t border-[#f8f9ff] mt-1 pt-1">
+          <a href="index.html" class="flex items-center gap-2 px-4 py-2.5 text-sm text-[#ba1a1a] hover:bg-[#fff4f4] transition-colors no-underline"><span class="mat text-[#ba1a1a] text-lg">logout</span>Sign Out</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- LAYOUT -->
+<div class="flex pt-16 min-h-screen">
+
+  <!-- SIDEBAR -->
+  <aside class="w-52 shrink-0 bg-white border-r border-[#e5eeff] sticky top-16 h-[calc(100vh-64px)] flex flex-col py-5 px-3 overflow-y-auto">
+    <div class="mb-5 px-2">
+      <p class="text-[#0058be] font-semibold text-sm">Welcome back!</p>
+      <p class="text-[#3d4a3d] text-xs mt-0.5 flex items-center gap-1">Current Streak: 5 Days <span class="matf text-[#ff8e4d] text-sm">local_fire_department</span></p>
+    </div>
+    <nav class="flex flex-col gap-0.5 flex-1">
+      <a href="#" class="sub-link"><span class="mat text-[#006e2f]">grid_on</span>Mathematics</a>
+      <a href="#" class="sub-link"><span class="mat text-[#0058be]">science</span>Science</a>
+      <a href="#" class="sub-link"><span class="mat text-[#9d4300]">menu_book</span>English</a>
+      <a href="#" class="sub-link"><span class="mat text-[#6d7b6c]">history_edu</span>History</a>
+      <a href="#" class="sub-link"><span class="mat text-[#9d4300]">palette</span>Arts</a>
+    </nav>
+    <button class="mt-4 w-full btn-3d bg-[#ff8e4d] text-white rounded-xl py-3 text-sm font-bold qs hover:bg-[#f07030] transition-colors flex items-center justify-center gap-1.5">
+      <span class="mat text-lg">bolt</span>Start Daily Quest
+    </button>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="flex-1 overflow-x-hidden">
+
+    <!-- HERO -->
+    <section class="px-10 py-12 relative overflow-hidden" style="background:linear-gradient(135deg,#f8f9ff 0%,#eff4ff 100%)">
+      <div class="absolute top-0 right-0 w-96 h-96 rounded-full opacity-40" style="background:radial-gradient(circle,#e5eeff,transparent);transform:translate(30%,-30%)"></div>
+      <div class="flex gap-12 items-center">
+        <!-- Left content -->
+        <div class="flex-1 max-w-xl">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#22c55e]/15 text-[#006e2f] rounded-full text-xs font-semibold mb-5">
+            <span class="matf text-sm text-[#22c55e]">emoji_events</span>Level 12 Achieved! ✨
+          </span>
+          <h1 class="qs font-bold text-5xl leading-[1.15] text-[#0b1c30] mb-4">
+            Your Learning<br><span class="text-[#0058be]">Superpower!</span>
+          </h1>
+          <p class="text-[#3d4a3d] text-lg leading-relaxed mb-8 max-w-md">Unleash your potential with EduSpark's tactile learning experience. Master new subjects through high-energy challenges and interactive quests designed just for you.</p>
+          <div class="flex items-center gap-3">
+            <a href="practice.html">
+              <button class="btn-3d px-7 py-3.5 bg-[#006e2f] text-white qs font-bold rounded-xl hover:bg-[#005828] transition-colors flex items-center gap-2 text-[15px]">
+                Let's Start Learning <span class="mat text-xl">rocket_launch</span>
+              </button>
+            </a>
+            <button class="px-7 py-3.5 border-2 border-[#bccbb9] text-[#3d4a3d] qs font-bold rounded-xl hover:bg-[#e5eeff] hover:border-[#adc6ff] transition-all text-[15px]">
+              View Curriculum
+            </button>
+          </div>
+        </div>
+        <!-- Right illustration -->
+        <div class="hidden lg:flex flex-1 items-center justify-center relative min-h-[340px]">
+          <div class="float-slow w-72 h-64 rounded-3xl border border-white/40 relative overflow-hidden flex items-center justify-center" style="background:linear-gradient(145deg,#1a2d4d,#0b1c30);box-shadow:0 20px 60px rgba(0,30,80,.3)">
+            <span class="mat text-white/20 text-8xl" style="font-variation-settings:'FILL' 0,'wght' 200,'GRAD' 0,'opsz' 48">person_play</span>
+            <p class="absolute bottom-4 text-white/30 text-xs tracking-widest font-mono">[ student illustration ]</p>
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#22c55e] to-[#4ae176]"></div>
+          </div>
+          <!-- Floating streak card -->
+          <div class="float-fast absolute left-0 top-1/4 bg-white rounded-xl px-3.5 py-2.5 flex items-center gap-2.5" style="box-shadow:0 8px 24px rgba(0,88,190,.16)">
+            <div class="w-9 h-9 bg-[#006e2f] rounded-xl flex items-center justify-center">
+              <span class="matf text-white text-lg">bolt</span>
+            </div>
+            <div>
+              <p class="text-[10px] font-bold text-[#3d4a3d] uppercase tracking-wide">Daily Streak</p>
+              <p class="font-bold text-[#006e2f] text-sm qs">5 Days</p>
+            </div>
+          </div>
+          <!-- Floating XP card -->
+          <div class="float-slow absolute right-0 bottom-1/4 bg-white rounded-xl px-3.5 py-2.5 flex items-center gap-2.5" style="box-shadow:0 8px 24px rgba(0,88,190,.16)">
+            <div class="w-9 h-9 bg-[#ff8e4d] rounded-xl flex items-center justify-center">
+              <span class="matf text-white text-lg">star</span>
+            </div>
+            <div>
+              <p class="text-[10px] font-bold text-[#3d4a3d] uppercase tracking-wide">XP Earned</p>
+              <p class="font-bold text-[#9d4300] text-sm qs">2,450</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TOOLS BENTO GRID -->
+    <section class="px-10 py-12">
+      <div class="text-center mb-10">
+        <h2 class="qs font-bold text-3xl text-[#0b1c30] mb-2">Unlock Your Tools</h2>
+        <p class="text-[#3d4a3d]">Everything you need to master your education in one place.</p>
+      </div>
+      <div class="grid grid-cols-12 gap-5">
+        <!-- Daily Practice - large -->
+        <a href="practice.html" class="col-span-8 card p-7 hover:shadow-lg transition-all group flex gap-8 items-center no-underline" style="background:linear-gradient(135deg,#f8f9ff 0%,#eff4ff 100%)">
+          <div class="flex-1">
+            <div class="w-12 h-12 bg-[#006e2f] rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <span class="mat text-white text-2xl">quiz</span>
+            </div>
+            <h3 class="qs font-bold text-xl text-[#0b1c30] mb-2">Daily Practice</h3>
+            <p class="text-[#3d4a3d] text-sm leading-relaxed mb-4">Interactive quizzes that adapt to your level. Earn badges and climb the leaderboard while mastering core concepts through gamified challenges.</p>
+            <span class="inline-flex items-center gap-1 text-[#006e2f] font-bold text-sm group-hover:gap-2 transition-all">Take a Quiz <span class="mat text-lg">arrow_forward</span></span>
+          </div>
+          <div class="w-44 h-32 rounded-2xl bg-[#0b1c30] flex items-center justify-center border border-[#e5eeff] overflow-hidden">
+            <span class="mat text-white/20 text-6xl" style="font-variation-settings:'FILL' 0,'wght' 200,'GRAD' 0,'opsz' 48">quiz</span>
+          </div>
+        </a>
+        <!-- Deep Research -->
+        <a href="research.html" class="col-span-4 card p-7 hover:shadow-lg transition-all group no-underline" style="background:linear-gradient(135deg,#eff4ff 0%,#dce9ff 100%)">
+          <div class="w-12 h-12 bg-[#0058be] rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <span class="mat text-white text-2xl">library_books</span>
+          </div>
+          <h3 class="qs font-bold text-xl text-[#0b1c30] mb-2">Deep Research</h3>
+          <p class="text-[#3d4a3d] text-sm leading-relaxed mb-4">Access our curated digital library with thousands of peer-reviewed articles, interactive 3D models, and historical archives.</p>
+          <div class="w-full h-20 bg-white/80 rounded-xl border border-[#bccbb9] flex items-center justify-center">
+            <span class="mat text-[#0058be]/30 text-4xl">search</span>
+          </div>
+        </a>
+        <!-- Assignment Mastery -->
+        <a href="assignments.html" class="col-span-4 card p-7 hover:shadow-lg transition-all group no-underline" style="background:linear-gradient(135deg,#ffdbca 0%,#ffb690 30%,#fff4f0 100%)">
+          <div class="w-12 h-12 bg-[#9d4300] rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <span class="mat text-white text-2xl">task_alt</span>
+          </div>
+          <h3 class="qs font-bold text-xl text-[#0b1c30] mb-2">Assignment Mastery</h3>
+          <p class="text-[#3d4a3d] text-sm leading-relaxed">Intelligent organization tools that break down large projects into manageable steps with automatic reminders.</p>
+        </a>
+        <!-- Activity Analysis -->
+        <div class="col-span-8 card p-7 hover:shadow-lg transition-all">
+          <div class="flex justify-between items-start mb-5">
+            <div>
+              <h3 class="qs font-bold text-xl text-[#0b1c30]">Activity Analysis</h3>
+              <p class="text-[#3d4a3d] text-sm mt-1">See your learning growth across all subjects in real-time.</p>
+            </div>
+            <span class="mat text-[#006e2f] text-3xl">trending_up</span>
+          </div>
+          <!-- Mini bar chart -->
+          <div class="flex items-end gap-2 h-20">
+            <div class="flex-1 bg-[#22c55e]/40 rounded-t-lg" style="height:55%"></div>
+            <div class="flex-1 bg-[#22c55e] rounded-t-lg" style="height:80%"></div>
+            <div class="flex-1 bg-[#22c55e]/60 rounded-t-lg" style="height:65%"></div>
+            <div class="flex-1 bg-[#22c55e] rounded-t-lg" style="height:100%"></div>
+            <div class="flex-1 bg-[#22c55e]/80 rounded-t-lg" style="height:88%"></div>
+          </div>
+          <div class="flex gap-2 mt-2 text-xs text-[#6d7b6c]">
+            <span class="flex-1 text-center">Mon</span>
+            <span class="flex-1 text-center">Tue</span>
+            <span class="flex-1 text-center">Wed</span>
+            <span class="flex-1 text-center">Thu</span>
+            <span class="flex-1 text-center">Fri</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RECENT ACTIVITY -->
+    <section class="px-10 py-10 bg-[#eff4ff]">
+      <div class="flex justify-between items-end mb-7">
+        <div>
+          <h2 class="qs font-bold text-3xl text-[#0b1c30]">Recent Activity</h2>
+          <p class="text-[#3d4a3d] mt-1">You've been busy! Here's what you've accomplished lately.</p>
+        </div>
+        <button class="text-[#0058be] font-bold text-sm hover:underline">View Full History</button>
+      </div>
+      <div class="flex flex-col gap-3">
+        <!-- Item 1 -->
+        <div class="bg-white rounded-2xl px-5 py-4 border border-[#e5eeff] flex items-center gap-4 hover:translate-x-1 transition-transform" style="box-shadow:0 1px 4px rgba(0,88,190,.05)">
+          <div class="w-12 h-12 bg-[#22c55e]/15 rounded-full flex items-center justify-center shrink-0">
+            <span class="mat text-[#006e2f] text-xl">calculate</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex justify-between items-center mb-2">
+              <h4 class="font-semibold text-sm text-[#0b1c30]">Mathematics Quiz: Algebra Basics</h4>
+              <span class="text-xs text-[#6d7b6c] shrink-0 ml-4">2 hours ago</span>
+            </div>
+            <div class="w-full h-2 bg-[#e5eeff] rounded-full overflow-hidden mb-1">
+              <div class="bg-[#006e2f] h-full rounded-full" style="width:85%;background:linear-gradient(90deg,#006e2f,#22c55e)"></div>
+            </div>
+            <p class="text-xs font-bold text-[#006e2f]">Score: 85% — Gold Medal Earned! 🥇</p>
+          </div>
+        </div>
+        <!-- Item 2 -->
+        <div class="bg-white rounded-2xl px-5 py-4 border border-[#e5eeff] flex items-center gap-4 hover:translate-x-1 transition-transform" style="box-shadow:0 1px 4px rgba(0,88,190,.05)">
+          <div class="w-12 h-12 bg-[#0058be]/10 rounded-full flex items-center justify-center shrink-0">
+            <span class="mat text-[#0058be] text-xl">biotech</span>
+          </div>
+          <div class="flex-1">
+            <div class="flex justify-between items-center mb-1">
+              <h4 class="font-semibold text-sm text-[#0b1c30]">Science Research: The Carbon Cycle</h4>
+              <span class="text-xs text-[#6d7b6c]">Yesterday</span>
+            </div>
+            <p class="text-sm text-[#3d4a3d]">Saved 4 new sources to your Research Vault.</p>
+          </div>
+          <a href="research.html" class="shrink-0 px-4 py-1.5 bg-[#d8e2ff] text-[#0058be] rounded-full text-xs font-bold hover:bg-[#adc6ff] transition-colors no-underline">Continue</a>
+        </div>
+        <!-- Item 3 -->
+        <div class="bg-white rounded-2xl px-5 py-4 border border-[#e5eeff] flex items-center gap-4 hover:translate-x-1 transition-transform" style="box-shadow:0 1px 4px rgba(0,88,190,.05)">
+          <div class="w-12 h-12 bg-[#ffdbca] rounded-full flex items-center justify-center shrink-0">
+            <span class="mat text-[#9d4300] text-xl">history_edu</span>
+          </div>
+          <div class="flex-1">
+            <div class="flex justify-between items-center mb-1">
+              <h4 class="font-semibold text-sm text-[#0b1c30]">English Essay: Shakespearean Themes</h4>
+              <span class="text-xs text-[#6d7b6c]">Oct 24, 2023</span>
+            </div>
+            <p class="text-sm text-[#3d4a3d]">Assignment draft 100% completed. Ready to submit.</p>
+          </div>
+          <span class="matf text-[#006e2f] text-2xl shrink-0">check_circle</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA SECTION -->
+    <section class="px-10 py-12">
+      <div class="rounded-[2rem] p-12 relative overflow-hidden text-center" style="background:linear-gradient(135deg,#004d21 0%,#006e2f 60%,#008038 100%)">
+        <div class="absolute top-0 right-0 w-72 h-72 rounded-full opacity-10" style="background:radial-gradient(circle,#fff,transparent);transform:translate(30%,-30%)"></div>
+        <div class="absolute bottom-0 left-0 w-56 h-56 rounded-full opacity-10" style="background:radial-gradient(circle,#6bff8f,transparent);transform:translate(-30%,30%)"></div>
+        <h2 class="qs font-bold text-4xl text-white mb-3 relative z-10">Ready to Level Up Your Grades?</h2>
+        <p class="text-white/75 text-lg max-w-2xl mx-auto mb-8 relative z-10">Join over 50,000 students who are already using EduSpark to transform their learning journey.</p>
+        <div class="flex justify-center gap-4 relative z-10">
+          <a href="index.html"><button class="btn-3d px-8 py-3.5 bg-white text-[#006e2f] qs font-bold rounded-xl hover:bg-[#eff4ff] transition-colors">Create Free Account</button></a>
+          <button class="px-8 py-3.5 border-2 border-white/30 text-white qs font-bold rounded-xl hover:bg-white/10 transition-all">Talk to an Advisor</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-[#d3e4fe] border-t border-[#bccbb9] px-10 py-8">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-5">
+        <span class="qs font-bold text-xl text-[#006e2f]">EduSpark</span>
+        <div class="flex flex-wrap justify-center gap-6">
+          <a href="#" class="text-sm text-[#3d4a3d] hover:text-[#0058be] transition-colors no-underline">Terms of Service</a>
+          <a href="#" class="text-sm text-[#3d4a3d] hover:text-[#0058be] transition-colors no-underline">Help Center</a>
+          <a href="#" class="text-sm text-[#3d4a3d] hover:text-[#0058be] transition-colors no-underline">Privacy Policy</a>
+          <a href="#" class="text-sm text-[#3d4a3d] hover:text-[#0058be] transition-colors no-underline">Contact Support</a>
+        </div>
+      </div>
+      <p class="text-center text-xs text-[#6d7b6c] mt-5">© 2024 EduSpark Learning. All rights reserved.</p>
+    </footer>
+  </main>
+</div>
+
+<script>
+document.addEventListener('click', function(e) {
+  const menu = document.getElementById('umenu');
+  if (!menu.contains(e.target) && !e.target.closest('[onclick]')) menu.classList.add('hidden');
+});
+</script>
+</body>
+</html>

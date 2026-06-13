@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduPulse — Analytics Overview</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#f8f9ff;color:#0b1c30;display:flex;min-height:100vh}
+.qs{font-family:'Quicksand',sans-serif}.mat{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;vertical-align:middle;font-family:'Material Symbols Outlined'}
+.matf{font-variation-settings:'FILL' 1,'wght' 600,'GRAD' 0,'opsz' 24;vertical-align:middle;font-family:'Material Symbols Outlined'}
+.btn-3d{box-shadow:0 4px 0 rgba(0,80,0,.22);transition:transform .1s,box-shadow .1s}.btn-3d:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,80,0,.22)}
+.adm-link{display:flex;align-items:center;gap:.625rem;padding:.65rem .875rem;border-radius:.75rem;font-size:.875rem;color:#3d4a3d;text-decoration:none;transition:all .15s;font-weight:500}
+.adm-link:hover{background:#eff4ff;color:#0058be}.adm-link.active{background:#0058be;color:#fff;font-weight:600}
+.adm-link.active .mat{color:#fff}
+.top-nav-link{font-size:.875rem;font-weight:600;color:#3d4a3d;text-decoration:none;padding:.5rem .25rem;border-bottom:2px solid transparent;transition:all .15s}
+.top-nav-link:hover{color:#0058be}.top-nav-link.active{color:#006e2f;border-bottom-color:#006e2f}
+.card{background:#fff;border:1px solid #e5eeff;border-radius:1.25rem;box-shadow:0 1px 3px rgba(0,88,190,.05),0 4px 12px rgba(0,88,190,.06)}
+.kpi-icon{width:2.5rem;height:2.5rem;border-radius:.875rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.trend-up{display:inline-flex;align-items:center;gap:.25rem;font-size:.75rem;font-weight:700;color:#006e2f;background:#22c55e18;padding:.2rem .5rem;border-radius:9999px}
+.bar-fill{height:100%;border-radius:9999px;transition:width .5s ease}
+</style>
+</head>
+<body>
+
+<!-- ADMIN SIDEBAR -->
+<aside class="w-60 shrink-0 bg-white border-r border-[#e5eeff] min-h-screen sticky top-0 flex flex-col py-6 px-4" style="box-shadow:2px 0 8px rgba(0,88,190,.04)">
+  <div class="flex items-center gap-3 mb-8 px-2">
+    <div class="w-10 h-10 bg-[#006e2f] rounded-2xl flex items-center justify-center shadow-md">
+      <span class="matf text-white text-xl">school</span>
+    </div>
+    <div>
+      <p class="qs font-bold text-[17px] text-[#006e2f] leading-none">Admin Portal</p>
+      <p class="text-[#6d7b6c] text-[11px] mt-0.5">System Management</p>
+    </div>
+  </div>
+  <nav class="flex flex-col gap-0.5 flex-1">
+    <a href="admin-analytics.html" class="adm-link active"><span class="mat">dashboard</span>Overview</a>
+    <a href="#" class="adm-link"><span class="mat text-[#6d7b6c]">trending_up</span>Student Progress</a>
+    <a href="#" class="adm-link"><span class="mat text-[#6d7b6c]">account_balance_wallet</span>Financials</a>
+    <a href="admin-users.html" class="adm-link"><span class="mat text-[#6d7b6c]">manage_accounts</span>User Management</a>
+    <a href="#" class="adm-link"><span class="mat text-[#6d7b6c]">library_books</span>Content Library</a>
+    <a href="#" class="adm-link"><span class="mat text-[#6d7b6c]">settings</span>Settings</a>
+  </nav>
+  <div class="mt-6 flex flex-col gap-2">
+    <button class="btn-3d w-full py-3 bg-[#006e2f] text-white qs font-bold rounded-xl text-sm hover:bg-[#005828] transition-colors flex items-center justify-center gap-2">
+      <span class="mat text-lg">add_chart</span>Generate Report
+    </button>
+    <a href="index.html" class="adm-link text-[#ba1a1a] hover:bg-[#fff4f4]"><span class="mat text-[#ba1a1a]">logout</span>Sign Out</a>
+  </div>
+</aside>
+
+<!-- RIGHT -->
+<div class="flex-1 flex flex-col">
+
+  <!-- Top Nav -->
+  <nav class="h-16 bg-white border-b border-[#e5eeff] flex items-center justify-between px-8 sticky top-0 z-40" style="box-shadow:0 2px 8px rgba(0,88,190,.04)">
+    <div class="flex items-center gap-8">
+      <span class="qs font-bold text-lg text-[#006e2f]">EduPulse</span>
+      <div class="flex items-center gap-6">
+        <a href="#" class="top-nav-link active">Dashboard</a>
+        <a href="#" class="top-nav-link">Support</a>
+        <a href="#" class="top-nav-link">Help Center</a>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <div class="relative flex items-center">
+        <span class="mat absolute left-3 text-[#6d7b6c] text-lg pointer-events-none">search</span>
+        <input type="text" placeholder="Search analytics..." class="pl-9 pr-4 py-2 border border-[#bccbb9] rounded-full text-sm bg-[#f8f9ff] w-44 transition-colors" style="outline:none;font-family:inherit">
+      </div>
+      <button class="relative w-9 h-9 rounded-full hover:bg-[#eff4ff] flex items-center justify-center text-[#3d4a3d]">
+        <span class="mat">notifications</span>
+        <span class="absolute top-1 right-1 w-4 h-4 bg-[#ba1a1a] rounded-full text-[9px] text-white font-bold flex items-center justify-center">3</span>
+      </button>
+      <div class="flex items-center gap-2 ml-1">
+        <div class="w-9 h-9 rounded-full bg-[#213145] border-2 border-[#adc6ff] overflow-hidden flex items-center justify-center font-bold text-white text-xs qs">AR</div>
+        <div>
+          <p class="text-sm font-semibold leading-none">Alex Rivera</p>
+          <p class="text-[10px] text-[#6d7b6c] mt-0.5">SYSTEM ADMIN</p>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="flex-1 p-8">
+
+    <!-- Page header -->
+    <div class="mb-7">
+      <h1 class="qs font-bold text-[32px] text-[#0b1c30]">Analytics Overview</h1>
+    </div>
+
+    <!-- KPI CARDS -->
+    <div class="grid grid-cols-4 gap-5 mb-6">
+      <!-- Total Students -->
+      <div class="card p-5">
+        <div class="flex items-start gap-3 mb-3">
+          <div class="kpi-icon bg-[#eff4ff]"><span class="mat text-[#0058be] text-xl">group</span></div>
+          <div class="flex-1">
+            <p class="text-xs text-[#6d7b6c] font-medium mb-0.5">Total Active Students</p>
+            <p class="qs font-bold text-2xl text-[#0b1c30]">12,482</p>
+          </div>
+        </div>
+        <span class="trend-up"><span class="matf text-sm">trending_up</span>+8.4%</span>
+      </div>
+      <!-- Completion Rate -->
+      <div class="card p-5">
+        <div class="flex items-start gap-3 mb-3">
+          <div class="kpi-icon bg-[#22c55e]/12"><span class="mat text-[#006e2f] text-xl">task_alt</span></div>
+          <div class="flex-1">
+            <p class="text-xs text-[#6d7b6c] font-medium mb-0.5">Completion Rate</p>
+            <p class="qs font-bold text-2xl text-[#0b1c30]">76.2%</p>
+          </div>
+        </div>
+        <div class="w-full h-2 bg-[#e5eeff] rounded-full overflow-hidden">
+          <div class="bar-fill bg-[#006e2f]" style="width:76.2%"></div>
+        </div>
+      </div>
+      <!-- Revenue -->
+      <div class="card p-5">
+        <div class="flex items-start gap-3 mb-3">
+          <div class="kpi-icon bg-[#ffdbca]"><span class="mat text-[#9d4300] text-xl">payments</span></div>
+          <div class="flex-1">
+            <p class="text-xs text-[#6d7b6c] font-medium mb-0.5">Platform Revenue</p>
+            <p class="qs font-bold text-2xl text-[#0b1c30]">$48,290</p>
+          </div>
+        </div>
+        <span class="trend-up"><span class="matf text-sm">trending_up</span>+12.1%</span>
+      </div>
+      <!-- Engagement -->
+      <div class="card p-5">
+        <div class="flex items-start gap-3 mb-3">
+          <div class="kpi-icon bg-[#e5eeff]"><span class="mat text-[#0058be] text-xl">bolt</span></div>
+          <div class="flex-1">
+            <p class="text-xs text-[#6d7b6c] font-medium mb-0.5">Engagement Score</p>
+            <p class="qs font-bold text-2xl text-[#0b1c30]">8.4/10</p>
+          </div>
+        </div>
+        <span class="inline-flex items-center gap-1 text-xs font-bold text-[#0058be] bg-[#eff4ff] px-2.5 py-1 rounded-full">High Activity</span>
+      </div>
+    </div>
+
+    <!-- ENGAGEMENT TRENDS + OVERALL ENGAGEMENT -->
+    <div class="grid grid-cols-3 gap-5 mb-5">
+
+      <!-- Engagement Trends Chart -->
+      <div class="col-span-2 card p-6">
+        <div class="flex items-start justify-between mb-5">
+          <div>
+            <h2 class="qs font-bold text-lg text-[#0b1c30]">Student Engagement Trends (Last 30 Days)</h2>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="flex items-center gap-1.5 px-3 py-1.5 border border-[#bccbb9] rounded-lg text-xs font-semibold text-[#3d4a3d] hover:bg-[#eff4ff] transition-colors">
+              <span class="mat text-base">calendar_month</span>Oct 1 – Oct 31
+            </button>
+            <button class="px-3 py-1.5 bg-[#006e2f] text-white rounded-lg text-xs font-bold hover:bg-[#005828] transition-colors">Export PDF</button>
+          </div>
+        </div>
+
+        <!-- SVG Chart -->
+        <div class="relative">
+          <svg viewBox="0 0 600 180" class="w-full" style="overflow:visible">
+            <defs>
+              <linearGradient id="blueGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#0058be" stop-opacity="0.18"/>
+                <stop offset="100%" stop-color="#0058be" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <!-- Grid lines -->
+            <line x1="0" y1="36" x2="600" y2="36" stroke="#f0f4ff" stroke-width="1"/>
+            <line x1="0" y1="72" x2="600" y2="72" stroke="#f0f4ff" stroke-width="1"/>
+            <line x1="0" y1="108" x2="600" y2="108" stroke="#f0f4ff" stroke-width="1"/>
+            <line x1="0" y1="144" x2="600" y2="144" stroke="#f0f4ff" stroke-width="1"/>
+            <!-- Y labels -->
+            <text x="-6" y="40" text-anchor="end" font-size="11" fill="#bccbb9" font-family="Inter">2k</text>
+            <text x="-6" y="76" text-anchor="end" font-size="11" fill="#bccbb9" font-family="Inter">1.5k</text>
+            <text x="-6" y="112" text-anchor="end" font-size="11" fill="#bccbb9" font-family="Inter">1k</text>
+            <text x="-6" y="148" text-anchor="end" font-size="11" fill="#bccbb9" font-family="Inter">0.5k</text>
+            <!-- Area fill (blue) -->
+            <path d="M0,122 C30,118 60,110 120,97 C160,88 200,107 240,99 C280,90 320,83 400,67 C422,56 440,36 460,14 C476,22 495,44 540,59 C565,68 580,76 600,81 L600,180 L0,180 Z" fill="url(#blueGrad)"/>
+            <!-- Blue line -->
+            <path d="M0,122 C30,118 60,110 120,97 C160,88 200,107 240,99 C280,90 320,83 400,67 C422,56 440,36 460,14 C476,22 495,44 540,59 C565,68 580,76 600,81" fill="none" stroke="#0058be" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+            <!-- Green dashed target line -->
+            <path d="M0,130 C100,126 200,120 300,114 C400,108 500,100 600,95" fill="none" stroke="#006e2f" stroke-width="2" stroke-dasharray="6,4"/>
+            <!-- Tooltip dot at peak (Oct 24) -->
+            <circle cx="460" cy="14" r="5" fill="#0058be" stroke="white" stroke-width="2"/>
+            <!-- Tooltip box -->
+            <rect x="465" y="0" width="130" height="50" rx="8" fill="white" stroke="#e5eeff" stroke-width="1" filter="url(#shadow)"/>
+            <text x="473" y="16" font-size="10" fill="#6d7b6c" font-family="Inter" font-weight="600">Oct 24, 2024</text>
+            <circle cx="473" cy="28" r="3.5" fill="#0058be"/>
+            <text x="481" y="32" font-size="10" fill="#0b1c30" font-family="Inter"><tspan font-weight="600">Active: </tspan>1,842</text>
+            <circle cx="473" cy="40" r="3.5" fill="#006e2f"/>
+            <text x="481" y="44" font-size="10" fill="#0b1c30" font-family="Inter"><tspan font-weight="600">Target: </tspan>1,500</text>
+            <!-- X labels -->
+            <text x="0" y="172" text-anchor="middle" font-size="11" fill="#bccbb9" font-family="Inter">Oct 01</text>
+            <text x="120" y="172" text-anchor="middle" font-size="11" fill="#bccbb9" font-family="Inter">Oct 07</text>
+            <text x="260" y="172" text-anchor="middle" font-size="11" fill="#bccbb9" font-family="Inter">Oct 14</text>
+            <text x="400" y="172" text-anchor="middle" font-size="11" fill="#bccbb9" font-family="Inter">Oct 21</text>
+            <text x="540" y="172" text-anchor="middle" font-size="11" fill="#bccbb9" font-family="Inter">Oct 28</text>
+            <text x="600" y="172" text-anchor="middle" font-size="11" fill="#bccbb9" font-family="Inter">Oct 31</text>
+          </svg>
+          <!-- Legend -->
+          <div class="flex items-center gap-5 mt-3 text-xs font-medium text-[#6d7b6c]">
+            <span class="flex items-center gap-1.5"><span class="w-4 h-0.5 bg-[#0058be] inline-block rounded"></span>Active Users</span>
+            <span class="flex items-center gap-1.5"><span class="w-4 h-0.5 inline-block rounded" style="background:#006e2f;border-top:2px dashed #006e2f"></span>Target</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overall Engagement -->
+      <div class="card p-6 flex flex-col">
+        <h2 class="qs font-bold text-lg text-[#0b1c30] mb-5">Overall Engagement</h2>
+        <!-- Donut chart -->
+        <div class="flex flex-col items-center justify-center flex-1">
+          <div class="relative mb-4">
+            <svg viewBox="0 0 120 120" class="w-36 h-36">
+              <circle cx="60" cy="60" r="46" fill="none" stroke="#dce9ff" stroke-width="10"/>
+              <circle cx="60" cy="60" r="46" fill="none" stroke="#0058be" stroke-width="10"
+                stroke-dasharray="251.4 289.0" stroke-dashoffset="72.3" stroke-linecap="round"
+                transform="rotate(-90 60 60)"/>
+              <text x="60" y="56" text-anchor="middle" font-family="Quicksand" font-size="24" font-weight="700" fill="#0b1c30">87%</text>
+              <text x="60" y="72" text-anchor="middle" font-family="Inter" font-size="10" fill="#6d7b6c">Engaged</text>
+            </svg>
+          </div>
+          <span class="trend-up text-sm mb-5"><span class="matf text-sm">trending_up</span>↑ 3.2% this month</span>
+          <div class="w-full flex flex-col gap-2.5">
+            <div class="flex items-center justify-between px-4 py-3 bg-[#f8f9ff] rounded-xl border border-[#e5eeff]">
+              <span class="text-sm text-[#3d4a3d]">Avg. Session Time</span>
+              <span class="qs font-bold text-sm text-[#0b1c30]">24m 12s</span>
+            </div>
+            <div class="flex items-center justify-between px-4 py-3 bg-[#f8f9ff] rounded-xl border border-[#e5eeff]">
+              <span class="text-sm text-[#3d4a3d]">Bounce Rate</span>
+              <span class="qs font-bold text-sm text-[#006e2f]">12.4%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMPLETION RATES + SYSTEM ALERTS -->
+    <div class="grid grid-cols-2 gap-5">
+
+      <!-- Completion by subject -->
+      <div class="card p-6">
+        <div class="flex justify-between items-center mb-5">
+          <h2 class="qs font-bold text-lg text-[#0b1c30]">Completion Rate by Subject</h2>
+          <button class="w-8 h-8 rounded-lg hover:bg-[#eff4ff] flex items-center justify-center transition-colors"><span class="mat text-[#3d4a3d]">more_vert</span></button>
+        </div>
+        <div class="flex flex-col gap-4">
+          <!-- Math -->
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <span class="text-sm font-medium text-[#0b1c30]">Advanced Mathematics</span>
+              <span class="text-sm font-bold text-[#006e2f]">92%</span>
+            </div>
+            <div class="h-3 bg-[#e5eeff] rounded-full overflow-hidden">
+              <div class="bar-fill" style="width:92%;background:linear-gradient(90deg,#006e2f,#22c55e)"></div>
+            </div>
+          </div>
+          <!-- Physics -->
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <span class="text-sm font-medium text-[#0b1c30]">Quantum Physics</span>
+              <span class="text-sm font-bold text-[#0058be]">74%</span>
+            </div>
+            <div class="h-3 bg-[#e5eeff] rounded-full overflow-hidden">
+              <div class="bar-fill bg-[#0058be]" style="width:74%"></div>
+            </div>
+          </div>
+          <!-- Literature -->
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <span class="text-sm font-medium text-[#0b1c30]">World Literature</span>
+              <span class="text-sm font-bold text-[#9d4300]">88%</span>
+            </div>
+            <div class="h-3 bg-[#e5eeff] rounded-full overflow-hidden">
+              <div class="bar-fill" style="width:88%;background:linear-gradient(90deg,#9d4300,#ff8e4d)"></div>
+            </div>
+          </div>
+          <!-- Macroeconomics -->
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <span class="text-sm font-medium text-[#0b1c30]">Macroeconomics</span>
+              <span class="text-sm font-bold text-[#006e2f]">61%</span>
+            </div>
+            <div class="h-3 bg-[#e5eeff] rounded-full overflow-hidden">
+              <div class="bar-fill" style="width:61%;background:linear-gradient(90deg,#006e2f,#22c55e)"></div>
+            </div>
+          </div>
+          <!-- History -->
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <span class="text-sm font-medium text-[#0b1c30]">World History</span>
+              <span class="text-sm font-bold text-[#0058be]">79%</span>
+            </div>
+            <div class="h-3 bg-[#e5eeff] rounded-full overflow-hidden">
+              <div class="bar-fill bg-[#0058be]" style="width:79%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- System Alerts -->
+      <div class="card p-6">
+        <div class="flex justify-between items-center mb-5">
+          <h2 class="qs font-bold text-lg text-[#0b1c30]">System Alerts</h2>
+          <button class="text-[#0058be] text-sm font-semibold hover:underline">View All</button>
+        </div>
+        <div class="flex flex-col gap-3">
+          <!-- Alert 1: Warning -->
+          <div class="flex items-start gap-4 p-4 rounded-xl border border-[#ffdad6] bg-[#fff8f8]" style="border-left:4px solid #ba1a1a">
+            <div class="w-9 h-9 bg-[#ffdad6] rounded-xl flex items-center justify-center shrink-0 mt-0.5">
+              <span class="mat text-[#ba1a1a] text-lg">warning</span>
+            </div>
+            <div>
+              <p class="font-semibold text-sm text-[#0b1c30] mb-0.5">Server spike detected</p>
+              <p class="text-xs text-[#3d4a3d] leading-relaxed">Latency increased by 40% in Western Node</p>
+              <p class="text-[10px] text-[#6d7b6c] mt-1.5 font-medium">2 minutes ago</p>
+            </div>
+          </div>
+          <!-- Alert 2: Success -->
+          <div class="flex items-start gap-4 p-4 rounded-xl border border-[#d3e4fe] bg-[#f8fbff]" style="border-left:4px solid #006e2f">
+            <div class="w-9 h-9 bg-[#22c55e]/15 rounded-xl flex items-center justify-center shrink-0 mt-0.5">
+              <span class="matf text-[#006e2f] text-lg">check_circle</span>
+            </div>
+            <div>
+              <p class="font-semibold text-sm text-[#0b1c30] mb-0.5">Batch course update successful</p>
+              <p class="text-xs text-[#3d4a3d] leading-relaxed">42 courses synchronized with CDN</p>
+              <p class="text-[10px] text-[#6d7b6c] mt-1.5 font-medium">1 hour ago</p>
+            </div>
+          </div>
+          <!-- Alert 3: Info -->
+          <div class="flex items-start gap-4 p-4 rounded-xl border border-[#dce9ff] bg-[#f8f9ff]" style="border-left:4px solid #0058be">
+            <div class="w-9 h-9 bg-[#eff4ff] rounded-xl flex items-center justify-center shrink-0 mt-0.5">
+              <span class="mat text-[#0058be] text-lg">info</span>
+            </div>
+            <div>
+              <p class="font-semibold text-sm text-[#0b1c30] mb-0.5">Scheduled maintenance upcoming</p>
+              <p class="text-xs text-[#3d4a3d] leading-relaxed">System downtime planned for Nov 15, 2:00 AM UTC</p>
+              <p class="text-[10px] text-[#6d7b6c] mt-1.5 font-medium">3 hours ago</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FAB -->
+    <button class="fixed bottom-8 right-8 w-14 h-14 bg-[#0058be] text-white rounded-2xl shadow-xl flex items-center justify-center hover:bg-[#004da8] hover:scale-105 transition-all z-40" style="box-shadow:0 8px 24px rgba(0,88,190,.35)">
+      <span class="mat text-2xl">add</span>
+    </button>
+
+  </main>
+</div>
+</body>
+</html>

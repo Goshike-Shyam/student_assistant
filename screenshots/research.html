@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduSpark — Discover Knowledge</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#f8f9ff;color:#0b1c30}
+.qs{font-family:'Quicksand',sans-serif}.mat{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;vertical-align:middle;font-family:'Material Symbols Outlined'}
+.matf{font-variation-settings:'FILL' 1,'wght' 600,'GRAD' 0,'opsz' 24;vertical-align:middle;font-family:'Material Symbols Outlined'}
+.btn-3d{box-shadow:0 4px 0 rgba(0,80,0,.22);transition:transform .1s,box-shadow .1s}.btn-3d:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,80,0,.22)}
+.card{background:#fff;border:1px solid #e5eeff;border-radius:1.25rem;box-shadow:0 1px 3px rgba(0,88,190,.05),0 4px 12px rgba(0,88,190,.06)}
+.nav-link{display:flex;align-items:center;padding:.4rem .85rem;border-radius:.6rem;font-size:.875rem;font-weight:600;color:#3d4a3d;text-decoration:none;transition:all .15s;white-space:nowrap}
+.nav-link:hover{background:#eff4ff;color:#0058be}.nav-link.active{color:#006e2f;border-bottom:2px solid #006e2f;border-radius:0;padding-bottom:.3rem}
+.sub-link{display:flex;align-items:center;gap:.625rem;padding:.6rem .75rem;border-radius:.75rem;font-size:.875rem;color:#3d4a3d;text-decoration:none;transition:all .15s;font-weight:500}
+.sub-link:hover{background:#eff4ff;color:#0058be}.sub-link.active{background:#eff4ff;color:#0058be;font-weight:600}
+.cat-card{position:relative;border-radius:1.25rem;overflow:hidden;height:180px;cursor:pointer;transition:transform .2s,box-shadow .2s}
+.cat-card:hover{transform:translateY(-3px);box-shadow:0 12px 36px rgba(0,30,80,.18)}
+.cat-card .overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(10,20,40,.8) 0%,rgba(10,20,40,.2) 60%,transparent 100%)}
+.cat-card .label{position:absolute;bottom:0;left:0;right:0;padding:1rem 1.25rem;color:#fff}
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="fixed top-0 left-0 right-0 z-50 h-16 bg-white border-b border-[#e5eeff] flex items-center justify-between px-10" style="box-shadow:0 2px 12px rgba(0,88,190,.06)">
+  <div class="flex items-center gap-10">
+    <a href="index.html" class="qs font-bold text-[22px] text-[#006e2f] no-underline">EduSpark</a>
+    <div class="flex items-center gap-0.5">
+      <a href="student-home.html" class="nav-link">Home</a>
+      <a href="practice.html" class="nav-link">Practice</a>
+      <a href="research.html" class="nav-link active">Research</a>
+      <a href="assignments.html" class="nav-link">Assignments</a>
+    </div>
+  </div>
+  <div class="flex items-center gap-2">
+    <div class="relative flex items-center">
+      <span class="mat absolute left-3 text-[#6d7b6c] text-xl pointer-events-none">search</span>
+      <input type="text" placeholder="Search courses..." class="pl-10 pr-4 py-2 border border-[#bccbb9] rounded-full text-sm bg-[#f8f9ff] focus:border-[#0058be] transition-colors w-48" style="outline:none;font-family:inherit">
+    </div>
+    <button class="w-9 h-9 rounded-full hover:bg-[#eff4ff] flex items-center justify-center transition-colors text-[#3d4a3d]"><span class="mat">notifications</span></button>
+    <button class="w-9 h-9 rounded-full hover:bg-[#eff4ff] flex items-center justify-center transition-colors text-[#3d4a3d]"><span class="mat">settings</span></button>
+    <div class="relative">
+      <button onclick="document.getElementById('umenu').classList.toggle('hidden')" class="w-9 h-9 rounded-full bg-[#d3e4fe] border-2 border-[#22c55e] flex items-center justify-center font-bold text-[#006e2f] text-sm qs">AJ</button>
+      <div id="umenu" class="hidden absolute top-11 right-0 bg-white rounded-2xl border border-[#e5eeff] py-2 min-w-[200px]" style="box-shadow:0 8px 32px rgba(0,88,190,.14)">
+        <div class="px-4 py-3 border-b border-[#f8f9ff]"><p class="font-semibold text-sm">Alex Johnson</p><p class="text-xs text-[#6d7b6c]">Grade 10 · Student</p></div>
+        <a href="parent-portal.html" class="flex items-center gap-2 px-4 py-2.5 text-sm text-[#0b1c30] hover:bg-[#eff4ff] no-underline"><span class="mat text-[#006e2f] text-lg">family_restroom</span>Parent View</a>
+        <a href="admin-users.html" class="flex items-center gap-2 px-4 py-2.5 text-sm text-[#0b1c30] hover:bg-[#eff4ff] no-underline"><span class="mat text-[#0058be] text-lg">admin_panel_settings</span>Admin Portal</a>
+        <div class="border-t border-[#f8f9ff] mt-1 pt-1"><a href="index.html" class="flex items-center gap-2 px-4 py-2.5 text-sm text-[#ba1a1a] hover:bg-[#fff4f4] no-underline"><span class="mat text-[#ba1a1a] text-lg">logout</span>Sign Out</a></div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="flex pt-16 min-h-screen">
+  <!-- SIDEBAR -->
+  <aside class="w-52 shrink-0 bg-white border-r border-[#e5eeff] sticky top-16 h-[calc(100vh-64px)] flex flex-col py-5 px-3 overflow-y-auto">
+    <div class="mb-5 px-2">
+      <p class="text-[#0058be] font-semibold text-sm">Welcome back!</p>
+      <p class="text-[#3d4a3d] text-xs mt-0.5 flex items-center gap-1">Current Streak: 5 Days <span class="matf text-[#ff8e4d] text-sm">local_fire_department</span></p>
+    </div>
+    <nav class="flex flex-col gap-0.5 flex-1">
+      <a href="#" class="sub-link"><span class="mat text-[#006e2f]">grid_on</span>Mathematics</a>
+      <a href="#" class="sub-link active"><span class="mat text-[#0058be]">science</span>Science</a>
+      <a href="#" class="sub-link"><span class="mat text-[#9d4300]">menu_book</span>English</a>
+      <a href="#" class="sub-link"><span class="mat text-[#6d7b6c]">history_edu</span>History</a>
+      <a href="#" class="sub-link"><span class="mat text-[#9d4300]">palette</span>Arts</a>
+    </nav>
+    <button class="mt-4 w-full btn-3d bg-[#ff8e4d] text-white rounded-xl py-3 text-sm font-bold qs hover:bg-[#f07030] transition-colors flex items-center justify-center gap-1.5">
+      <span class="mat text-lg">bolt</span>Start Daily Quest
+    </button>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="flex-1 overflow-x-hidden">
+    <div class="px-10 py-10">
+
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <h1 class="qs font-bold text-[40px] text-[#0b1c30] mb-2">Discover Knowledge</h1>
+      </div>
+
+      <!-- Search bar -->
+      <div class="relative max-w-3xl mx-auto mb-4">
+        <span class="mat absolute left-5 top-1/2 -translate-y-1/2 text-[#6d7b6c] text-2xl pointer-events-none">search</span>
+        <input type="text" placeholder="Search 1,000+ Topics"
+          class="w-full pl-14 pr-36 py-4 border-2 border-[#bccbb9] rounded-2xl text-[#0b1c30] text-base focus:border-[#0058be] transition-colors bg-white"
+          style="outline:none;font-family:inherit;box-shadow:0 2px 12px rgba(0,88,190,.08)">
+        <button class="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2.5 bg-[#0058be] text-white font-bold rounded-xl text-sm hover:bg-[#004da8] transition-colors qs">Search</button>
+      </div>
+
+      <!-- Trending topics -->
+      <div class="flex items-center justify-center gap-3 mb-10 flex-wrap">
+        <span class="text-sm text-[#6d7b6c] font-medium">Trending:</span>
+        <button class="px-4 py-1.5 bg-[#eff4ff] text-[#0058be] rounded-full text-sm font-semibold hover:bg-[#dce9ff] transition-colors">Black Holes</button>
+        <button class="px-4 py-1.5 bg-[#eff4ff] text-[#0058be] rounded-full text-sm font-semibold hover:bg-[#dce9ff] transition-colors">Renaissance Art</button>
+        <button class="px-4 py-1.5 bg-[#eff4ff] text-[#0058be] rounded-full text-sm font-semibold hover:bg-[#dce9ff] transition-colors">Photosynthesis</button>
+        <button class="px-4 py-1.5 bg-[#eff4ff] text-[#0058be] rounded-full text-sm font-semibold hover:bg-[#dce9ff] transition-colors">World War II</button>
+      </div>
+
+      <!-- Category cards -->
+      <div class="grid grid-cols-3 gap-5 mb-8">
+        <!-- Science Explorers -->
+        <div class="cat-card">
+          <div class="absolute inset-0 flex items-center justify-center" style="background:linear-gradient(135deg,#0b2d4a,#0058be)">
+            <span class="mat text-white/15 text-8xl" style="font-variation-settings:'FILL' 0,'wght' 200,'GRAD' 0,'opsz' 48">biotech</span>
+          </div>
+          <div class="overlay"></div>
+          <div class="label">
+            <p class="qs font-bold text-xl">Science Explorers</p>
+            <p class="text-white/70 text-sm mt-0.5">420 Articles</p>
+          </div>
+        </div>
+        <!-- Historical Journeys -->
+        <div class="cat-card">
+          <div class="absolute inset-0 flex items-center justify-center" style="background:linear-gradient(135deg,#3d2000,#9d4300)">
+            <span class="mat text-white/15 text-8xl" style="font-variation-settings:'FILL' 0,'wght' 200,'GRAD' 0,'opsz' 48">travel_explore</span>
+          </div>
+          <div class="overlay"></div>
+          <div class="label">
+            <p class="qs font-bold text-xl">Historical Journeys</p>
+            <p class="text-white/70 text-sm mt-0.5">315 Articles</p>
+          </div>
+        </div>
+        <!-- Literary Worlds -->
+        <div class="cat-card">
+          <div class="absolute inset-0 flex items-center justify-center" style="background:linear-gradient(135deg,#1a3a2a,#006e2f)">
+            <span class="mat text-white/15 text-8xl" style="font-variation-settings:'FILL' 0,'wght' 200,'GRAD' 0,'opsz' 48">auto_stories</span>
+          </div>
+          <div class="overlay"></div>
+          <div class="label">
+            <p class="qs font-bold text-xl">Literary Worlds</p>
+            <p class="text-white/70 text-sm mt-0.5">280 Articles</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Featured daily -->
+      <div class="card p-7 flex gap-8 items-center mb-10">
+        <div class="flex-1">
+          <span class="inline-flex items-center gap-1.5 text-xs font-bold text-[#ff8e4d] uppercase tracking-wider mb-3">
+            <span class="matf text-sm text-[#ff8e4d]">star</span>Featured Daily
+          </span>
+          <h2 class="qs font-bold text-3xl text-[#0b1c30] mb-3">Why is the Sky Blue?</h2>
+          <p class="text-[#3d4a3d] leading-relaxed mb-5">Ever wondered why the sky changes colors throughout the day? From the brilliant blue of noon to the fiery oranges of sunset, the answer lies in the physics of sunlight and our atmosphere.</p>
+          <div class="flex items-center gap-4">
+            <button class="btn-3d px-6 py-2.5 bg-[#006e2f] text-white qs font-bold rounded-xl text-sm hover:bg-[#005828] transition-colors flex items-center gap-2">
+              Read Article <span class="mat text-lg">arrow_forward</span>
+            </button>
+            <button class="w-10 h-10 border-2 border-[#bccbb9] rounded-xl flex items-center justify-center hover:bg-[#eff4ff] hover:border-[#adc6ff] transition-all">
+              <span class="mat text-[#3d4a3d]">bookmark_add</span>
+            </button>
+          </div>
+          <div class="mt-5 flex items-center gap-2 px-4 py-2.5 bg-[#eff4ff] rounded-xl border border-[#dce9ff] w-fit">
+            <span class="mat text-[#0058be] text-lg">info</span>
+            <span class="text-sm text-[#3d4a3d]">Reading time: <strong>6 minutes</strong> · Grade Level: <strong>5–8</strong></span>
+          </div>
+        </div>
+        <!-- Featured image placeholder -->
+        <div class="w-72 h-52 rounded-2xl shrink-0 flex items-center justify-center overflow-hidden" style="background:linear-gradient(135deg,#87ceeb,#1a6aab,#f97316)">
+          <span class="mat text-white/20 text-8xl" style="font-variation-settings:'FILL' 0,'wght' 100,'GRAD' 0,'opsz' 48">wb_sunny</span>
+        </div>
+      </div>
+
+      <!-- Recent Researches -->
+      <div class="mb-10">
+        <div class="flex justify-between items-center mb-5">
+          <h2 class="qs font-bold text-2xl text-[#0b1c30]">Recent Researches</h2>
+          <button class="text-[#0058be] text-sm font-semibold hover:underline">View All</button>
+        </div>
+        <div class="grid grid-cols-3 gap-5">
+          <!-- Card 1 -->
+          <div class="card p-5 hover:shadow-lg transition-all group cursor-pointer">
+            <div class="w-10 h-10 bg-[#ffdad6] rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <span class="mat text-[#ba1a1a]">psychology</span>
+            </div>
+            <h4 class="qs font-bold text-base text-[#0b1c30] mb-2">How Dreams Work</h4>
+            <p class="text-sm text-[#3d4a3d] leading-relaxed mb-4">Dive into the science of REM sleep and the subconscious mind.</p>
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-[#6d7b6c]">Science · 4m read</span>
+              <button class="w-8 h-8 rounded-lg border border-[#bccbb9] flex items-center justify-center hover:bg-[#eff4ff] hover:border-[#adc6ff] transition-all">
+                <span class="mat text-[#3d4a3d] text-base">bookmark_add</span>
+              </button>
+            </div>
+          </div>
+          <!-- Card 2 -->
+          <div class="card p-5 hover:shadow-lg transition-all group cursor-pointer">
+            <div class="w-10 h-10 bg-[#ffdbca] rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <span class="mat text-[#9d4300]">architecture</span>
+            </div>
+            <h4 class="qs font-bold text-base text-[#0b1c30] mb-2">Ancient Pyramids</h4>
+            <p class="text-sm text-[#3d4a3d] leading-relaxed mb-4">Engineering marvels that have stood the test of time for millennia.</p>
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-[#6d7b6c]">History · 8m read</span>
+              <button class="w-8 h-8 rounded-lg border border-[#bccbb9] flex items-center justify-center hover:bg-[#eff4ff] hover:border-[#adc6ff] transition-all">
+                <span class="mat text-[#3d4a3d] text-base">bookmark_add</span>
+              </button>
+            </div>
+          </div>
+          <!-- Card 3 -->
+          <div class="card p-5 hover:shadow-lg transition-all group cursor-pointer">
+            <div class="w-10 h-10 bg-[#e5eeff] rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <span class="mat text-[#006e2f]">water</span>
+            </div>
+            <h4 class="qs font-bold text-base text-[#0b1c30] mb-2">The Great Barrier Reef</h4>
+            <p class="text-sm text-[#3d4a3d] leading-relaxed mb-4">Exploring the world's largest coral reef system and its inhabitants.</p>
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-[#6d7b6c]">Nature · 5m read</span>
+              <button class="w-8 h-8 rounded-lg border border-[#bccbb9] flex items-center justify-center hover:bg-[#eff4ff] hover:border-[#adc6ff] transition-all">
+                <span class="mat text-[#3d4a3d] text-base">bookmark_add</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-[#d3e4fe] border-t border-[#bccbb9] px-10 py-8">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-5">
+        <span class="qs font-bold text-xl text-[#006e2f]">EduSpark</span>
+        <div class="flex flex-wrap justify-center gap-6">
+          <a href="#" class="text-sm text-[#3d4a3d] hover:text-[#0058be] no-underline">Terms of Service</a>
+          <a href="#" class="text-sm text-[#3d4a3d] hover:text-[#0058be] no-underline">Help Center</a>
+          <a href="#" class="text-sm text-[#3d4a3d] hover:text-[#0058be] no-underline">Privacy Policy</a>
+          <a href="#" class="text-sm text-[#3d4a3d] hover:text-[#0058be] no-underline">Contact Support</a>
+        </div>
+      </div>
+      <p class="text-center text-xs text-[#6d7b6c] mt-5">© 2024 EduSpark Learning. All rights reserved.</p>
+    </footer>
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduPulse — User Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#f8f9ff;color:#0b1c30;display:flex;min-height:100vh}
+.qs{font-family:'Quicksand',sans-serif}.mat{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;vertical-align:middle;font-family:'Material Symbols Outlined'}
+.matf{font-variation-settings:'FILL' 1,'wght' 600,'GRAD' 0,'opsz' 24;vertical-align:middle;font-family:'Material Symbols Outlined'}
+.btn-3d{box-shadow:0 4px 0 rgba(0,80,0,.22);transition:transform .1s,box-shadow .1s}.btn-3d:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,80,0,.22)}
+.adm-link{display:flex;align-items:center;gap:.625rem;padding:.65rem .875rem;border-radius:.75rem;font-size:.875rem;color:#3d4a3d;text-decoration:none;transition:all .15s;font-weight:500;cursor:pointer;border:none;background:none;width:100%;text-align:left}
+.adm-link:hover{background:#eff4ff;color:#0058be}.adm-link.active{background:#0058be;color:#fff;font-weight:600}
+.adm-link.active .mat{color:#fff}
+.top-nav-link{font-size:.875rem;font-weight:600;color:#3d4a3d;text-decoration:none;padding:.5rem .25rem;border-bottom:2px solid transparent;transition:all .15s}
+.top-nav-link:hover{color:#0058be}.top-nav-link.active{color:#006e2f;border-bottom-color:#006e2f}
+.badge{display:inline-flex;align-items:center;padding:.25rem .75rem;border-radius:9999px;font-size:.75rem;font-weight:700;font-family:'Quicksand',sans-serif}
+.badge-student{background:#22c55e20;color:#006e2f;border:1px solid #22c55e40}
+.badge-teacher{background:#ffdbca;color:#9d4300;border:1px solid #ff8e4d40}
+.badge-parent{background:#d8e2ff;color:#0058be;border:1px solid #adc6ff}
+.status-active{color:#006e2f;font-weight:600;font-size:.875rem;display:flex;align-items:center;gap:.4rem}
+.status-inactive{color:#6d7b6c;font-weight:600;font-size:.875rem;display:flex;align-items:center;gap:.4rem}
+.tr:hover{background:#f8f9ff}
+.action-btn{width:2rem;height:2rem;border-radius:.5rem;display:flex;align-items:center;justify-content:center;border:none;background:none;cursor:pointer;transition:all .15s}
+.action-btn:hover{background:#e5eeff}
+.form-select{padding:.6rem 1rem;border:1.5px solid #bccbb9;border-radius:.75rem;font-family:inherit;font-size:.875rem;color:#0b1c30;background:#fff;appearance:none;outline:none;cursor:pointer;transition:border-color .15s;padding-right:2rem;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='%236d7b6c' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .75rem center}
+.form-select:focus{border-color:#0058be}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.toast{animation:slideUp .3s ease forwards}
+</style>
+</head>
+<body>
+
+<!-- ADMIN SIDEBAR -->
+<aside class="w-60 shrink-0 bg-white border-r border-[#e5eeff] min-h-screen sticky top-0 flex flex-col py-6 px-4" style="box-shadow:2px 0 8px rgba(0,88,190,.04)">
+  <!-- Logo -->
+  <div class="flex items-center gap-3 mb-8 px-2">
+    <div class="w-10 h-10 bg-[#006e2f] rounded-2xl flex items-center justify-center shadow-md">
+      <span class="matf text-white text-xl">school</span>
+    </div>
+    <div>
+      <p class="qs font-bold text-[17px] text-[#006e2f] leading-none">Admin Portal</p>
+      <p class="text-[#6d7b6c] text-[11px] mt-0.5">System Management</p>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <nav class="flex flex-col gap-0.5 flex-1">
+    <a href="admin-analytics.html" class="adm-link"><span class="mat text-[#6d7b6c]">dashboard</span>Overview</a>
+    <a href="#" class="adm-link"><span class="mat text-[#6d7b6c]">trending_up</span>Student Progress</a>
+    <a href="#" class="adm-link"><span class="mat text-[#6d7b6c]">account_balance_wallet</span>Financials</a>
+    <a href="admin-users.html" class="adm-link active"><span class="mat">manage_accounts</span>User Management</a>
+    <a href="#" class="adm-link"><span class="mat text-[#6d7b6c]">library_books</span>Content Library</a>
+    <a href="#" class="adm-link"><span class="mat text-[#6d7b6c]">settings</span>Settings</a>
+  </nav>
+
+  <div class="mt-6 flex flex-col gap-2">
+    <button class="btn-3d w-full py-3 bg-[#006e2f] text-white qs font-bold rounded-xl text-sm hover:bg-[#005828] transition-colors flex items-center justify-center gap-2">
+      <span class="mat text-lg">add_chart</span>Generate Report
+    </button>
+    <a href="index.html" class="adm-link text-[#ba1a1a] hover:bg-[#fff4f4]"><span class="mat text-[#ba1a1a]">logout</span>Sign Out</a>
+  </div>
+</aside>
+
+<!-- RIGHT SECTION -->
+<div class="flex-1 flex flex-col min-h-screen">
+
+  <!-- Admin Top Nav -->
+  <nav class="h-16 bg-white border-b border-[#e5eeff] flex items-center justify-between px-8 sticky top-0 z-40" style="box-shadow:0 2px 8px rgba(0,88,190,.04)">
+    <div class="flex items-center gap-8">
+      <span class="qs font-bold text-lg text-[#006e2f]">EduPulse</span>
+      <div class="flex items-center gap-6">
+        <a href="admin-analytics.html" class="top-nav-link active">Dashboard</a>
+        <a href="#" class="top-nav-link">Support</a>
+        <a href="#" class="top-nav-link">Help Center</a>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <div class="relative flex items-center">
+        <span class="mat absolute left-3 text-[#6d7b6c] text-lg pointer-events-none">search</span>
+        <input type="text" placeholder="Search user..." class="pl-9 pr-4 py-2 border border-[#bccbb9] rounded-full text-sm bg-[#f8f9ff] focus:border-[#0058be] w-44 transition-colors" style="outline:none;font-family:inherit">
+      </div>
+      <button class="relative w-9 h-9 rounded-full hover:bg-[#eff4ff] flex items-center justify-center text-[#3d4a3d]">
+        <span class="mat">notifications</span>
+        <span class="absolute top-1 right-1 w-4 h-4 bg-[#ba1a1a] rounded-full text-[9px] text-white font-bold flex items-center justify-center">1</span>
+      </button>
+      <button class="w-9 h-9 rounded-full hover:bg-[#eff4ff] flex items-center justify-center text-[#3d4a3d]"><span class="mat">settings</span></button>
+      <div class="flex items-center gap-2 ml-1">
+        <div class="w-9 h-9 rounded-full bg-[#213145] border-2 border-[#adc6ff] flex items-center justify-center font-bold text-white text-xs qs">AD</div>
+        <span class="text-sm font-semibold">Admin</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="flex-1 p-8">
+
+    <!-- Page header -->
+    <div class="flex items-start justify-between mb-7">
+      <div>
+        <h1 class="qs font-bold text-[32px] text-[#0b1c30] leading-none mb-2">User Management</h1>
+        <p class="text-[#3d4a3d] text-sm">Review and manage student, parent, and teacher identities across the platform.</p>
+      </div>
+      <div class="flex items-center gap-4">
+        <!-- Active now stat -->
+        <div class="bg-[#eff4ff] border border-[#dce9ff] rounded-2xl px-5 py-3 flex items-center gap-3">
+          <div class="w-9 h-9 bg-[#22c55e]/20 rounded-xl flex items-center justify-center">
+            <span class="matf text-[#006e2f] text-lg">trending_up</span>
+          </div>
+          <div>
+            <p class="text-[10px] font-bold text-[#6d7b6c] uppercase tracking-wider">Active Now</p>
+            <p class="qs font-bold text-2xl text-[#0b1c30]">1,284</p>
+          </div>
+        </div>
+        <!-- Add user button -->
+        <button class="btn-3d px-5 py-3 bg-[#0058be] text-white qs font-bold rounded-xl text-sm hover:bg-[#004da8] transition-colors flex items-center gap-2">
+          <span class="mat text-lg">person_add</span>Add User
+        </button>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white border border-[#e5eeff] rounded-2xl p-5 mb-5 flex items-end gap-4" style="box-shadow:0 1px 4px rgba(0,88,190,.05)">
+      <div class="flex-1 min-w-0">
+        <label class="block text-xs font-bold text-[#6d7b6c] mb-1.5 uppercase tracking-wider">Role</label>
+        <select class="form-select w-full">
+          <option>All Roles</option>
+          <option>Student</option>
+          <option>Teacher</option>
+          <option>Parent</option>
+          <option>Admin</option>
+        </select>
+      </div>
+      <div class="flex-1 min-w-0">
+        <label class="block text-xs font-bold text-[#6d7b6c] mb-1.5 uppercase tracking-wider">Status</label>
+        <select class="form-select w-full">
+          <option>All Status</option>
+          <option>Active</option>
+          <option>Inactive</option>
+          <option>Suspended</option>
+        </select>
+      </div>
+      <div class="flex-1 min-w-0">
+        <label class="block text-xs font-bold text-[#6d7b6c] mb-1.5 uppercase tracking-wider">Registration Date</label>
+        <input type="date" class="form-select w-full" style="padding:.6rem 1rem">
+      </div>
+      <button class="w-10 h-10 bg-[#eff4ff] border border-[#dce9ff] rounded-xl flex items-center justify-center hover:bg-[#dce9ff] transition-colors text-[#0058be]">
+        <span class="mat">filter_list</span>
+      </button>
+    </div>
+
+    <!-- User table -->
+    <div class="bg-white border border-[#e5eeff] rounded-2xl overflow-hidden mb-5" style="box-shadow:0 1px 4px rgba(0,88,190,.05)">
+      <!-- Table header -->
+      <div class="grid gap-4 px-6 py-4 border-b border-[#f8f9ff] bg-[#fafbff]" style="grid-template-columns:2.5fr 1fr 1fr 1.2fr 1.2fr .8fr">
+        <span class="text-xs font-bold text-[#6d7b6c] uppercase tracking-wider">User Info</span>
+        <span class="text-xs font-bold text-[#6d7b6c] uppercase tracking-wider">Role</span>
+        <span class="text-xs font-bold text-[#6d7b6c] uppercase tracking-wider">Status</span>
+        <span class="text-xs font-bold text-[#6d7b6c] uppercase tracking-wider">Reg. Date</span>
+        <span class="text-xs font-bold text-[#6d7b6c] uppercase tracking-wider">Last Activity</span>
+        <span class="text-xs font-bold text-[#6d7b6c] uppercase tracking-wider text-right">Actions</span>
+      </div>
+
+      <!-- Row 1 -->
+      <div class="tr grid gap-4 px-6 py-4 border-b border-[#f8f9ff] items-center transition-colors" style="grid-template-columns:2.5fr 1fr 1fr 1.2fr 1.2fr .8fr">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-[#e5eeff] border-2 border-[#adc6ff] flex items-center justify-center font-bold text-[#0058be] text-sm qs shrink-0">MT</div>
+          <div><p class="font-semibold text-sm">Marcus Thompson</p><p class="text-xs text-[#6d7b6c]">m.thompson@edupulse.com</p></div>
+        </div>
+        <div><span class="badge badge-student">Student</span></div>
+        <div><span class="status-active"><span class="w-2 h-2 rounded-full bg-[#22c55e] inline-block"></span>Active</span></div>
+        <div class="text-sm text-[#3d4a3d]">Oct 12, 2023</div>
+        <div class="text-sm text-[#3d4a3d]">2 hours ago</div>
+        <div class="flex items-center justify-end gap-1">
+          <button class="action-btn text-[#0058be]"><span class="mat text-lg">edit</span></button>
+          <button class="action-btn text-[#ba1a1a]"><span class="mat text-lg">autorenew</span></button>
+          <button class="action-btn text-[#3d4a3d]"><span class="mat text-lg">visibility</span></button>
+        </div>
+      </div>
+
+      <!-- Row 2 -->
+      <div class="tr grid gap-4 px-6 py-4 border-b border-[#f8f9ff] items-center transition-colors" style="grid-template-columns:2.5fr 1fr 1fr 1.2fr 1.2fr .8fr">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-[#ffdbca] border-2 border-[#ffb690] flex items-center justify-center font-bold text-[#9d4300] text-sm qs shrink-0">SJ</div>
+          <div><p class="font-semibold text-sm">Dr. Sarah Jenkins</p><p class="text-xs text-[#6d7b6c]">s.jenkins@edupulse.edu</p></div>
+        </div>
+        <div><span class="badge badge-teacher">Teacher</span></div>
+        <div><span class="status-active"><span class="w-2 h-2 rounded-full bg-[#22c55e] inline-block"></span>Active</span></div>
+        <div class="text-sm text-[#3d4a3d]">Sep 05, 2023</div>
+        <div class="text-sm text-[#3d4a3d]">10 mins ago</div>
+        <div class="flex items-center justify-end gap-1">
+          <button class="action-btn text-[#0058be]"><span class="mat text-lg">edit</span></button>
+          <button class="action-btn text-[#ba1a1a]"><span class="mat text-lg">autorenew</span></button>
+          <button class="action-btn text-[#3d4a3d]"><span class="mat text-lg">visibility</span></button>
+        </div>
+      </div>
+
+      <!-- Row 3 -->
+      <div class="tr grid gap-4 px-6 py-4 border-b border-[#f8f9ff] items-center transition-colors" style="grid-template-columns:2.5fr 1fr 1fr 1.2fr 1.2fr .8fr">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-[#d3e4fe] border-2 border-[#adc6ff] flex items-center justify-center font-bold text-[#0058be] text-sm qs shrink-0">DM</div>
+          <div><p class="font-semibold text-sm">David Miller</p><p class="text-xs text-[#6d7b6c]">dmiller_home@webmail.com</p></div>
+        </div>
+        <div><span class="badge badge-parent">Parent</span></div>
+        <div><span class="status-inactive"><span class="w-2 h-2 rounded-full bg-[#bccbb9] inline-block"></span>Inactive</span></div>
+        <div class="text-sm text-[#3d4a3d]">Jan 18, 2024</div>
+        <div class="text-sm text-[#3d4a3d]">3 days ago</div>
+        <div class="flex items-center justify-end gap-1">
+          <button class="action-btn text-[#0058be]"><span class="mat text-lg">edit</span></button>
+          <button class="action-btn text-[#ba1a1a]"><span class="mat text-lg">autorenew</span></button>
+          <button class="action-btn text-[#3d4a3d]"><span class="mat text-lg">visibility</span></button>
+        </div>
+      </div>
+
+      <!-- Row 4 -->
+      <div class="tr grid gap-4 px-6 py-4 items-center transition-colors" style="grid-template-columns:2.5fr 1fr 1fr 1.2fr 1.2fr .8fr">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-[#213145] border-2 border-[#adc6ff] flex items-center justify-center font-bold text-white text-sm qs shrink-0">ER</div>
+          <div><p class="font-semibold text-sm">Elena Rodriguez</p><p class="text-xs text-[#6d7b6c]">elena.rod@edupulse.com</p></div>
+        </div>
+        <div><span class="badge badge-student">Student</span></div>
+        <div><span class="status-active"><span class="w-2 h-2 rounded-full bg-[#22c55e] inline-block"></span>Active</span></div>
+        <div class="text-sm text-[#3d4a3d]">Nov 22, 2023</div>
+        <div class="text-sm text-[#3d4a3d]">Yesterday</div>
+        <div class="flex items-center justify-end gap-1">
+          <button class="action-btn text-[#0058be]"><span class="mat text-lg">edit</span></button>
+          <button class="action-btn text-[#ba1a1a]"><span class="mat text-lg">autorenew</span></button>
+          <button class="action-btn text-[#3d4a3d]"><span class="mat text-lg">visibility</span></button>
+        </div>
+      </div>
+
+      <!-- Pagination row -->
+      <div class="flex items-center justify-between px-6 py-4 bg-[#fafbff] border-t border-[#f8f9ff]">
+        <p class="text-sm text-[#3d4a3d]">Showing <strong>1 – 4</strong> of <strong>2,450</strong> users</p>
+        <div class="flex items-center gap-1">
+          <button class="w-8 h-8 rounded-lg border border-[#bccbb9] flex items-center justify-center hover:bg-[#eff4ff] transition-colors text-[#3d4a3d]"><span class="mat text-lg">chevron_left</span></button>
+          <button class="w-8 h-8 rounded-lg bg-[#0058be] text-white font-bold text-sm flex items-center justify-center">1</button>
+          <button class="w-8 h-8 rounded-lg border border-[#bccbb9] text-sm font-medium text-[#3d4a3d] flex items-center justify-center hover:bg-[#eff4ff] transition-colors">2</button>
+          <button class="w-8 h-8 rounded-lg border border-[#bccbb9] text-sm font-medium text-[#3d4a3d] flex items-center justify-center hover:bg-[#eff4ff] transition-colors">3</button>
+          <span class="px-1 text-[#6d7b6c]">…</span>
+          <button class="w-10 h-8 rounded-lg border border-[#bccbb9] text-sm font-medium text-[#3d4a3d] flex items-center justify-center hover:bg-[#eff4ff] transition-colors">612</button>
+          <button class="w-8 h-8 rounded-lg border border-[#bccbb9] flex items-center justify-center hover:bg-[#eff4ff] transition-colors text-[#3d4a3d]"><span class="mat text-lg">chevron_right</span></button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- TOAST NOTIFICATION -->
+<div id="toast" class="toast fixed bottom-6 right-6 bg-[#006e2f] text-white px-5 py-3.5 rounded-2xl flex items-center gap-3 z-50" style="box-shadow:0 8px 24px rgba(0,80,0,.3)">
+  <span class="matf text-[#6bff8f] text-xl">check_circle</span>
+  <p class="font-semibold text-sm">User password reset successfully!</p>
+  <button onclick="document.getElementById('toast').remove()" class="ml-2 text-white/60 hover:text-white transition-colors">
+    <span class="mat text-lg">close</span>
+  </button>
+</div>
+
+</body>
+</html>

@@ -47,6 +47,44 @@ router.post(
   }),
 );
 
+// ========== AUTH ROUTES ==========
+
+router.post(
+  '/auth/signin',
+  asyncHandler(async (req: Request, res: Response) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      throw new AppError(400, 'Email and password are required');
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        password: true,
+        createdAt: true,
+      },
+    });
+
+    if (!user) {
+      throw new AppError(401, 'Invalid email or password');
+    }
+
+    // Simple password comparison (in production, use bcrypt)
+    if (user.password !== password) {
+      throw new AppError(401, 'Invalid email or password');
+    }
+
+    // Return user data without password
+    const { password: _, ...userWithoutPassword } = user;
+    res.json({ user: userWithoutPassword });
+  }),
+);
+
 router.get(
   '/users',
   asyncHandler(async (_req: Request, res: Response) => {

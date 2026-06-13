@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduSpark — Parent Hub</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#f8f9ff;color:#0b1c30}
+.qs{font-family:'Quicksand',sans-serif}.mat{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;vertical-align:middle;font-family:'Material Symbols Outlined'}
+.matf{font-variation-settings:'FILL' 1,'wght' 600,'GRAD' 0,'opsz' 24;vertical-align:middle;font-family:'Material Symbols Outlined'}
+.btn-3d{box-shadow:0 4px 0 rgba(0,80,0,.22);transition:transform .1s,box-shadow .1s}.btn-3d:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,80,0,.22)}
+.btn-3db{box-shadow:0 4px 0 rgba(0,55,140,.22);transition:transform .1s,box-shadow .1s}.btn-3db:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,55,140,.22)}
+.card{background:#fff;border:1px solid #e5eeff;border-radius:1.25rem;box-shadow:0 1px 3px rgba(0,88,190,.05),0 4px 12px rgba(0,88,190,.06)}
+.nav-link{display:flex;align-items:center;padding:.4rem .85rem;border-radius:.6rem;font-size:.875rem;font-weight:600;color:#3d4a3d;text-decoration:none;transition:all .15s;white-space:nowrap}
+.nav-link:hover{background:#eff4ff;color:#0058be}.nav-link.active{color:#006e2f;border-bottom:2px solid #006e2f;border-radius:0;padding-bottom:.3rem}
+.par-link{display:flex;align-items:center;gap:.625rem;padding:.65rem .75rem;border-radius:.75rem;font-size:.875rem;color:#3d4a3d;text-decoration:none;transition:all .15s;font-weight:500}
+.par-link:hover{background:#eff4ff;color:#0058be}.par-link.active{background:#0058be;color:#fff;font-weight:600}
+.par-link.active .mat{color:#fff}
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="fixed top-0 left-0 right-0 z-50 h-16 bg-white border-b border-[#e5eeff] flex items-center justify-between px-10" style="box-shadow:0 2px 12px rgba(0,88,190,.06)">
+  <div class="flex items-center gap-10">
+    <a href="index.html" class="qs font-bold text-[22px] text-[#006e2f] no-underline">EduSpark</a>
+    <div class="flex items-center gap-0.5">
+      <a href="student-home.html" class="nav-link active">Home</a>
+      <a href="practice.html" class="nav-link">Practice</a>
+      <a href="research.html" class="nav-link">Research</a>
+      <a href="assignments.html" class="nav-link">Assignments</a>
+    </div>
+  </div>
+  <div class="flex items-center gap-2">
+    <button class="w-9 h-9 rounded-full hover:bg-[#eff4ff] flex items-center justify-center transition-colors text-[#3d4a3d]"><span class="mat">notifications</span></button>
+    <button class="w-9 h-9 rounded-full hover:bg-[#eff4ff] flex items-center justify-center transition-colors text-[#3d4a3d]"><span class="mat">settings</span></button>
+    <div class="relative">
+      <button onclick="document.getElementById('umenu').classList.toggle('hidden')" class="w-9 h-9 rounded-full bg-[#ffdbca] border-2 border-[#ff8e4d] flex items-center justify-center font-bold text-[#9d4300] text-sm qs">SJ</button>
+      <div id="umenu" class="hidden absolute top-11 right-0 bg-white rounded-2xl border border-[#e5eeff] py-2 min-w-[200px]" style="box-shadow:0 8px 32px rgba(0,88,190,.14)">
+        <div class="px-4 py-3 border-b border-[#f8f9ff]"><p class="font-semibold text-sm">Sarah Johnson</p><p class="text-xs text-[#6d7b6c]">Parent Account</p></div>
+        <a href="student-home.html" class="flex items-center gap-2 px-4 py-2.5 text-sm text-[#0b1c30] hover:bg-[#eff4ff] no-underline"><span class="mat text-[#006e2f] text-lg">school</span>Student View</a>
+        <a href="admin-users.html" class="flex items-center gap-2 px-4 py-2.5 text-sm text-[#0b1c30] hover:bg-[#eff4ff] no-underline"><span class="mat text-[#0058be] text-lg">admin_panel_settings</span>Admin Portal</a>
+        <div class="border-t border-[#f8f9ff] mt-1 pt-1"><a href="index.html" class="flex items-center gap-2 px-4 py-2.5 text-sm text-[#ba1a1a] hover:bg-[#fff4f4] no-underline"><span class="mat text-[#ba1a1a] text-lg">logout</span>Sign Out</a></div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="flex pt-16 min-h-screen">
+  <!-- PARENT SIDEBAR -->
+  <aside class="w-52 shrink-0 bg-white border-r border-[#e5eeff] sticky top-16 h-[calc(100vh-64px)] flex flex-col py-5 px-3 overflow-y-auto">
+    <div class="mb-5 px-2">
+      <p class="text-xs font-bold text-[#006e2f] uppercase tracking-wider mb-0.5">Parent Hub</p>
+      <p class="text-[#3d4a3d] text-xs leading-snug">Manage your children's growth</p>
+    </div>
+    <nav class="flex flex-col gap-0.5 flex-1">
+      <a href="parent-portal.html" class="par-link active"><span class="mat">dashboard</span>Overview</a>
+      <a href="#" class="par-link"><span class="mat text-[#6d7b6c]">event_repeat</span>Subscription</a>
+      <a href="#" class="par-link"><span class="mat text-[#6d7b6c]">history</span>Activity Logs</a>
+      <a href="#" class="par-link"><span class="mat text-[#6d7b6c]">settings</span>Settings</a>
+    </nav>
+    <!-- Pro tip -->
+    <div class="mt-4 p-3 bg-[#ffdbca] rounded-xl border border-[#ffb690]">
+      <p class="text-[10px] font-bold text-[#9d4300] uppercase tracking-wider mb-1">Pro Tip</p>
+      <p class="text-xs text-[#6d2d00] leading-snug">Check Leo's progress in Science today!</p>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="flex-1 overflow-x-hidden">
+    <div class="px-10 py-10">
+
+      <!-- Header -->
+      <div class="flex items-start justify-between mb-8">
+        <div>
+          <h1 class="qs font-bold text-[36px] text-[#0b1c30] leading-none mb-2">Welcome back, Sarah!</h1>
+          <p class="text-[#3d4a3d]">Your children are making great strides this week.</p>
+        </div>
+        <a href="enroll.html">
+          <button class="btn-3d px-6 py-3 bg-[#006e2f] text-white qs font-bold rounded-xl text-sm hover:bg-[#005828] transition-colors flex items-center gap-2">
+            <span class="mat text-lg">person_add</span>Enroll New Student
+          </button>
+        </a>
+      </div>
+
+      <!-- Children cards -->
+      <div class="grid grid-cols-2 gap-5 mb-7">
+        <!-- Leo -->
+        <div class="card p-6">
+          <div class="flex items-start gap-4 mb-5">
+            <div class="w-14 h-14 rounded-2xl flex items-center justify-center font-bold text-2xl qs shrink-0" style="background:linear-gradient(135deg,#22c55e,#4ae176)">
+              <span class="text-white">L</span>
+            </div>
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <h3 class="qs font-bold text-2xl text-[#006e2f]">Leo</h3>
+                <span class="px-2 py-0.5 bg-[#22c55e]/15 text-[#006e2f] rounded-full text-xs font-bold">GRADE 4</span>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-xs text-[#6d7b6c] font-medium">Average Score</p>
+              <p class="qs font-bold text-3xl text-[#006e2f]">94%</p>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3 mb-5">
+            <div class="bg-[#eff4ff] rounded-xl p-3">
+              <p class="text-[10px] font-bold text-[#ff8e4d] uppercase tracking-wider flex items-center gap-1 mb-1">
+                <span class="matf text-sm text-[#ff8e4d]">local_fire_department</span>Streak
+              </p>
+              <p class="qs font-bold text-lg text-[#0b1c30]">12 Days</p>
+            </div>
+            <div class="bg-[#eff4ff] rounded-xl p-3">
+              <p class="text-[10px] font-bold text-[#006e2f] uppercase tracking-wider flex items-center gap-1 mb-1">
+                <span class="mat text-sm text-[#006e2f]">calendar_month</span>Active
+              </p>
+              <p class="qs font-bold text-lg text-[#0b1c30]">3 Tasks</p>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between items-center mb-2">
+              <p class="text-sm font-semibold text-[#0b1c30]">Weekly Goal Progress</p>
+              <p class="text-sm font-bold text-[#006e2f]">8/10 Lessons</p>
+            </div>
+            <div class="h-2.5 bg-[#e5eeff] rounded-full overflow-hidden">
+              <div class="h-full rounded-full" style="width:80%;background:linear-gradient(90deg,#006e2f,#22c55e)"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Maya -->
+        <div class="card p-6">
+          <div class="flex items-start gap-4 mb-5">
+            <div class="w-14 h-14 rounded-2xl flex items-center justify-center font-bold text-2xl qs shrink-0" style="background:linear-gradient(135deg,#ff8e4d,#ffb690)">
+              <span class="text-white">M</span>
+            </div>
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <h3 class="qs font-bold text-2xl text-[#9d4300]">Maya</h3>
+                <span class="px-2 py-0.5 bg-[#ffdbca] text-[#9d4300] rounded-full text-xs font-bold">GRADE 2</span>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-xs text-[#6d7b6c] font-medium">Average Score</p>
+              <p class="qs font-bold text-3xl text-[#9d4300]">89%</p>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3 mb-5">
+            <div class="bg-[#ffdbca]/60 rounded-xl p-3">
+              <p class="text-[10px] font-bold text-[#ff8e4d] uppercase tracking-wider flex items-center gap-1 mb-1">
+                <span class="matf text-sm text-[#ff8e4d]">local_fire_department</span>Streak
+              </p>
+              <p class="qs font-bold text-lg text-[#0b1c30]">5 Days</p>
+            </div>
+            <div class="bg-[#ffdbca]/60 rounded-xl p-3">
+              <p class="text-[10px] font-bold text-[#9d4300] uppercase tracking-wider flex items-center gap-1 mb-1">
+                <span class="mat text-sm text-[#9d4300]">calendar_month</span>Active
+              </p>
+              <p class="qs font-bold text-lg text-[#0b1c30]">2 Tasks</p>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between items-center mb-2">
+              <p class="text-sm font-semibold text-[#0b1c30]">Weekly Goal Progress</p>
+              <p class="text-sm font-bold text-[#9d4300]">4/10 Lessons</p>
+            </div>
+            <div class="h-2.5 bg-[#e5eeff] rounded-full overflow-hidden">
+              <div class="h-full rounded-full" style="width:40%;background:linear-gradient(90deg,#9d4300,#ff8e4d)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity + Subscription row -->
+      <div class="grid grid-cols-3 gap-5">
+        <!-- Recent Activity Logs -->
+        <div class="col-span-2 card p-6">
+          <div class="flex justify-between items-center mb-5">
+            <h2 class="qs font-bold text-xl text-[#0b1c30]">Recent Activity Logs</h2>
+            <button class="text-[#0058be] text-sm font-semibold hover:underline">View All</button>
+          </div>
+          <div class="flex flex-col divide-y divide-[#f8f9ff]">
+            <!-- Log 1 -->
+            <div class="py-3.5 flex items-center gap-4">
+              <div class="w-9 h-9 bg-[#22c55e]/15 rounded-full flex items-center justify-center shrink-0">
+                <span class="matf text-[#006e2f] text-lg">check_circle</span>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-[#0b1c30]">Leo completed "Fraction Heroes: Level 4"</p>
+                <p class="text-xs text-[#6d7b6c] mt-0.5">2 hours ago</p>
+              </div>
+              <span class="px-3 py-1 bg-[#22c55e]/15 text-[#006e2f] rounded-full text-xs font-bold">+50 XP</span>
+            </div>
+            <!-- Log 2 -->
+            <div class="py-3.5 flex items-center gap-4">
+              <div class="w-9 h-9 bg-[#ffdbca] rounded-full flex items-center justify-center shrink-0">
+                <span class="mat text-[#9d4300] text-lg">menu_book</span>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-[#0b1c30]">Maya started "The Magic of Photosynthesis"</p>
+                <p class="text-xs text-[#6d7b6c] mt-0.5">Yesterday, 4:30 PM</p>
+              </div>
+              <span class="px-3 py-1 bg-[#e5eeff] text-[#0058be] rounded-full text-xs font-bold">In Progress</span>
+            </div>
+            <!-- Log 3 -->
+            <div class="py-3.5 flex items-center gap-4">
+              <div class="w-9 h-9 bg-[#eff4ff] rounded-full flex items-center justify-center shrink-0">
+                <span class="matf text-[#0058be] text-lg">military_tech</span>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-[#0b1c30]">Leo earned "Math Whiz" badge</p>
+                <p class="text-xs text-[#6d7b6c] mt-0.5">Nov 22, 10:15 AM</p>
+              </div>
+              <span class="matf text-[#ff8e4d] text-xl">star</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Family Plan -->
+        <div class="card p-6 text-white flex flex-col" style="background:linear-gradient(145deg,#003da8,#0058be)">
+          <div class="flex justify-between items-start mb-4">
+            <p class="text-white/80 text-sm font-semibold">Family Plan</p>
+            <span class="px-2.5 py-1 bg-white/20 text-white rounded-full text-xs font-bold">Active</span>
+          </div>
+          <p class="qs font-bold text-5xl mb-1">3 Slots</p>
+          <p class="text-white/70 text-sm mb-6">2 in use · 1 remaining</p>
+          <div class="mt-auto">
+            <p class="text-white/60 text-xs font-bold uppercase tracking-wider mb-1">Next Billing Date</p>
+            <p class="qs font-bold text-xl mb-5">December 24, 2024</p>
+            <button class="w-full py-3 bg-white/15 border border-white/20 text-white qs font-bold rounded-xl text-sm hover:bg-white/25 transition-colors backdrop-blur-sm">
+              Manage Billing
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-[#d3e4fe] border-t border-[#bccbb9] px-10 py-8 mt-6">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-5">
+        <span class="qs font-bold text-xl text-[#006e2f]">EduSpark</span>
+        <div class="flex flex-wrap justify-center gap-6">
+          <a href="#" class="text-sm text-[#3d4a3d] hover:text-[#0058be] no-underline">Terms of Service</a>
+          <a href="#" class="text-sm text-[#3d4a3d] hover:text-[#0058be] no-underline">Help Center</a>
+          <a href="#" class="text-sm text-[#3d4a3d] hover:text-[#0058be] no-underline">Privacy Policy</a>
+          <a href="#" class="text-sm text-[#3d4a3d] hover:text-[#0058be] no-underline">Contact Support</a>
+        </div>
+      </div>
+      <p class="text-center text-xs text-[#6d7b6c] mt-5">© 2024 EduSpark Learning. All rights reserved.</p>
+    </footer>
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduSpark — Sign In</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; }
+body { font-family: 'Inter', sans-serif; }
+.qs { font-family: 'Quicksand', sans-serif; }
+.mat { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align:middle; font-family:'Material Symbols Outlined'; }
+.mat-fill { font-variation-settings:'FILL' 1,'wght' 600,'GRAD' 0,'opsz' 24; }
+.btn-3d { box-shadow:0 4px 0 rgba(0,80,0,.25); transition:transform .1s, box-shadow .1s; }
+.btn-3d:active { transform:translateY(3px); box-shadow:0 1px 0 rgba(0,80,0,.25); }
+input:focus { outline:none; border-color:#0058be !important; }
+.tab-btn { flex:1; padding:.75rem 1rem; border-radius:.625rem; font-size:.875rem; font-weight:600; transition:all .2s; cursor:pointer; border:none; }
+.tab-active { background:#0058be; color:#fff; box-shadow:0 2px 8px rgba(0,88,190,.3); }
+.tab-inactive { background:transparent; color:#3d4a3d; }
+.tab-inactive:hover { background:#eff4ff; }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+.float { animation:float 4s ease-in-out infinite; }
+</style>
+</head>
+<body class="min-h-screen flex bg-white overflow-hidden">
+
+<!-- LEFT BRAND PANEL -->
+<div class="hidden lg:flex lg:w-[44%] flex-col p-12 relative overflow-hidden" style="background:linear-gradient(145deg,#001d5e 0%,#003da8 45%,#0058be 100%)">
+  <div class="absolute top-0 right-0 w-96 h-96 rounded-full" style="background:radial-gradient(circle,rgba(255,255,255,.12),transparent);transform:translate(35%,-35%)"></div>
+  <div class="absolute bottom-0 left-0 w-72 h-72 rounded-full" style="background:radial-gradient(circle,rgba(34,197,94,.2),transparent);transform:translate(-35%,35%)"></div>
+  <div class="absolute inset-0" style="background:radial-gradient(ellipse at 60% 50%,rgba(255,255,255,.04),transparent)"></div>
+
+  <!-- Logo -->
+  <div class="relative z-10 flex items-center gap-3 mb-10">
+    <div class="w-11 h-11 bg-white rounded-2xl flex items-center justify-center shadow-xl">
+      <span class="mat mat-fill text-[#0058be] text-2xl">school</span>
+    </div>
+    <div>
+      <p class="qs font-bold text-2xl text-white leading-none">EduSpark</p>
+      <p class="text-white/50 text-xs mt-0.5 tracking-wide">Learning Platform</p>
+    </div>
+  </div>
+
+  <!-- Headline -->
+  <div class="relative z-10 mb-8">
+    <h2 class="qs font-bold text-[42px] leading-[1.2] text-white mb-4">
+      Empowering every<br>learner with a<br><span class="text-[#6bff8f]">vibrant,<br>personalized</span><br>journey.
+    </h2>
+    <p class="text-white/65 text-[15px] leading-relaxed max-w-sm">Adaptive learning paths, interactive quests, and real-time progress tracking — built for every grade level.</p>
+  </div>
+
+  <!-- Illustration placeholder -->
+  <div class="relative z-10 flex-1 flex items-center justify-center">
+    <div class="float w-[78%] aspect-[4/3] rounded-3xl border border-white/15 flex flex-col items-center justify-center relative overflow-hidden"
+      style="background:rgba(255,255,255,.07);backdrop-filter:blur(10px)">
+      <!-- Mini decorative elements inside -->
+      <div class="absolute top-4 right-4 w-8 h-8 rounded-full bg-[#ff8e4d]/30 border border-[#ff8e4d]/40"></div>
+      <div class="absolute bottom-6 left-6 w-6 h-6 rounded-full bg-[#22c55e]/30 border border-[#22c55e]/40"></div>
+      <span class="mat text-white/25 text-7xl mb-2" style="font-variation-settings:'FILL' 0,'wght' 200,'GRAD' 0,'opsz' 48">auto_stories</span>
+      <p class="text-white/25 text-xs tracking-widest font-mono">[ hero illustration ]</p>
+    </div>
+  </div>
+
+  <!-- Testimonial -->
+  <div class="relative z-10 mt-6 rounded-2xl p-5 border border-white/15"
+    style="background:rgba(255,255,255,.1);backdrop-filter:blur(16px)">
+    <div class="flex gap-0.5 mb-3">
+      <span class="mat mat-fill text-[#ff8e4d] text-base">star</span>
+      <span class="mat mat-fill text-[#ff8e4d] text-base">star</span>
+      <span class="mat mat-fill text-[#ff8e4d] text-base">star</span>
+      <span class="mat mat-fill text-[#ff8e4d] text-base">star</span>
+      <span class="mat mat-fill text-[#ff8e4d] text-base">star</span>
+    </div>
+    <p class="text-white text-sm leading-relaxed mb-4">"The interface is so clean, my students actually look forward to their daily lessons!"</p>
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full bg-[#22c55e] flex items-center justify-center font-bold text-white text-sm qs">JD</div>
+      <div>
+        <p class="text-white font-semibold text-sm leading-none">Jane Doe</p>
+        <p class="text-white/55 text-xs mt-0.5">Principal, Oakwood Academy</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RIGHT FORM PANEL -->
+<div class="flex-1 flex items-center justify-center bg-white p-8 lg:p-14 overflow-y-auto">
+  <div class="w-full max-w-[420px]">
+
+    <!-- Mobile logo -->
+    <div class="flex lg:hidden items-center gap-2 mb-8">
+      <div class="w-8 h-8 bg-[#0058be] rounded-xl flex items-center justify-center">
+        <span class="mat mat-fill text-white text-lg">school</span>
+      </div>
+      <span class="qs font-bold text-xl text-[#006e2f]">EduSpark</span>
+    </div>
+
+    <div class="mb-8">
+      <h1 class="qs font-bold text-[38px] text-[#0b1c30] leading-tight mb-2">Welcome Back</h1>
+      <p class="text-[#3d4a3d] text-[15px] leading-relaxed">Please enter your details to continue your journey.</p>
+    </div>
+
+    <!-- Tab toggle -->
+    <div class="flex bg-[#f8f9ff] rounded-xl p-1 mb-7 border border-[#bccbb9]">
+      <button id="tab-signin" class="tab-btn tab-active" onclick="switchTab('signin')">Sign In</button>
+      <button id="tab-create" class="tab-btn tab-inactive" onclick="switchTab('create')">Create Account</button>
+    </div>
+
+    <!-- SSO buttons -->
+    <div class="grid grid-cols-2 gap-3 mb-6">
+      <button class="flex items-center justify-center gap-2 border-2 border-[#bccbb9] rounded-xl py-3 px-4 text-sm font-semibold text-[#0b1c30] hover:bg-[#f8f9ff] hover:border-[#9db5cc] transition-all">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84c-.22-.66-.35-1.36-.35-2.09z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        Google
+      </button>
+      <button class="flex items-center justify-center gap-2 border-2 border-[#bccbb9] rounded-xl py-3 px-4 text-sm font-semibold text-[#0b1c30] hover:bg-[#f8f9ff] hover:border-[#9db5cc] transition-all">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        Apple
+      </button>
+    </div>
+
+    <!-- OR divider -->
+    <div class="flex items-center gap-3 mb-6">
+      <div class="flex-1 h-px bg-[#bccbb9]"></div>
+      <span class="text-xs font-semibold text-[#6d7b6c] tracking-widest">OR WITH EMAIL</span>
+      <div class="flex-1 h-px bg-[#bccbb9]"></div>
+    </div>
+
+    <!-- Form fields -->
+    <div class="mb-4">
+      <label class="block text-sm font-semibold text-[#0b1c30] mb-1.5">Email Address</label>
+      <input type="email" placeholder="name@school.edu"
+        class="w-full px-4 py-3.5 border-2 border-[#bccbb9] rounded-xl text-[#0b1c30] placeholder-[#bccbb9] text-sm bg-white transition-colors"
+        style="font-family:inherit"/>
+    </div>
+    <div class="mb-7">
+      <div class="flex justify-between items-center mb-1.5">
+        <label class="text-sm font-semibold text-[#0b1c30]">Password</label>
+        <a href="#" class="text-sm text-[#0058be] font-semibold hover:underline">Forgot?</a>
+      </div>
+      <div class="relative">
+        <input id="pwd" type="password" placeholder="••••••••"
+          class="w-full px-4 py-3.5 border-2 border-[#bccbb9] rounded-xl text-[#0b1c30] placeholder-[#bccbb9] text-sm pr-12 bg-white transition-colors"
+          style="font-family:inherit"/>
+        <button type="button" onclick="togglePwd()" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#6d7b6c] hover:text-[#0b1c30] transition-colors p-1">
+          <span class="mat text-xl" id="pwd-icon">visibility</span>
+        </button>
+      </div>
+    </div>
+
+    <a href="student-home.html" class="block">
+      <button class="btn-3d w-full py-4 bg-[#006e2f] text-white qs font-bold text-base rounded-xl hover:bg-[#005828] transition-colors flex items-center justify-center gap-2">
+        Sign In to Dashboard
+        <span class="mat text-xl">arrow_forward</span>
+      </button>
+    </a>
+
+    <p class="text-center text-xs text-[#6d7b6c] mt-5 leading-relaxed">
+      By continuing, you agree to our
+      <a href="#" class="text-[#0058be] hover:underline">Terms of Service</a>
+      and <a href="#" class="text-[#0058be] hover:underline">Privacy Policy</a>.
+    </p>
+
+    <!-- Admin portal link -->
+    <div class="mt-8 pt-6 border-t border-[#e5eeff] text-center">
+      <p class="text-xs text-[#6d7b6c] mb-1">Are you a school administrator?</p>
+      <a href="admin-users.html" class="text-sm text-[#0058be] font-semibold hover:underline flex items-center justify-center gap-1">
+        Access Admin Portal <span class="mat text-base">arrow_forward</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(t) {
+  const si = document.getElementById('tab-signin');
+  const ca = document.getElementById('tab-create');
+  if (t === 'signin') {
+    si.className = 'tab-btn tab-active';
+    ca.className = 'tab-btn tab-inactive';
+  } else {
+    ca.className = 'tab-btn tab-active';
+    si.className = 'tab-btn tab-inactive';
+  }
+}
+function togglePwd() {
+  const p = document.getElementById('pwd');
+  const i = document.getElementById('pwd-icon');
+  p.type = p.type === 'password' ? 'text' : 'password';
+  i.textContent = p.type === 'password' ? 'visibility' : 'visibility_off';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduSpark — Enroll Students</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#f8f9ff;color:#0b1c30}
+.qs{font-family:'Quicksand',sans-serif}.mat{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;vertical-align:middle;font-family:'Material Symbols Outlined'}
+.matf{font-variation-settings:'FILL' 1,'wght' 600,'GRAD' 0,'opsz' 24;vertical-align:middle;font-family:'Material Symbols Outlined'}
+.btn-3d{box-shadow:0 4px 0 rgba(0,80,0,.22);transition:transform .1s,box-shadow .1s}.btn-3d:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,80,0,.22)}
+.card{background:#fff;border:1px solid #e5eeff;border-radius:1.25rem;box-shadow:0 1px 3px rgba(0,88,190,.05),0 4px 12px rgba(0,88,190,.06)}
+.nav-link{display:flex;align-items:center;padding:.4rem .85rem;border-radius:.6rem;font-size:.875rem;font-weight:600;color:#3d4a3d;text-decoration:none;transition:all .15s;white-space:nowrap}
+.nav-link:hover{background:#eff4ff;color:#0058be}.nav-link.active{color:#006e2f;border-bottom:2px solid #006e2f;border-radius:0;padding-bottom:.3rem}
+.par-link{display:flex;align-items:center;gap:.625rem;padding:.65rem .75rem;border-radius:.75rem;font-size:.875rem;color:#3d4a3d;text-decoration:none;transition:all .15s;font-weight:500}
+.par-link:hover{background:#eff4ff;color:#0058be}.par-link.active{background:#0058be;color:#fff;font-weight:600}
+.par-link.active .mat{color:#fff}
+.form-input{width:100%;padding:.85rem 1rem;border:2px solid #bccbb9;border-radius:.875rem;font-family:inherit;font-size:.9rem;color:#0b1c30;background:#fff;transition:border-color .15s;outline:none}
+.form-input:focus{border-color:#0058be}
+.form-label{display:block;font-size:.8125rem;font-weight:600;color:#0b1c30;margin-bottom:.4rem}
+.step-circle{width:2rem;height:2rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8125rem;font-weight:700;font-family:'Quicksand',sans-serif;flex-shrink:0}
+.step-done{background:#006e2f;color:#fff}
+.step-active{background:#0058be;color:#fff}
+.step-idle{background:#e5eeff;color:#6d7b6c;border:2px solid #bccbb9}
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="fixed top-0 left-0 right-0 z-50 h-16 bg-white border-b border-[#e5eeff] flex items-center justify-between px-10" style="box-shadow:0 2px 12px rgba(0,88,190,.06)">
+  <div class="flex items-center gap-10">
+    <a href="index.html" class="qs font-bold text-[22px] text-[#006e2f] no-underline">EduSpark</a>
+    <div class="flex items-center gap-0.5">
+      <a href="student-home.html" class="nav-link active">Home</a>
+      <a href="practice.html" class="nav-link">Practice</a>
+      <a href="research.html" class="nav-link">Research</a>
+      <a href="assignments.html" class="nav-link">Assignments</a>
+    </div>
+  </div>
+  <div class="flex items-center gap-2">
+    <button class="w-9 h-9 rounded-full hover:bg-[#eff4ff] flex items-center justify-center transition-colors text-[#3d4a3d]"><span class="mat">notifications</span></button>
+    <button class="w-9 h-9 rounded-full hover:bg-[#eff4ff] flex items-center justify-center transition-colors text-[#3d4a3d]"><span class="mat">settings</span></button>
+    <button class="w-9 h-9 rounded-full bg-[#ffdbca] border-2 border-[#ff8e4d] flex items-center justify-center font-bold text-[#9d4300] text-sm qs">SJ</button>
+  </div>
+</nav>
+
+<div class="flex pt-16 min-h-screen">
+  <!-- PARENT SIDEBAR -->
+  <aside class="w-52 shrink-0 bg-white border-r border-[#e5eeff] sticky top-16 h-[calc(100vh-64px)] flex flex-col py-5 px-3 overflow-y-auto">
+    <div class="mb-5 px-2">
+      <p class="text-xs font-bold text-[#006e2f] uppercase tracking-wider mb-0.5">Parent Hub</p>
+      <p class="text-[#3d4a3d] text-xs leading-snug">Manage your children's growth</p>
+    </div>
+    <nav class="flex flex-col gap-0.5 flex-1">
+      <a href="parent-portal.html" class="par-link"><span class="mat text-[#6d7b6c]">dashboard</span>Overview</a>
+      <a href="#" class="par-link"><span class="mat text-[#6d7b6c]">event_repeat</span>Subscription</a>
+      <a href="#" class="par-link"><span class="mat text-[#6d7b6c]">history</span>Activity Logs</a>
+      <a href="#" class="par-link"><span class="mat text-[#6d7b6c]">settings</span>Settings</a>
+    </nav>
+    <div class="mt-4 p-3 bg-[#eff4ff] rounded-xl border border-[#dce9ff]">
+      <p class="text-[10px] font-bold text-[#0058be] uppercase tracking-wider mb-1.5 flex items-center gap-1">
+        <span class="matf text-sm text-[#ff8e4d]">lightbulb</span>Pro Tip
+      </p>
+      <p class="text-xs text-[#3d4a3d] leading-snug">Setting specific goals like "Improve Reading Speed" helps our AI tailor daily quests for your child's pace.</p>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="flex-1 overflow-x-hidden">
+    <div class="max-w-3xl mx-auto px-10 py-10">
+
+      <!-- Header -->
+      <div class="text-center mb-10">
+        <h1 class="qs font-bold text-[40px] text-[#0b1c30] mb-2">Enroll Your Students</h1>
+        <p class="text-[#3d4a3d] text-base max-w-lg mx-auto">Start your family's learning journey today. You can add multiple children to your account and customize their learning path.</p>
+      </div>
+
+      <!-- Step progress -->
+      <div class="flex items-center mb-10">
+        <!-- Step 1: active -->
+        <div class="flex items-center gap-2 flex-1">
+          <div class="step-circle step-active">1</div>
+          <div>
+            <p class="text-xs font-bold text-[#0058be]">Step 1</p>
+            <p class="text-sm font-semibold text-[#0b1c30]">Student Info</p>
+          </div>
+        </div>
+        <div class="flex-1 h-0.5 bg-[#e5eeff] mx-2"></div>
+        <!-- Step 2: idle -->
+        <div class="flex items-center gap-2 flex-1">
+          <div class="step-circle step-idle">2</div>
+          <div>
+            <p class="text-xs font-medium text-[#6d7b6c]">Step 2</p>
+            <p class="text-sm font-medium text-[#6d7b6c]">Grade Level</p>
+          </div>
+        </div>
+        <div class="flex-1 h-0.5 bg-[#e5eeff] mx-2"></div>
+        <!-- Step 3: idle -->
+        <div class="flex items-center gap-2 flex-1">
+          <div class="step-circle step-idle">3</div>
+          <div>
+            <p class="text-xs font-medium text-[#6d7b6c]">Step 3</p>
+            <p class="text-sm font-medium text-[#6d7b6c]">Learning Goals</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Student form card -->
+      <div class="card p-8 mb-6">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="qs font-bold text-xl text-[#0058be]">Student #1</h2>
+          <button class="flex items-center gap-1.5 text-sm text-[#ba1a1a] font-semibold hover:bg-[#fff4f4] px-3 py-1.5 rounded-lg transition-colors">
+            <span class="mat text-lg">delete_outline</span>Remove
+          </button>
+        </div>
+        <div class="grid grid-cols-2 gap-5 mb-5">
+          <div>
+            <label class="form-label">First Name</label>
+            <input type="text" placeholder="e.g. Alex" class="form-input">
+          </div>
+          <div>
+            <label class="form-label">Last Name</label>
+            <input type="text" placeholder="e.g. Smith" class="form-input">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-5">
+          <div>
+            <label class="form-label">Date of Birth</label>
+            <input type="date" class="form-input">
+          </div>
+          <div>
+            <label class="form-label">Gender <span class="text-[#6d7b6c] font-normal">(Optional)</span></label>
+            <select class="form-input" style="appearance:none;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236d7b6c' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:right 1rem center">
+              <option value="">Select Option</option>
+              <option>Male</option>
+              <option>Female</option>
+              <option>Prefer not to say</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex items-center gap-4 mb-10">
+        <button class="flex items-center gap-2 px-6 py-3 border-2 border-[#0058be] text-[#0058be] qs font-bold rounded-xl text-sm hover:bg-[#eff4ff] transition-colors">
+          <span class="mat">person_add</span>Add Another Student
+        </button>
+        <div class="flex-1"></div>
+        <button class="px-6 py-3 text-[#3d4a3d] font-semibold text-sm hover:bg-[#e5eeff] rounded-xl transition-colors">Save Draft</button>
+        <button class="btn-3d px-8 py-3 bg-[#006e2f] text-white qs font-bold rounded-xl text-sm hover:bg-[#005828] transition-colors flex items-center gap-2">
+          Next <span class="mat text-lg">arrow_forward</span>
+        </button>
+      </div>
+
+      <!-- Bottom help row -->
+      <div class="grid grid-cols-2 gap-5">
+        <!-- Pro tip -->
+        <div class="flex items-start gap-4 p-5 bg-[#ffdbca]/60 rounded-2xl border border-[#ffb690]">
+          <div class="w-10 h-10 bg-[#ffdbca] rounded-xl flex items-center justify-center shrink-0">
+            <span class="matf text-[#ff8e4d] text-xl">lightbulb</span>
+          </div>
+          <div>
+            <p class="font-bold text-sm text-[#9d4300] mb-1">Pro Tip: Learning Goals</p>
+            <p class="text-sm text-[#6d2d00] leading-relaxed">Setting specific goals like "Improve Reading Speed" helps our AI tailor the daily quests specifically for your child's pace.</p>
+          </div>
+        </div>
+        <!-- Need help -->
+        <div class="p-5 rounded-2xl text-white" style="background:linear-gradient(135deg,#003da8,#0058be)">
+          <p class="font-bold text-base mb-1">Need Help?</p>
+          <p class="text-white/80 text-sm mb-4">Our education consultants are available 24/7.</p>
+          <button class="px-5 py-2.5 bg-white text-[#0058be] qs font-bold rounded-xl text-sm hover:bg-[#eff4ff] transition-colors">Chat Now</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-[#d3e4fe] border-t border-[#bccbb9] px-10 py-8 mt-6">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-5">
+        <span class="qs font-bold text-xl text-[#006e2f]">EduSpark</span>
+        <div class="flex flex-wrap justify-center gap-6">
+          <a href="#" class="text-sm text-[#3d4a3d] hover:text-[#0058be] no-underline">Terms of Service</a>
+          <a href="#" class="text-sm text-[#3d4a3d] hover:text-[#0058be] no-underline">Help Center</a>
+          <a href="#" class="text-sm text-[#3d4a3d] hover:text-[#0058be] no-underline">Privacy Policy</a>
+          <a href="#" class="text-sm text-[#3d4a3d] hover:text-[#0058be] no-underline">Contact Support</a>
+        </div>
+      </div>
+      <p class="text-center text-xs text-[#6d7b6c] mt-5">© 2024 EduSpark Learning. All rights reserved.</p>
+    </footer>
+  </main>
+</div>
+</body>
+</html>

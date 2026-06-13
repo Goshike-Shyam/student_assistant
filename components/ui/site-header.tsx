@@ -1,47 +1,63 @@
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
 
 const navItems = [
   { label: 'Home', href: '/' },
-  { label: 'Dashboard', href: '/dashboard' },
-  { label: 'AI Tutor', href: '/ai-tutor' },
-  { label: 'Resources', href: '/resources' },
-  { label: 'Chat', href: '/chat' }
+  { label: 'Practice', href: '/practice' },
+  { label: 'Research', href: '/resources' },
+  { label: 'Assignments', href: '/assignments' }
 ];
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-[1480px] items-center justify-between gap-4 px-6 py-4">
-        <Link href="/" className="flex items-center gap-3 text-base font-semibold text-slate-900">
-          <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-500 text-white shadow-sm shadow-cyan-500/20">SA</span>
-          School Assistant
+    <nav className="fixed top-0 left-0 right-0 z-50 h-16 bg-white border-b border-[#e5eeff] flex items-center justify-between px-10 shadow-sm" style={{ boxShadow: '0 2px 12px rgba(0,88,190,.06)' }}>
+      <div className="flex items-center gap-10">
+        <Link href="/" className="qs font-bold text-[22px] text-[#006e2f] no-underline flex items-center gap-2">
+          <div className="w-8 h-8 bg-[#0058be] rounded-xl flex items-center justify-center">
+            <span className="mat-fill text-white text-lg">school</span>
+          </div>
+          EduSpark
         </Link>
-
-        <nav className="hidden items-center gap-6 md:flex">
+        <div className="flex items-center gap-0.5">
           {navItems.map((item) => (
-            <Link key={item.href} href={item.href} className="text-sm font-medium text-slate-600 transition hover:text-slate-900">
+            <Link key={item.href} href={item.href} className="nav-link">
               {item.label}
             </Link>
           ))}
-        </nav>
-
-        <div className="flex items-center gap-3">
-          <Link
-            href="/login"
-            className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
-          >
-            Sign in
-          </Link>
-          <Link
-            href="/signup"
-            className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-5 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
-          >
-            Sign up
-            <ArrowRight className="h-4 w-4" />
-          </Link>
         </div>
       </div>
-    </header>
+      <div className="flex items-center gap-2">
+        <button className="w-9 h-9 rounded-full hover:bg-[#eff4ff] flex items-center justify-center transition-colors text-[#3d4a3d]">
+          <span className="mat">notifications</span>
+        </button>
+        <button className="w-9 h-9 rounded-full hover:bg-[#eff4ff] flex items-center justify-center transition-colors text-[#3d4a3d]">
+          <span className="mat">settings</span>
+        </button>
+        <div className="relative">
+          <button onclick="document.getElementById('umenu')?.classList.toggle('hidden')" className="w-9 h-9 rounded-full bg-[#d3e4fe] border-2 border-[#22c55e] flex items-center justify-center font-bold text-[#006e2f] text-sm qs">
+            AJ
+          </button>
+          <div id="umenu" className="hidden absolute top-11 right-0 bg-white rounded-2xl border border-[#e5eeff] py-2 min-w-[200px]" style={{ boxShadow: '0 8px 32px rgba(0,88,190,.14)' }}>
+            <div className="px-4 py-3 border-b border-[#f8f9ff]">
+              <p className="font-semibold text-sm">Alex Johnson</p>
+              <p className="text-xs text-[#6d7b6c]">Grade 10 · Student</p>
+            </div>
+            <Link href="/parent-portal" className="flex items-center gap-2 px-4 py-2.5 text-sm text-[#0b1c30] hover:bg-[#eff4ff] transition-colors">
+              <span className="mat text-[#006e2f] text-lg">family_restroom</span>
+              Parent View
+            </Link>
+            <Link href="/admin" className="flex items-center gap-2 px-4 py-2.5 text-sm text-[#0b1c30] hover:bg-[#eff4ff] transition-colors">
+              <span className="mat text-[#0058be] text-lg">admin_panel_settings</span>
+              Admin Portal
+            </Link>
+            <div className="border-t border-[#f8f9ff] mt-1 pt-1">
+              <Link href="/login" className="flex items-center gap-2 px-4 py-2.5 text-sm text-[#ba1a1a] hover:bg-[#fff4f4] transition-colors">
+                <span className="mat text-[#ba1a1a] text-lg">logout</span>
+                Sign Out
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
   );
 }
