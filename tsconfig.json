@@ -18,13 +18,13 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
-    "baseUrl": ".",
     "paths": {
-      "@/components/*": [
-        "components/*"
+      "@/*": ["./src/*"
+    ],
+      "@/components/*": ["./components/*"
       ],
       "@/lib/*": [
-        "lib/*"
+        "./lib/*"
       ]
     },
     "plugins": [
