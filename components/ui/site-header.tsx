@@ -36,19 +36,20 @@ export function SiteHeader() {
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
-        <button className="w-9 h-9 rounded-full hover:bg-[#eff4ff] flex items-center justify-center transition-colors text-[#3d4a3d]">
-          <span className="mat">notifications</span>
+      <div className="flex items-center gap-3">
+        <button className="w-10 h-10 rounded-full hover:bg-[#eff4ff] flex items-center justify-center transition-colors text-[#3d4a3d]" title="Notifications">
+          <span className="mat text-[22px]">notifications</span>
         </button>
 
-        <button className="w-9 h-9 rounded-full hover:bg-[#eff4ff] flex items-center justify-center transition-colors text-[#3d4a3d]">
-          <span className="mat">settings</span>
+        <button className="w-10 h-10 rounded-full hover:bg-[#eff4ff] flex items-center justify-center transition-colors text-[#3d4a3d]" title="Settings">
+          <span className="mat text-[22px]">settings</span>
         </button>
 
         <div className="relative">
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="w-9 h-9 rounded-full bg-[#d3e4fe] border-2 border-[#22c55e] flex items-center justify-center font-bold text-[#006e2f] text-sm qs"
+            className="w-10 h-10 rounded-full bg-[#d3e4fe] border-2 border-[#22c55e] flex items-center justify-center font-bold text-[#006e2f] text-xs qs"
+            title="User Menu"
           >
             AJ
           </button>

@@ -121,7 +121,7 @@ export default function SignupPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <Label htmlFor="name">Full name</Label>
+                <Label htmlFor="name">Full Name</Label>
                 <Input id="name" value={name} onChange={(event) => setName(event.target.value)} placeholder="First and last name" />
               </div>
               <div>
@@ -136,11 +136,11 @@ export default function SignupPage() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <Label htmlFor="email">Email address</Label>
+                <Label htmlFor="email">Email Address</Label>
                 <Input id="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@school.edu" />
               </div>
               <div>
-                <Label htmlFor="phone">Phone number</Label>
+                <Label htmlFor="phone">Phone Number</Label>
                 <Input id="phone" type="tel" value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="e.g. +91 98765 43210" />
               </div>
             </div>
@@ -151,7 +151,7 @@ export default function SignupPage() {
                 <Input id="password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Create a strong password" />
               </div>
               <div>
-                <Label htmlFor="grade">Grade</Label>
+                <Label htmlFor="grade">Grade Level</Label>
                 <Select id="grade" value={grade} onChange={(event) => setGrade(event.target.value)}>
                   <option>Grade 6</option>
                   <option>Grade 7</option>
@@ -164,7 +164,7 @@ export default function SignupPage() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <Label htmlFor="board">Board</Label>
+                <Label htmlFor="board">Education Board</Label>
                 <Select id="board" value={board} onChange={(event) => setBoard(event.target.value)}>
                   <option>CBSE</option>
                   <option>ICSE</option>
