@@ -2,7 +2,12 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Session } from 'inspector';
+
+interface User {
+  id?: string;
+  email?: string;
+  name?: string;
+}
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -10,8 +15,7 @@ export default function SignInForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [status, setStatus] = useState<string | null>(null);
-  //const [session, setSession] = useState(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [session, setSession] = useState<User | null>(null);
   
   const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
