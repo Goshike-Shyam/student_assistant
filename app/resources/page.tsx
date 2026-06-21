@@ -9,6 +9,8 @@ import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+
 export default function ResourcesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('');
@@ -52,8 +54,8 @@ export default function ResourcesPage() {
     setIsSearching(true);
     
     try {
-      // Simulate API call - will be replaced with actual AI backend
-      const response = await fetch('/api/search', {
+      // Call backend AI search API
+      const response = await fetch(`${API_URL}/api/search`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
