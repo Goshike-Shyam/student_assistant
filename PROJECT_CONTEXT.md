@@ -1280,7 +1280,62 @@ npm run db:studio      # Open Prisma Studio GUI
 
 ---
 
-**Document Version:** 1.0  
-**Last Updated:** June 19, 2026  
+## 17. Future Features (Deferred Implementation)
+
+### 🎙️ **Podcast & Video Generation Feature**
+**Status:** Deferred for Phase 2 (documented for future implementation)
+
+**Description:**  
+Generate audio podcasts and educational videos from search responses to help students engage with content in different formats. These features will be subscription-based and shareable to social media.
+
+**Requirements:**
+- On-demand podcast generation from search response text
+- On-demand video generation for research topics
+- Text-to-speech technology for podcast audio
+- Video format output (MP4/WebM)
+- Social media integration (WhatsApp, YouTube share)
+- Feature availability based on subscription tier (FREE, PREMIUM, ENTERPRISE)
+
+**Implementation Plan (Phase 2):**
+1. **Podcast Generation:**
+   - Integrate with Google Text-to-Speech API or ElevenLabs
+   - Store generated audio files in cloud storage (AWS S3 or Supabase Storage)
+   - Add podcast download/stream capability to UI
+   - Update ParentReport to include podcast access
+
+2. **Video Generation:**
+   - Integrate with HeyGen, Synthesia, or similar video AI service
+   - Generate educational video with avatar presenter
+   - Add subtitle/caption support
+   - Store video files in CDN for streaming
+
+3. **Social Sharing:**
+   - WhatsApp integration for direct sharing
+   - YouTube upload for longer content
+   - Generate shareable links with expiration
+   - Track sharing analytics
+
+4. **Database Updates Needed:**
+   - Add table: `GeneratedContent` (id, userId, contentType, queryId, fileUrl, generatedAt)
+   - Add column to `SearchResponse`: `podcastUrl`, `videoUrl`
+   - Add columns to `User`: `podcastQuota`, `videoQuota` for subscription limits
+
+5. **Subscription Plan Details:**
+   - **FREE:** Limited to text-only responses
+   - **PREMIUM:** 5 podcasts/month, 2 videos/month
+   - **ENTERPRISE:** Unlimited podcasts and videos
+
+**Technology Stack (Proposed):**
+- **Podcast:** ElevenLabs API or Google Cloud Text-to-Speech
+- **Video:** HeyGen API or Synthesia
+- **Storage:** AWS S3 or Supabase Storage
+- **Sharing:** Firebase Dynamic Links or custom short URL service
+
+**Estimated Effort:** 40-50 hours (Phase 2)
+
+---
+
+**Document Version:** 1.1  
+**Last Updated:** June 21, 2026  
 **Owner:** EduSpark Development Team  
 **Status:** Complete - Ready for Reference

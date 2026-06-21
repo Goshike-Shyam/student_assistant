@@ -431,4 +431,184 @@ router.delete(
   }),
 );
 
+// ========== SEARCH ROUTES ==========
+
+// Create a new search query
+router.post(
+  '/search',
+  asyncHandler(async (req: Request, res: Response) => {
+    const { studentId, query, subject, voiceInput } = req.body;
+
+    if (!query) {
+      throw new AppError(400, 'Query is required');
+    }
+
+    // For now, generate a placeholder response
+    // In production, integrate with Claude API
+    const response = `<h3>Response about ${subject || 'your topic'}</h3>
+    <p>This is a curriculum-aligned educational response. The AI backend is configured to understand your grade level, curriculum (${process.env.CURRICULUM || 'CBSE'}), and location.</p>
+    <p>In production, this will use your Claude API key to generate intelligent, age-appropriate responses.</p>`;
+
+    const resourceLinks = [
+      { title: 'Internal Curriculum Resource', url: '#' },
+      { title: 'Khan Academy', url: 'https://www.khanacademy.org' }
+    ];
+
+    // Save search query if student ID provided
+    if (studentId) {
+      await prisma.searchQuery.create({
+        data: {
+          studentId,
+          query,
+          subject: subject || null,
+          voiceInput: voiceInput || false,
+        },
+      });
+    }
+
+    res.status(201).json({
+      response,
+      resourceLinks,
+      message: 'Search completed successfully'
+    });
+  }),
+);
+
+// Get all search queries for a student
+router.get(
+  '/search/student/:studentId',
+  asyncHandler(async (req: Request, res: Response) => {
+    const { studentId } = req.params;
+
+    const searchQueries = await prisma.searchQuery.findMany({
+      where: { studentId },
+      include: {
+        responses: true,
+        attachments: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    res.json(searchQueries);
+  }),
+);
+
+// Get smart search history for a student (earlier searches)
+router.get(
+  '/search/history/:studentId',
+  asyncHandler(async (req: Request, res: Response) => {
+    const { studentId } = req.params;
+    const { limit = '10', offset = '0' } = req.query;
+
+    const searches = await prisma.searchQuery.findMany({
+      where: { studentId },
+      select: {
+        id: true,
+        query: true,
+        subject: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: 'desc' },
+      take: parseInt(limit as string),
+      skip: parseInt(offset as string),
+    });
+
+    res.json(searches);
+  }),
+);
+
+// Save search response and create conversation
+router.post(
+  '/search/response',
+  asyncHandler(async (req: Request, res: Response) => {
+    const { queryId, response, resourceLinks, sourceLinks } = req.body;
+
+    if (!queryId || !response) {
+      throw new AppError(400, 'queryId and response are required');
+    }
+
+    const searchResponse = await prisma.searchResponse.create({
+      data: {
+        queryId,
+        response,
+        resourceLinks: resourceLinks || [],
+        sourceLinks: sourceLinks || [],
+      },
+    });
+
+    res.status(201).json(searchResponse);
+  }),
+);
+
+// Get conversation history
+router.get(
+  '/conversation/:queryId',
+  asyncHandler(async (req: Request, res: Response) => {
+    const { queryId } = req.params;
+
+    const conversation = await prisma.conversationHistory.findFirst({
+      where: { initialQueryId: queryId },
+      include: {
+        initialQuery: {
+          include: {
+            responses: true,
+          },
+        },
+      },
+    });
+
+    if (!conversation) throw new AppError(404, 'Conversation not found');
+    res.json(conversation);
+  }),
+);
+
+// Add follow-up question to conversation
+router.post(
+  '/conversation/:queryId/followup',
+  asyncHandler(async (req: Request, res: Response) => {
+    const { queryId } = req.params;
+    const { followUpQuestion } = req.body;
+
+    if (!followUpQuestion) {
+      throw new AppError(400, 'Follow-up question is required');
+    }
+
+    // Get or create conversation
+    let conversation = await prisma.conversationHistory.findFirst({
+      where: { initialQueryId: queryId },
+    });
+
+    if (!conversation) {
+      const query = await prisma.searchQuery.findUnique({
+        where: { id: queryId },
+      });
+      if (!query) throw new AppError(404, 'Query not found');
+
+      conversation = await prisma.conversationHistory.create({
+        data: {
+          studentId: query.studentId,
+          initialQueryId: queryId,
+          followUpQueries: [followUpQuestion],
+          conversationLog: JSON.stringify([
+            { type: 'question', content: query.query },
+            { type: 'followup', content: followUpQuestion }
+          ]),
+        },
+      });
+    } else {
+      conversation = await prisma.conversationHistory.update({
+        where: { id: conversation.id },
+        data: {
+          followUpQueries: {
+            push: followUpQuestion,
+          },
+          conversationLog: conversation.conversationLog,
+        },
+      });
+    }
+
+    res.status(201).json(conversation);
+  }),
+);
+
 export default router;

@@ -4,8 +4,8 @@ import { useState } from 'react';
 
 const navItems = [
   { label: 'Home', href: '/' },
-  { label: 'Practice', href: '/practice' },
   { label: 'Research', href: '/resources' },
+  { label: 'Practice', href: '/practice' },
   { label: 'Assignments', href: '/assignments' }
 ];
 
@@ -38,11 +38,11 @@ export function SiteHeader() {
 
       <div className="flex items-center gap-3">
         <button className="w-10 h-10 rounded-full hover:bg-[#eff4ff] flex items-center justify-center transition-colors text-[#3d4a3d]" title="Notifications">
-          <span className="mat text-[22px]">notifications</span>
+          <span className="mat text-[22px]">Notifications</span>
         </button>
 
         <button className="w-10 h-10 rounded-full hover:bg-[#eff4ff] flex items-center justify-center transition-colors text-[#3d4a3d]" title="Settings">
-          <span className="mat text-[22px]">settings</span>
+          <span className="mat text-[22px]">Settings</span>
         </button>
 
         <div className="relative">

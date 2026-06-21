@@ -33,11 +33,11 @@ export default function AdminDashboard() {
               <input type="text" placeholder="Search analytics..." className="pl-9 pr-4 py-2 border border-[#bccbb9] rounded-full text-sm bg-[#f8f9ff] w-44 transition-colors focus:outline-none" style={{ fontFamily: 'inherit' }} />
             </div>
             <button className="relative w-9 h-9 rounded-full hover:bg-[#eff4ff] flex items-center justify-center text-[#3d4a3d]">
-              <span className="mat">notifications</span>
+              <span className="mat">Notifications</span>
               <span className="absolute top-1 right-1 w-4 h-4 bg-[#ba1a1a] rounded-full text-[9px] text-white font-bold flex items-center justify-center">3</span>
             </button>
             <button className="w-9 h-9 rounded-full hover:bg-[#eff4ff] flex items-center justify-center text-[#3d4a3d]">
-              <span className="mat">settings</span>
+              <span className="mat">Settings</span>
             </button>
             <div className="flex items-center gap-2 ml-1">
               <div className="w-9 h-9 rounded-full bg-[#213145] border-2 border-[#adc6ff] flex items-center justify-center font-bold text-white text-xs qs">AR</div>

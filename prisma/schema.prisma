@@ -19,6 +19,19 @@ enum AssignmentStatus {
   GRADED
 }
 
+enum SubscriptionPlan {
+  FREE
+  PREMIUM
+  ENTERPRISE
+}
+
+enum CurriculumType {
+  CBSE
+  ICSE
+  STATE_BOARD
+  INTERNATIONAL
+}
+
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
@@ -28,10 +41,20 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  courses       Course[]       @relation("InstructorCourses")
-  enrollments   Enrollment[]
-  submissions   Submission[]
-  assignments   Assignment[]   @relation("CreatedBy")
+  // Student-specific fields (nullable for non-students)
+  grade                Int?
+  curriculum           CurriculumType?
+  location             String?
+  parentEmail          String?
+  subscriptionPlan     SubscriptionPlan @default(FREE)
+
+  courses               Course[]       @relation("InstructorCourses")
+  enrollments           Enrollment[]
+  submissions           Submission[]
+  assignments           Assignment[]   @relation("CreatedBy")
+  searchQueries         SearchQuery[]
+  conversationHistories ConversationHistory[]
+  parentReports         ParentReport[]
 }
 
 model Course {
@@ -91,4 +114,71 @@ model Submission {
   updatedAt    DateTime @updatedAt
 
   @@unique([assignmentId, studentId])
+}
+
+// Search and Research Features
+model SearchQuery {
+  id                  String   @id @default(uuid())
+  student             User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId           String
+  query               String
+  subject             String?
+  conversationId      String?
+  attachmentIds       String[] @default([]) // Array of SearchAttachment IDs
+  voiceInput          Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  responses           SearchResponse[]
+  attachments         SearchAttachment[]
+  conversationHistory ConversationHistory[]
+}
+
+model SearchResponse {
+  id              String   @id @default(uuid())
+  searchQuery     SearchQuery @relation(fields: [queryId], references: [id], onDelete: Cascade)
+  queryId         String
+  response        String   // Rich formatted content
+  resourceLinks   String[] @default([]) // Array of resource URLs
+  sourceLinks     String[] @default([]) // Internal/external source links
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model SearchAttachment {
+  id            String   @id @default(uuid())
+  searchQuery   SearchQuery @relation(fields: [queryId], references: [id], onDelete: Cascade)
+  queryId       String
+  fileName      String
+  fileType      String   // pdf, doc, image, audio, excel
+  fileUrl       String   // S3 or storage URL
+  fileSize      Int      // In bytes
+  uploadedAt    DateTime @default(now())
+}
+
+model ConversationHistory {
+  id              String   @id @default(uuid())
+  student         User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId       String
+  initialQuery    SearchQuery @relation(fields: [initialQueryId], references: [id], onDelete: Cascade)
+  initialQueryId  String
+  followUpQueries String[] @default([]) // JSON array of follow-up questions
+  conversationLog String   // JSON stringified conversation thread
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model ParentReport {
+  id              String   @id @default(uuid())
+  parent          User     @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  parentId        String
+  reportDate      DateTime @default(now())
+  weekStartDate   DateTime
+  weekEndDate     DateTime
+  totalSearches   Int      @default(0)
+  searchSummary   String   // JSON array of search summaries
+  topicsExplored  String[] @default([])
+  reportUrl       String?  // URL to download/view report
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
