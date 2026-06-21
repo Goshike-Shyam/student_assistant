@@ -2,12 +2,16 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { Router, Request, Response } from 'express';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import prisma from './prisma';
 import { asyncHandler, AppError } from './middleware';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.join(__dirname, '../.env') });
+
+// Initialize Gemini AI
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 const router = Router();
 
@@ -443,16 +447,58 @@ router.post(
       throw new AppError(400, 'Query is required');
     }
 
-    // For now, generate a placeholder response
-    // In production, integrate with Claude API
-    const response = `<h3>Response about ${subject || 'your topic'}</h3>
-    <p>This is a curriculum-aligned educational response. The AI backend is configured to understand your grade level, curriculum (${process.env.CURRICULUM || 'CBSE'}), and location.</p>
-    <p>In production, this will use your Claude API key to generate intelligent, age-appropriate responses.</p>`;
+    let response = '';
+    let resourceLinks: any[] = [];
 
-    const resourceLinks = [
-      { title: 'Internal Curriculum Resource', url: '#' },
-      { title: 'Khan Academy', url: 'https://www.khanacademy.org' }
-    ];
+    try {
+      // Use Gemini API to generate response
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+
+      // Build curriculum context
+      const curriculumContext = `You are an educational AI tutor designed to help students with their studies.
+Subject: ${subject || 'General Knowledge'}
+Educational Context: Provide responses appropriate for CBSE/ICSE curriculum.
+Format: Provide educational, accurate responses with clear explanations.
+Important: Always include educational value and cite sources where applicable.`;
+
+      const fullPrompt = `${curriculumContext}\n\nStudent Question: ${query}\n\nPlease provide a comprehensive, age-appropriate educational response.`;
+
+      const result = await model.generateContent(fullPrompt);
+      const textContent = result.response.text();
+
+      // Format response with HTML
+      response = `<h3>${subject ? `${subject}: ` : ''}Response to your question</h3>
+      <div class="response-content">
+        ${textContent.split('\n').map((line: string) => {
+          if (line.trim().startsWith('#')) {
+            const level = line.match(/^#+/)?.[0].length || 3;
+            const text = line.replace(/^#+\s/, '');
+            return `<h${level}>${text}</h${level}>`;
+          }
+          if (line.trim()) {
+            return `<p>${line}</p>`;
+          }
+          return '';
+        }).join('')}
+      </div>`;
+
+      // Add resource links
+      resourceLinks = [
+        { title: 'Khan Academy', url: 'https://www.khanacademy.org' },
+        { title: 'NCERT Textbooks', url: 'https://ncert.nic.in/' },
+        { title: 'Physics Wallah', url: 'https://www.pw.live/' }
+      ];
+
+    } catch (error) {
+      console.error('Gemini API error:', error);
+      response = `<h3>Response about ${subject || 'your topic'}</h3>
+      <p>Apologies, there was an issue fetching AI response. Please ensure your Gemini API key is valid.</p>
+      <p>Error: ${error instanceof Error ? error.message : 'Unknown error'}</p>`;
+      
+      resourceLinks = [
+        { title: 'Khan Academy', url: 'https://www.khanacademy.org' }
+      ];
+    }
 
     // Save search query if student ID provided
     if (studentId) {
