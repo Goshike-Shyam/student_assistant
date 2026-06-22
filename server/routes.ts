@@ -28,7 +28,9 @@ router.use((req, _res, next) => {
 });
 
 // ========== USERS ROUTES ==========
-
+if (!prisma) {
+  throw new Error("Prisma client not initialized");
+}
 router.post(
   '/users',
   asyncHandler(async (req: Request, res: Response) => {
@@ -37,6 +39,8 @@ router.post(
     if (!email || !name || !password) {
       throw new AppError(400, 'Email, name, and password are required');
     }
+
+    
 
     const user = await prisma.user.create({
       data: {
