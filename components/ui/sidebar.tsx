@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { Route } from "next";
 
 interface SidebarProps {
   activeSubject?: string;
@@ -25,7 +26,7 @@ export function Sidebar({ activeSubject = 'Mathematics' }: SidebarProps) {
         {subjects.map((subject) => (
           <Link
             key={subject.id}
-            href={`/dashboard/${subject.id}`}
+            href={`/dashboard/${subject.id}` as Route}
             className={`sub-link ${subject.id === activeSubject?.toLowerCase() ? 'active' : ''}`}
           >
             <span className="mat" style={{ color: subject.color }}>
