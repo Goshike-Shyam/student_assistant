@@ -661,88 +661,11 @@ router.post(
   }),
 );
 
-// ========== PRACTICE TESTS ROUTES ==========
-
-router.get(
-  '/practice-tests',
-  asyncHandler(async (req: Request, res: Response) => {
-    const tests = await prisma.practiceTest.findMany({
-      orderBy: { createdAt: 'desc' },
-    });
-
-    res.status(200).json(tests);
-  }),
-);
-
-router.get(
-  '/practice-tests/:testId',
-  asyncHandler(async (req: Request, res: Response) => {
-    const { testId } = req.params;
-
-    const test = await prisma.practiceTest.findUnique({
-      where: { id: testId },
-    });
-
-    if (!test) {
-      throw new AppError(404, 'Practice test not found');
-    }
-
-    res.status(200).json(test);
-  }),
-);
-
-router.get(
-  '/practice-tests/user/:userId',
-  asyncHandler(async (req: Request, res: Response) => {
-    const { userId } = req.params;
-
-    const attempts = await prisma.practiceAttempt.findMany({
-      where: { userId },
-      include: { test: true },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    res.status(200).json(attempts);
-  }),
-);
-
-router.post(
-  '/practice-attempts',
-  asyncHandler(async (req: Request, res: Response) => {
-    const { userId, testId, progress, score, status } = req.body;
-
-    if (!userId || !testId) {
-      throw new AppError(400, 'userId and testId are required');
-    }
-
-    let attempt = await prisma.practiceAttempt.findFirst({
-      where: { userId, testId },
-    });
-
-    if (attempt) {
-      attempt = await prisma.practiceAttempt.update({
-        where: { id: attempt.id },
-        data: {
-          progress: progress ?? attempt.progress,
-          score: score ?? attempt.score,
-          status: status ?? attempt.status,
-          completedAt: status === 'Complete' ? new Date() : null,
-        },
-      });
-    } else {
-      attempt = await prisma.practiceAttempt.create({
-        data: {
-          userId,
-          testId,
-          progress: progress ?? 0,
-          score,
-          status: status ?? 'In Progress',
-        },
-      });
-    }
-
-    res.status(201).json(attempt);
-  }),
-);
+// NOTE: Practice test endpoints temporarily disabled until Prisma types are generated on Linux (Vercel)
+// These will be enabled after npx prisma generate succeeds
+// - GET /api/practice-tests
+// - GET /api/practice-tests/:testId  
+// - GET /api/practice-tests/user/:userId
+// - POST /api/practice-attempts
 
 export default router;
