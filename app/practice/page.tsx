@@ -97,6 +97,7 @@ export default function PracticePage() {
               <option>History</option>
               <option>Biology</option>
               <option>Geography</option>
+              <option>Economics</option>
             </select>
             <select className="px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-[#0058be] focus:ring-1 focus:ring-[#0058be]">
               <option>All Levels</option>

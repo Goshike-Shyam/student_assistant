@@ -12,12 +12,12 @@ export function AdminSidebar() {
     icon: React.ReactNode;
   };
   const navItems: NavItem[] = [
-    { id: 'overview', label: 'Overview', icon: 'dashboard', href: '/admin' },
-    { id: 'progress', label: 'Student Progress', icon: 'trending_up', href: '/admin/progress' },
-    { id: 'financials', label: 'Financials', icon: 'account_balance_wallet', href: '/admin/financials' },
-    { id: 'users', label: 'User Management', icon: 'manage_accounts', href: '/admin/users' },
-    { id: 'content', label: 'Content Library', icon: 'library_books', href: '/admin/content' },
-    { id: 'settings', label: 'Settings', icon: 'settings', href: '/admin/settings' },
+    { id: 'overview', label: 'Overview', icon: 'dashboard', href: '/admin' as Route },
+    { id: 'progress', label: 'Student Progress', icon: 'trending_up', href: '/admin/progress' as Route },
+    { id: 'financials', label: 'Financials', icon: 'account_balance_wallet', href: '/admin/financials' as Route },
+    { id: 'users', label: 'User Management', icon: 'manage_accounts', href: '/admin/users' as Route },
+    { id: 'content', label: 'Content Library', icon: 'library_books', href: '/admin/content' as Route },
+    { id: 'settings', label: 'Settings', icon: 'settings', href: '/admin/settings' as Route },
   ];
 
   return (
