@@ -1,12 +1,13 @@
 "use client";
 import Link from 'next/link';
 import { useState } from 'react';
+import type { Route } from 'next';
 
-const navItems = [
-  { label: 'Home', href: '/' },
-  { label: 'Research', href: '/resources' },
-  { label: 'Practice', href: '/practice' },
-  { label: 'Assignments', href: '/assignments' }
+const navItems: Array<{ label: string; href: Route }> = [
+  { label: 'Home', href: '/' as Route },
+  { label: 'Research', href: '/resources' as Route },
+  { label: 'Practice', href: '/practice' as Route },
+  { label: 'Assignments', href: '/assignments' as Route }
 ];
 
 export function SiteHeader() {
@@ -65,7 +66,7 @@ export function SiteHeader() {
             </div>
 
             <Link
-              href="/parent-portal"
+              href={'/parent-portal' as Route}
               className="flex items-center gap-2 px-4 py-2.5 text-sm text-[#0b1c30] hover:bg-[#eff4ff] transition-colors"
             >
               <span className="mat text-[#006e2f] text-lg">
@@ -75,7 +76,7 @@ export function SiteHeader() {
             </Link>
 
             <Link
-              href="/admin"
+              href={'/admin' as Route}
               className="flex items-center gap-2 px-4 py-2.5 text-sm text-[#0b1c30] hover:bg-[#eff4ff] transition-colors"
             >
               <span className="mat text-[#0058be] text-lg">
@@ -86,7 +87,7 @@ export function SiteHeader() {
 
             <div className="border-t border-[#f8f9ff] mt-1 pt-1">
               <Link
-                href="/login"
+                href={'/login' as Route}
                 className="flex items-center gap-2 px-4 py-2.5 text-sm text-[#ba1a1a] hover:bg-[#fff4f4] transition-colors"
               >
                 <span className="mat text-[#ba1a1a] text-lg">logout</span>

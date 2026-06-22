@@ -2,9 +2,16 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import type { Route } from "next";
 
 export function AdminSidebar() {
-  const navItems = [
+  type NavItem = {
+    id: string;
+    label: string;
+    href: Route;
+    icon: React.ReactNode;
+  };
+  const navItems: NavItem[] = [
     { id: 'overview', label: 'Overview', icon: 'dashboard', href: '/admin' },
     { id: 'progress', label: 'Student Progress', icon: 'trending_up', href: '/admin/progress' },
     { id: 'financials', label: 'Financials', icon: 'account_balance_wallet', href: '/admin/financials' },

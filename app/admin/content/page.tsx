@@ -71,7 +71,7 @@ export default function AdminContentPage() {
                   <td className="py-3 px-4">Mathematics Fundamentals</td>
                   <td className="py-3 px-4"><span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">Course</span></td>
                   <td className="py-3 px-4"><span className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">Published</span></td>
-                  <td className="py-3 px-4 text-right"><Button variant="ghost" size="sm">Edit</Button></td>
+                  <td className="py-3 px-4 text-right"><Button variant="ghost" size="sm" className="text-xs">Edit</Button></td>
                 </tr>
               </tbody>
             </table>

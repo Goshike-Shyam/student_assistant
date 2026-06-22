@@ -1,7 +1,7 @@
 # EduSpark - Project Context Documentation
 
-**Last Updated:** June 2026  
-**Status:** MVP-Ready, Security Hardening Required  
+**Last Updated:** June 21, 2026
+**Status:** Phase 2 - AI Integration In Progress (Gemini API Integrated)
 **Team Size:** Educational LMS Development
 
 ---
@@ -85,14 +85,30 @@ Express.js 4.18.2 (API server)
 ├─ TypeScript (backend type safety)
 ├─ CORS middleware (cross-origin requests)
 ├─ Async handler wrapper (error handling)
-└─ Custom error middleware
+├─ Custom error middleware
+└─ @google/generative-ai (Gemini LLM integration)
+```
+
+### AI/LLM Integration
+```
+Google Gemini API (@google/generative-ai 0.15.1+)
+├─ Model: gemini-2.0-flash (latest high-performance model)
+├─ Endpoint: /api/search (curriculum-aligned responses)
+├─ Features:
+│  ├─ Educational content generation
+│  ├─ Age-appropriate filtering
+│  ├─ Curriculum alignment (CBSE/ICSE)
+│  └─ Resource link generation
+├─ Authentication: GEMINI_API_KEY environment variable
+├─ Rate Limits: Free tier quota (100+ requests/day when available)
+└─ Error Handling: Graceful fallback with user-friendly messages
 ```
 
 ### Database
 ```
 PostgreSQL (via Supabase)
 ├─ Connection: db.gwkfegybtmmcdxnfnkyj.supabase.co:5432
-├─ Schema: 5 models (User, Course, Enrollment, Assignment, Submission)
+├─ Schema: Extended with search & conversation tracking tables
 ├─ Auth: Supabase Authentication (JWT-based)
 ├─ Backups: Automated via Supabase
 └─ SSL: Required for production
