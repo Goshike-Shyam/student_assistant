@@ -37,7 +37,13 @@ export default function SignInForm() {
       setStatus('Sign in successful! Redirecting...');
       setSession(data.user);
       
-      // Redirect to profile after 1 second
+      // Store user information in localStorage for the site-header and other components
+      localStorage.setItem('userId', data.user?.id || '');
+      localStorage.setItem('userName', data.user?.name || 'User');
+      localStorage.setItem('userGrade', data.user?.grade ? `Grade ${data.user.grade}` : 'Grade 10');
+      localStorage.setItem('userRole', data.user?.role ? (data.user.role === 'STUDENT' ? 'Student' : data.user.role === 'INSTRUCTOR' ? 'Teacher' : 'Admin') : 'Student');
+      
+      // Redirect to dashboard after 1 second
       setTimeout(() => {
         window.location.href = '/dashboard';
       }, 1000);

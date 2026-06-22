@@ -1,6 +1,7 @@
 'use client';
 
 import { FormEvent, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -16,6 +17,7 @@ const roleMap: Record<string, string> = {
 };
 
 export default function SignupPage() {
+  const router = useRouter();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -63,15 +65,12 @@ export default function SignupPage() {
         throw new Error(errorBody?.message || 'Signup request failed.');
       }
 
-      setStatus({ type: 'success', message: 'Account created successfully. You can now log in.' });
-      setName('');
-      setEmail('');
-      setPassword('');
-      setPhone('');
-      setGrade('Grade 9');
-      setBoard('CBSE');
-      setRole('Student');
-      setTermsChecked(false);
+      setStatus({ type: 'success', message: 'Account created successfully. Redirecting to login...' });
+      
+      // Redirect to login page after 1.5 seconds
+      setTimeout(() => {
+        router.push('/login');
+      }, 1500);
     } catch (error) {
       setStatus({ type: 'error', message: error instanceof Error ? error.message : 'Signup failed. Please try again.' });
     } finally {

@@ -55,6 +55,7 @@ model User {
   searchQueries         SearchQuery[]
   conversationHistories ConversationHistory[]
   parentReports         ParentReport[]
+  practiceAttempts      PracticeAttempt[]
 }
 
 model Course {
@@ -181,4 +182,37 @@ model ParentReport {
   reportUrl       String?  // URL to download/view report
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+// Practice Tests
+model PracticeTest {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  subject     String
+  difficulty  String   // Easy, Medium, Hard
+  duration    Int      // in minutes
+  totalQuestions Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  attempts    PracticeAttempt[]
+}
+
+// User Practice Test Attempts
+model PracticeAttempt {
+  id            String   @id @default(uuid())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String
+  test          PracticeTest @relation(fields: [testId], references: [id], onDelete: Cascade)
+  testId        String
+  progress      Int      @default(0) // Percentage
+  score         Float?
+  status        String   @default("In Progress") // In Progress, Complete
+  startedAt     DateTime @default(now())
+  completedAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([userId, testId])
 }
