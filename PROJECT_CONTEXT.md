@@ -1,7 +1,8 @@
 # EduSpark - Project Context Documentation
 
-**Last Updated:** June 21, 2026
-**Status:** Phase 2 - AI Integration In Progress (Gemini API Integrated)
+**Last Updated:** June 22, 2026  
+**Status:** Phase 2 - Stabilization & Vercel Deployment Ready  
+**Current Priority:** Production deployment with zero compilation errors  
 **Team Size:** Educational LMS Development
 
 ---
@@ -1296,6 +1297,246 @@ npm run db:studio      # Open Prisma Studio GUI
 
 ---
 
+## 17. Critical Decision: Practice Page Hardcodings & Database Integration Timeline
+
+### Current Status (as of June 22, 2026)
+
+**Practice Page Implementation:** Hardcoded mock data (6 tests)
+```javascript
+// Current State: Mock data in app/practice/page.tsx
+const practiceTests = [
+  { id: 1, subject: 'Mathematics', title: 'Algebra Fundamentals', 
+    duration: '45 mins', questions: 30, difficulty: 'Medium', progress: 75 },
+  { id: 2, subject: 'Science', title: 'Chemistry - Periodic Table', 
+    duration: '50 mins', questions: 25, difficulty: 'Hard', progress: 40 },
+  // ... 4 more hardcoded tests
+];
+```
+
+**Related Prisma Schema Models:** Added but types don't generate locally
+```prisma
+model PracticeTest {
+  id, title, description, subject, difficulty, duration, totalQuestions
+  attempts: PracticeAttempt[]
+}
+
+model PracticeAttempt {
+  id, userId, testId, progress (0-100), score, status, startedAt, completedAt
+  user: User, test: PracticeTest
+}
+```
+
+**Root Cause of Blocker:**
+Windows file lock on `query_engine-windows.dll.node` prevents Prisma type generation locally. This causes 6 compilation errors when trying to reference `prisma.practiceTest` and `prisma.practiceAttempt` in API routes (even though Vercel's Linux build will generate types successfully).
+
+---
+
+### ✅ When to Fix the Hardcodings: 5-Step Decision Guide
+
+#### **STEP 1: Verify Vercel Linux Build Succeeds** (Next Priority)
+**Timeline:** Immediately after this deployment  
+**What to Do:**
+1. Push to Vercel (current code deploys with zero errors)
+2. Monitor build logs - Vercel will auto-generate Prisma types on Linux
+3. Confirm build succeeds with no Prisma type errors
+4. Check Vercel deployment runs without errors
+
+**Why This Matters:**
+- Proves that Prisma types CAN be generated in production environment
+- Confirms Windows file lock won't affect production
+- Establishes baseline for local development fix
+
+**Go/No-Go Criteria:**
+- ✅ **GO:** Vercel build succeeds with auto-generated types
+- ❌ **NO-GO:** Vercel build fails with type errors (escalate to Prisma support)
+
+---
+
+#### **STEP 2: Get User Confirmation on Feature Priority** (Critical)
+**Timeline:** After Vercel build confirms Prisma types work  
+**Ask Yourself:**
+- Is practice test database integration critical for MVP?
+- Will users accept hardcoded 6 tests for next 1-2 weeks?
+- Is this higher priority than other feature gaps?
+- Do you want to maintain practice tests in database for teacher/admin management?
+
+**Recommendation:**
+- If **NOT critical for MVP** → Stay with hardcoded data until post-launch
+- If **critical** → Move to Step 3 (Windows fix)
+- If **uncertain** → Ask your stakeholders/users
+
+---
+
+#### **STEP 3: Fix Windows Prisma Type Generation** (Technical Solution)
+**Timeline:** If Step 2 confirms database integration is needed  
+**Options:**
+
+**Option A: Clear Windows File Lock (Recommended)**
+```bash
+# 1. Stop all Node/npm processes
+taskkill /F /IM node.exe
+
+# 2. Clear Prisma cache
+rm -r node_modules/.prisma
+rm -r .next
+
+# 3. Reinstall and regenerate
+npm install
+npx prisma generate
+
+# 4. Restart dev server
+npm run dev
+```
+
+**Option B: Use WSL2 (Ubuntu Subsystem)**
+```bash
+# Run Prisma commands in WSL2 instead of Windows
+# Windows locks don't affect Linux environment
+wsl npx prisma generate
+```
+
+**Option C: Use Prisma Docker Container**
+```bash
+# Avoids Windows file system completely
+docker run --rm -v %CD%:/app node npx prisma generate
+```
+
+**Option D: Skip Local Type Generation (Current Workaround)**
+- Keep hardcoded tests locally
+- Vercel auto-generates types at build time
+- API endpoints disabled with comments explaining why
+- Re-enable endpoints only when working on database features
+
+---
+
+#### **STEP 4: Implement Database-Driven Practice Tests** (Development)
+**Timeline:** After Prisma types generate successfully locally  
+**What to Implement:**
+
+1. **Re-enable API Endpoints in server/routes.ts:**
+   ```typescript
+   // GET /api/practice-tests - Fetch all tests
+   // GET /api/practice-tests/:testId - Fetch single test
+   // GET /api/practice-tests/user/:userId - Fetch user's attempts
+   // POST /api/practice-attempts - Create/update practice attempt
+   ```
+
+2. **Convert app/practice/page.tsx to use useEffect + useState:**
+   ```typescript
+   const [practiceTests, setPracticeTests] = useState([]);
+   const [loading, setLoading] = useState(true);
+   
+   useEffect(() => {
+     fetch('/api/practice-tests')
+       .then(r => r.json())
+       .then(data => setPracticeTests(data))
+       .finally(() => setLoading(false));
+   }, []);
+   ```
+
+3. **Add Seed Data to Prisma:**
+   ```prisma
+   // prisma/seed.ts - Create 6-10 default practice tests
+   const tests = await prisma.practiceTest.createMany({
+     data: [
+       { subject: 'Mathematics', title: 'Algebra Fundamentals', ... },
+       { subject: 'Science', title: 'Chemistry - Periodic Table', ... },
+       // ... more tests
+     ]
+   });
+   ```
+
+4. **Database Tracking Features:**
+   - Track user progress automatically
+   - Store attempt scores and timestamps
+   - Enable dashboard analytics queries
+   - Support future: teacher assignment of specific tests
+
+---
+
+#### **STEP 5: Add Admin Management UI** (Enhancement)
+**Timeline:** After database integration works  
+**Features to Add:**
+- Admin panel to create/edit practice tests
+- Upload test questions in bulk (CSV/JSON)
+- View student attempt analytics
+- Set difficulty levels and expected durations
+- Tag tests by curriculum/grade/subject
+
+---
+
+### 📊 Recommended Timeline
+
+```
+NOW (June 22, 2026)
+  └─> Deploy to Vercel with hardcoded tests ✅
+      └─> Monitor build success (Check Prisma type generation)
+          └─> Decide on priority (Step 2)
+              ├─> If "Not MVP critical" → Stay hardcoded, fix later
+              ├─> If "Critical" → Proceed to Step 3
+              └─> If "Uncertain" → Ask stakeholders
+
+OPTION A: Hardcoded Path (Recommended for current situation)
+  Days 1-7: Launch with hardcoded 6 tests
+  Days 8-14: Gather user feedback on practice feature
+  Week 3: Fix Prisma types + implement database if feedback demands it
+  
+OPTION B: Database Path (If feature is critical)
+  Day 1: Fix Windows Prisma issue (Step 3 - Option A or B)
+  Days 2-3: Re-enable API endpoints + implement useEffect
+  Days 4-5: Test with real data, seed practice tests
+  Day 6: Deploy database-driven version
+```
+
+---
+
+### ⚠️ Risk Assessment
+
+| Risk | Probability | Impact | Mitigation |
+|------|------------|--------|-----------|
+| Vercel Prisma generation fails | Low | High | Test build, have rollback plan |
+| Users frustrated with hardcoded tests | Medium | Low | Communication, quick iteration |
+| Database schema breaks with new fields | Medium | High | Version migrations carefully |
+| Teacher feature requests for practice management | High | Medium | Plan admin UI for Phase 2 |
+
+---
+
+### ✅ Success Criteria
+
+**This decision is successful when:**
+1. Vercel deployment succeeds with zero errors
+2. Practice page displays 6 functional hardcoded tests
+3. Users can navigate, view progress, click "Start Test" button
+4. No API errors in browser console
+5. Build time is < 2 minutes
+
+**Future success metrics (after database integration):**
+1. Teachers can create practice tests in admin panel
+2. Student progress persists across sessions in database
+3. Analytics show student attempt history and scores
+4. Practice tests support filtering by difficulty/subject
+
+---
+
+### 📝 Summary & Recommendation
+
+**RIGHT NOW:** ✅ Keep hardcoded tests, deploy to Vercel  
+**This approach:**
+- Eliminates risk of compilation errors
+- Gets feature to users quickly
+- Allows gathering real user feedback
+- Vercel will prove Prisma works in production
+
+**NEXT WEEK (after Vercel success):** Decide whether to fix Windows Prisma issue  
+**Based on:**
+- User demand for dynamic practice tests
+- Priority vs. other feature work
+- Available development time
+
+**Not a permanent limitation** - Database integration CAN happen whenever you decide it's needed, but keeping it simple now reduces risk and accelerates launch.
+
+---
+
 ## 17. Future Features (Deferred Implementation)
 
 ### 🎙️ **Podcast & Video Generation Feature**
@@ -1351,7 +1592,7 @@ Generate audio podcasts and educational videos from search responses to help stu
 
 ---
 
-**Document Version:** 1.1  
-**Last Updated:** June 21, 2026  
+**Document Version:** 1.2  
+**Last Updated:** June 22, 2026  
 **Owner:** EduSpark Development Team  
-**Status:** Complete - Ready for Reference
+**Status:** Deployment Ready - Practice Feature Timeline Documented
