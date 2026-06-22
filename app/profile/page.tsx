@@ -19,7 +19,7 @@ export default function ProfilePage() {
     loadSession();
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, sessionData) => {
-      setSession(sessionData?.session ?? null);
+      setSession(sessionData ?? null);
     });
 
     return () => {
