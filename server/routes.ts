@@ -12,13 +12,10 @@ dotenv.config({ path: path.join(__dirname, '../.env') });
 
 // Initialize Gemini AI
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-if (!prisma) {
-  throw new Error("Prisma client not initialized");
-}
 const router = Router();
 
 router.use((req, _res, next) => {
-  if (!process.env.DATABASE_URL || !prisma) {
+  if (!process.env.DATABASE_URL) {
     return next(
       new AppError(
         503,
