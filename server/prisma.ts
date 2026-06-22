@@ -17,16 +17,18 @@ declare global {
 const databaseUrl = process.env.DATABASE_URL;
 export const isDbConfigured = Boolean(databaseUrl);
 
-export const prisma: PrismaClient | null =
-  global.prisma ||
-  (databaseUrl
-    ? new PrismaClient({
-        log: ['query', 'error', 'warn'],
-      })
-    : null);
+if (!databaseUrl) {
+  throw new Error('DATABASE_URL environment variable is required but not set');
+}
 
-if (process.env.NODE_ENV !== 'production' && databaseUrl) {
-  global.prisma = prisma as PrismaClient;
+export const prisma: PrismaClient =
+  global.prisma ||
+  new PrismaClient({
+    log: ['query', 'error', 'warn'],
+  });
+
+if (process.env.NODE_ENV !== 'production') {
+  global.prisma = prisma;
 }
 
 export default prisma;

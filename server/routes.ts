@@ -12,7 +12,9 @@ dotenv.config({ path: path.join(__dirname, '../.env') });
 
 // Initialize Gemini AI
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-
+if (!prisma) {
+  throw new Error("Prisma client not initialized");
+}
 const router = Router();
 
 router.use((req, _res, next) => {
@@ -28,9 +30,7 @@ router.use((req, _res, next) => {
 });
 
 // ========== USERS ROUTES ==========
-if (!prisma) {
-  throw new Error("Prisma client not initialized");
-}
+
 router.post(
   '/users',
   asyncHandler(async (req: Request, res: Response) => {
