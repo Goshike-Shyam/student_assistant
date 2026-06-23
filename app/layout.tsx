@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { SiteHeader } from '@/components/ui/site-header';
 import { IconEmojiReplacer } from '@/components/icon-emoji-replacer';
+import { Analytics } from "@vercel/analytics/next"
 
 export const metadata: Metadata = {
   title: 'School Assistant',

@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { Mic, Paperclip, Send, Share2, Search } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Mic, Paperclip, Send, Share2, Search, Copy, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -20,6 +20,8 @@ export default function ResourcesPage() {
   const [isSearching, setIsSearching] = useState(false);
   const [earlierSearches, setEarlierSearches] = useState<any[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const subjects = [
     'Mathematics',
@@ -33,6 +35,21 @@ export default function ResourcesPage() {
     'Physics',
     'Economics'
   ];
+
+  // Auto-scroll to latest message
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [searchResponses]);
+
+  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setSearchQuery(e.target.value);
+    
+    // Auto-grow textarea
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 120) + 'px';
+    }
+  };
 
   const handleFileAttach = () => {
     fileInputRef.current?.click();
@@ -119,81 +136,183 @@ export default function ResourcesPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 px-4 py-10 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-[1200px] space-y-8">
-        {/* Header */}
-        <section className="text-center mb-12">
-          <p className="text-sm font-medium uppercase tracking-[0.35em] text-cyan-600">Research & Learning</p>
-          <h1 className="mt-3 text-4xl font-bold text-slate-900 sm:text-5xl">Find curriculum-aligned resources</h1>
-          <p className="mt-2 text-lg text-slate-600">Ask questions, upload materials, and learn with AI-powered research</p>
-        </section>
+    <main className="flex flex-col h-screen bg-white overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 bg-gradient-to-r from-cyan-50 to-blue-50">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Research Assistant</h1>
+          <p className="text-sm text-slate-600">Curriculum-aligned AI research helper</p>
+        </div>
+        {searchResponses.length > 0 && (
+          <button className="px-4 py-2 rounded-lg bg-slate-200 text-slate-700 font-semibold hover:bg-slate-300 transition-colors text-sm">
+            + New Chat
+          </button>
+        )}
+      </div>
 
-        {/* Main Search Section */}
-        <Card className="border-2 border-cyan-200 bg-white/95 p-8 shadow-2xl shadow-cyan-100/50">
-          <CardHeader>
-            <CardTitle className="text-2xl">Research Assistant</CardTitle>
-            <CardDescription>Type your question, attach files, or speak naturally to get research-backed answers</CardDescription>
-          </CardHeader>
-
-          <div className="space-y-5">
-            {/* Subject Selection */}
+      {/* Messages Container - Scrollable */}
+      <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-100">
+        {searchResponses.length === 0 ? (
+          // Empty state
+          <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
+            <div className="w-16 h-16 bg-gradient-to-br from-cyan-100 to-blue-100 rounded-full flex items-center justify-center">
+              <Search className="w-8 h-8 text-cyan-600" />
+            </div>
             <div>
-              <Label htmlFor="subject" className="font-semibold text-slate-700">Subject (Optional)</Label>
+              <h2 className="text-2xl font-semibold text-slate-900">Start your research</h2>
+              <p className="text-slate-600 mt-2">Ask a question below to get AI-powered, curriculum-aligned answers</p>
+            </div>
+            {earlierSearches.length > 0 && (
+              <div className="mt-8 w-full max-w-md">
+                <p className="text-sm font-semibold text-slate-700 mb-3 text-left">Recent searches</p>
+                <div className="space-y-2">
+                  {earlierSearches.slice(0, 3).map(search => (
+                    <button
+                      key={search.id}
+                      onClick={() => setSearchQuery(search.query)}
+                      className="w-full text-left p-3 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors border border-slate-200 text-sm text-slate-700 hover:text-slate-900"
+                    >
+                      <p className="font-medium">{search.query}</p>
+                      {search.subject && (
+                        <p className="text-xs text-slate-500 mt-1">{search.subject}</p>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          // Messages
+          <div className="max-w-3xl mx-auto w-full space-y-4">
+            {searchResponses.map((response) => (
+              <div key={response.id} className="space-y-3">
+                {/* User Message */}
+                <div className="flex justify-end">
+                  <div className="max-w-xs lg:max-w-md bg-cyan-600 text-white rounded-2xl rounded-tr-none px-4 py-3">
+                    <p className="text-sm font-medium break-words">{response.query}</p>
+                    {response.subject && (
+                      <p className="text-xs mt-2 text-cyan-100">📚 {response.subject}</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* AI Response Message */}
+                <div className="flex justify-start">
+                  <div className="w-full bg-slate-100 text-slate-900 rounded-lg border border-slate-300 px-4 py-3 space-y-3 overflow-hidden">
+                    <div className="prose prose-sm max-w-none text-slate-800 break-words overflow-wrap-break-word">
+                      <div className="break-words overflow-wrap-break-word" dangerouslySetInnerHTML={{ __html: response.response }} />
+                    </div>
+
+                    {/* Resource Links */}
+                    {response.resourceLinks && response.resourceLinks.length > 0 && (
+                      <div className="border-t border-slate-300 pt-2 mt-3">
+                        <p className="text-xs font-semibold text-slate-700 mb-2">📚 Resources</p>
+                        <div className="space-y-1">
+                          {response.resourceLinks.map((link: any, idx: number) => (
+                            <a
+                              key={idx}
+                              href={link.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-cyan-600 hover:text-cyan-700 hover:underline block"
+                            >
+                              {link.title}
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Action Buttons */}
+                    <div className="flex flex-wrap gap-2 border-t border-slate-300 pt-2 mt-3">
+                      <button
+                        onClick={() => handleShareToWhatsApp(response.id)}
+                        className="text-xs px-2 py-1 rounded bg-green-100 text-green-700 hover:bg-green-200 transition-colors font-medium flex items-center gap-1"
+                      >
+                        <Share2 size={12} />
+                        Share
+                      </button>
+                      <button className="text-xs px-2 py-1 rounded bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors font-medium flex items-center gap-1">
+                        <Copy size={12} />
+                        Copy
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
+        )}
+      </div>
+
+      {/* Input Area - Fixed at Bottom */}
+      <div className="border-t border-slate-200 bg-white px-4 py-4 sticky bottom-0">
+        <div className="max-w-3xl mx-auto space-y-3">
+          {/* Subject Selection */}
+          <div className="flex items-end gap-3">
+            <div className="flex-1">
+              <Label htmlFor="subject" className="text-xs font-semibold text-slate-600">Subject</Label>
               <Select 
                 id="subject"
                 value={selectedSubject}
                 onChange={(e) => setSelectedSubject(e.target.value)}
-                className="mt-2 w-full rounded-lg border-2 border-slate-300 bg-white px-4 py-2.5 text-slate-900 focus:border-cyan-500 focus:outline-none transition-colors"
+                className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-cyan-500 focus:outline-none transition-colors"
               >
-                <option value="">Select a subject...</option>
+                <option value="">Select subject...</option>
                 {subjects.map(subject => (
                   <option key={subject} value={subject}>{subject}</option>
                 ))}
               </Select>
             </div>
+          </div>
 
-            {/* Textarea with Controls */}
-            <div>
-              <Label htmlFor="search-textarea" className="font-semibold text-slate-700">Your Question</Label>
-              <div className="mt-2 relative">
-                <Textarea 
-                  id="search-textarea"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Ask your question here... e.g., 'Explain photosynthesis and its importance to the ecosystem'"
-                  className="w-full h-32 rounded-lg border-2 border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder-slate-400 focus:border-cyan-500 focus:outline-none transition-colors resize-none"
-                />
-              </div>
+          {/* Attached Files Display */}
+          {attachedFiles.length > 0 && (
+            <div className="flex flex-wrap gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
+              {attachedFiles.map((file, idx) => (
+                <div key={idx} className="flex items-center gap-2 bg-white rounded-full px-3 py-1 border border-blue-200 text-xs text-slate-700">
+                  <span>{file.name}</span>
+                  <button 
+                    onClick={() => setAttachedFiles(prev => prev.filter((_, i) => i !== idx))}
+                    className="text-blue-600 hover:text-blue-800 font-bold"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Input Box with Controls */}
+          <div className="flex items-end gap-2">
+            <div className="flex-1 relative">
+              <Textarea 
+                ref={textareaRef}
+                id="search-textarea"
+                value={searchQuery}
+                onChange={handleTextareaChange}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSearch();
+                  }
+                }}
+                placeholder="Type your question... (Shift+Enter for new line)"
+                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder-slate-400 focus:border-cyan-500 focus:outline-none transition-colors resize-none overflow-hidden"
+                style={{ minHeight: '44px', maxHeight: '120px' }}
+              />
             </div>
 
-            {/* Attached Files Display */}
-            {attachedFiles.length > 0 && (
-              <div className="rounded-lg bg-blue-50 border border-blue-200 p-4">
-                <p className="text-sm font-semibold text-blue-900 mb-2">Attached Files ({attachedFiles.length})</p>
-                <div className="flex flex-wrap gap-2">
-                  {attachedFiles.map((file, idx) => (
-                    <div key={idx} className="flex items-center gap-2 bg-white rounded-full px-3 py-1 border border-blue-200 text-xs text-slate-700">
-                      <span>{file.name}</span>
-                      <button 
-                        onClick={() => setAttachedFiles(prev => prev.filter((_, i) => i !== idx))}
-                        className="text-blue-600 hover:text-blue-800 font-bold"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {/* Action Buttons */}
-            <div className="flex flex-wrap gap-3 pt-4">
+            <div className="flex gap-2">
               <button
                 onClick={handleFileAttach}
-                className="inline-flex items-center gap-2 px-4 py-3 rounded-lg border-2 border-slate-300 bg-white text-slate-700 font-semibold hover:bg-slate-50 hover:border-slate-400 transition-all"
+                title="Attach file"
+                className="inline-flex items-center justify-center gap-2 p-3 rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition-all"
               >
                 <Paperclip size={18} />
-                Attach File
               </button>
               <input 
                 ref={fileInputRef}
@@ -206,124 +325,27 @@ export default function ResourcesPage() {
 
               <button
                 onClick={handleMicClick}
-                className={`inline-flex items-center gap-2 px-4 py-3 rounded-lg font-semibold transition-all ${
+                title="Voice input"
+                className={`inline-flex items-center justify-center p-3 rounded-lg transition-all ${
                   isListening 
-                    ? 'bg-red-500 text-white border-2 border-red-600 hover:bg-red-600' 
-                    : 'border-2 border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
+                    ? 'bg-red-500 text-white hover:bg-red-600' 
+                    : 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
                 }`}
               >
                 <Mic size={18} />
-                {isListening ? 'Stop Listening' : 'Voice Input'}
               </button>
 
               <button
                 onClick={handleSearch}
                 disabled={!searchQuery.trim() || isSearching}
-                className="ml-auto inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-cyan-600 text-white font-semibold hover:bg-cyan-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-all"
+                title="Send message"
+                className="inline-flex items-center justify-center p-3 rounded-lg bg-cyan-600 text-white hover:bg-cyan-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-all"
               >
                 <Send size={18} />
-                {isSearching ? 'Searching...' : 'Search'}
               </button>
             </div>
           </div>
-        </Card>
-
-        {/* Search Responses Section */}
-        {searchResponses.length > 0 && (
-          <section className="space-y-6">
-            <div>
-              <h2 className="text-3xl font-bold text-slate-900 mb-2">Research Results</h2>
-              <p className="text-slate-600">Responses from your research queries</p>
-            </div>
-
-            {searchResponses.map((response, idx) => (
-              <Card key={response.id} className="border-l-4 border-l-cyan-500 bg-white p-6 hover:shadow-lg transition-shadow">
-                <div className="mb-4">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <h3 className="text-lg font-semibold text-slate-900">{response.query}</h3>
-                      {response.subject && (
-                        <p className="text-sm text-cyan-600 font-medium mt-1">Subject: {response.subject}</p>
-                      )}
-                      <p className="text-xs text-slate-500 mt-1">{response.timestamp}</p>
-                    </div>
-                  </div>
-                  
-                  {/* Response Content */}
-                  <div className="prose prose-sm max-w-none text-slate-700 mb-4">
-                    <div dangerouslySetInnerHTML={{ __html: response.response }} />
-                  </div>
-
-                  {/* Resource Links */}
-                  {response.resourceLinks && response.resourceLinks.length > 0 && (
-                    <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                      <p className="text-sm font-semibold text-blue-900 mb-2">📚 Resource Links</p>
-                      <ul className="space-y-2">
-                        {response.resourceLinks.map((link: any, idx: number) => (
-                          <li key={idx}>
-                            <a 
-                              href={link.url} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="text-blue-600 hover:text-blue-800 hover:underline text-sm"
-                            >
-                              {link.title}
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex flex-wrap gap-3 border-t border-slate-200 pt-4">
-                  <button
-                    onClick={() => handleShareToWhatsApp(response.id)}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-100 text-green-700 font-semibold hover:bg-green-200 transition-colors text-sm"
-                  >
-                    <Share2 size={16} />
-                    Share to WhatsApp
-                  </button>
-                  <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200 transition-colors text-sm">
-                    🎙️ Generate Podcast
-                  </button>
-                  <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200 transition-colors text-sm">
-                    🎬 Generate Video
-                  </button>
-                </div>
-              </Card>
-            ))}
-          </section>
-        )}
-
-        {/* Earlier Searches Smart Search Section */}
-        {earlierSearches.length > 0 && (
-          <section className="space-y-6">
-            <div>
-              <h2 className="text-2xl font-bold text-slate-900 mb-4">Your Earlier Searches</h2>
-              <div className="space-y-3">
-                {earlierSearches.map(search => (
-                  <button
-                    key={search.id}
-                    onClick={() => setSearchQuery(search.query)}
-                    className="w-full text-left p-4 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors border border-slate-200 hover:border-slate-300"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="font-semibold text-slate-900">{search.query}</p>
-                        {search.subject && (
-                          <p className="text-sm text-slate-600">{search.subject}</p>
-                        )}
-                      </div>
-                      <span className="text-xs text-slate-500 ml-4 flex-shrink-0">{new Date(search.timestamp).toLocaleDateString()}</span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
+        </div>
       </div>
     </main>
   );
