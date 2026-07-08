@@ -5,10 +5,23 @@ import { useState, useEffect } from 'react';
 
 export default function AdminDashboard() {
   const [mounted, setMounted] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
+    // Check if user is authenticated
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+      // Not authenticated, redirect to login
+      window.location.href = '/login';
+      return;
+    }
+    setIsAuthenticated(true);
     setMounted(true);
   }, []);
+
+  if (!isAuthenticated) {
+    return null; // Don't render anything while redirecting
+  }
 
   return (
     <div className="flex min-h-screen">

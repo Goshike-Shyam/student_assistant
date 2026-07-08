@@ -12,23 +12,33 @@ const navItems: Array<{ label: string; href: Route }> = [
 
 export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [userName, setUserName] = useState('User');
+  const [userName, setUserName] = useState<string | null>(null);
   const [userGrade, setUserGrade] = useState('Grade 10');
   const [userRole, setUserRole] = useState('Student');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     // Fetch user data from localStorage (this is where you'd store it after login)
-    const storedUserName = localStorage.getItem('userName') || 'User';
-    const storedUserGrade = localStorage.getItem('userGrade') || 'Grade 10';
-    const storedUserRole = localStorage.getItem('userRole') || 'Student';
+    const storedUserId = localStorage.getItem('userId');
+    const storedUserName = localStorage.getItem('userName');
+    const storedUserGrade = localStorage.getItem('userGrade');
+    const storedUserRole = localStorage.getItem('userRole');
 
-    setUserName(storedUserName);
-    setUserGrade(storedUserGrade);
-    setUserRole(storedUserRole);
+    // Only set as logged in if userId exists
+    if (storedUserId && storedUserName) {
+      setIsLoggedIn(true);
+      setUserName(storedUserName);
+      setUserGrade(storedUserGrade || 'Grade 10');
+      setUserRole(storedUserRole || 'Student');
+    } else {
+      setIsLoggedIn(false);
+      setUserName(null);
+    }
   }, []);
 
   // Generate user initials from name
-  const getUserInitials = (name: string) => {
+  const getUserInitials = (name: string | null) => {
+    if (!name) return 'U';
     return name
       .split(' ')
       .map((n) => n[0])
@@ -64,64 +74,79 @@ export function SiteHeader() {
       </div>
 
       <div className="flex items-center gap-3">
-        <button className="w-10 h-10 rounded-full hover:bg-[#eff4ff] flex items-center justify-center transition-colors text-[#3d4a3d]" title="Notifications">
-          <span className="mat text-[22px]">notifications</span>
+        <button className="w-10 h-10 rounded-full hover:bg-[#eff4ff] flex items-center justify-center transition-colors" title="Notifications">
+          <span className="mat-fill text-[22px] text-[#0058be]">notifications</span>
         </button>
 
-        <button className="w-10 h-10 rounded-full hover:bg-[#eff4ff] flex items-center justify-center transition-colors text-[#3d4a3d]" title="Settings">
-          <span className="mat text-[22px]">settings</span>
+        <button className="w-10 h-10 rounded-full hover:bg-[#eff4ff] flex items-center justify-center transition-colors" title="Settings">
+          <span className="mat-fill text-[22px] text-[#0058be]">settings</span>
         </button>
 
-        <div className="relative">
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="w-10 h-10 rounded-full bg-[#d3e4fe] border-2 border-[#22c55e] flex items-center justify-center font-bold text-[#006e2f] text-xs qs"
-            title="User Menu"
-          >
-            {userInitials}
-          </button>
-
-          <div
-            id="umenu"
-            className={`${menuOpen ? '' : 'hidden'} absolute top-11 right-0 bg-white rounded-2xl border border-[#e5eeff] py-2 min-w-[200px]`}
-            style={{ boxShadow: '0 8px 32px rgba(0,88,190,.14)' }}
-          >
-            <div className="px-4 py-3 border-b border-[#f8f9ff]">
-              <p className="font-semibold text-sm">{userName}</p>
-              <p className="text-xs text-[#6d7b6c]">{userGrade} · {userRole}</p>
-            </div>
-
-            <Link
-              href={'/parent-portal' as Route}
-              className="flex items-center gap-2 px-4 py-2.5 text-sm text-[#0b1c30] hover:bg-[#eff4ff] transition-colors"
+        {isLoggedIn ? (
+          <div className="relative">
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="w-10 h-10 rounded-full bg-[#d3e4fe] border-2 border-[#22c55e] flex items-center justify-center font-bold text-[#006e2f] text-xs qs"
+              title="User Menu"
             >
-              <span className="mat text-[#006e2f] text-lg">
-                family_restroom
-              </span>
-              Parent View
-            </Link>
+              {userInitials}
+            </button>
 
-            <Link
-              href={'/admin' as Route}
-              className="flex items-center gap-2 px-4 py-2.5 text-sm text-[#0b1c30] hover:bg-[#eff4ff] transition-colors"
+            <div
+              id="umenu"
+              className={`${menuOpen ? '' : 'hidden'} absolute top-11 right-0 bg-white rounded-2xl border border-[#e5eeff] py-2 min-w-[200px]`}
+              style={{ boxShadow: '0 8px 32px rgba(0,88,190,.14)' }}
             >
-              <span className="mat text-[#0058be] text-lg">
-                admin_panel_settings
-              </span>
-              Admin Portal
-            </Link>
+              <div className="px-4 py-3 border-b border-[#f8f9ff]">
+                <p className="font-semibold text-sm">{userName}</p>
+                <p className="text-xs text-[#6d7b6c]">{userGrade} · {userRole}</p>
+              </div>
 
-            <div className="border-t border-[#f8f9ff] mt-1 pt-1">
               <Link
-                href={'/login' as Route}
-                className="flex items-center gap-2 px-4 py-2.5 text-sm text-[#ba1a1a] hover:bg-[#fff4f4] transition-colors"
+                href={'/parent-portal' as Route}
+                className="flex items-center gap-2 px-4 py-2.5 text-sm text-[#0b1c30] hover:bg-[#eff4ff] transition-colors"
               >
-                <span className="mat text-[#ba1a1a] text-lg">logout</span>
-                Sign Out
+                <span className="mat text-[#006e2f] text-lg">
+                  family_restroom
+                </span>
+                Parent View
               </Link>
+
+              <Link
+                href={'/admin' as Route}
+                className="flex items-center gap-2 px-4 py-2.5 text-sm text-[#0b1c30] hover:bg-[#eff4ff] transition-colors"
+              >
+                <span className="mat text-[#0058be] text-lg">
+                  admin_panel_settings
+                </span>
+                Admin Portal
+              </Link>
+
+              <div className="border-t border-[#f8f9ff] mt-1 pt-1">
+                <button
+                  onClick={() => {
+                    localStorage.removeItem('userId');
+                    localStorage.removeItem('userName');
+                    localStorage.removeItem('userGrade');
+                    localStorage.removeItem('userRole');
+                    window.location.href = '/login';
+                  }}
+                  className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-[#ba1a1a] hover:bg-[#fff4f4] transition-colors text-left"
+                >
+                  <span className="mat text-[#ba1a1a] text-lg">logout</span>
+                  Sign Out
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        ) : (
+          <Link
+            href={'/login' as Route}
+            className="px-4 py-2 bg-[#0058be] text-white rounded-lg text-sm font-medium hover:bg-[#003da8] transition-colors"
+          >
+            Sign In
+          </Link>
+        )}
       </div>
     </nav>
   );

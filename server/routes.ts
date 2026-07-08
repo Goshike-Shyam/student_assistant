@@ -2,17 +2,95 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { Router, Request, Response } from 'express';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import prisma from './prisma';
-import { asyncHandler, AppError } from './middleware';
+import { GoogleGenAI } from '@google/genai';
+import prisma from './prisma.js';
+import { asyncHandler, AppError } from './middleware.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.join(__dirname, '../.env') });
 
 // Initialize Gemini AI
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 const router = Router();
+
+// Helper function to force a pause (delay) in execution
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Retry logic for Gemini API with 503 error handling
+async function generateContentWithRetry(prompt: string, retries = 3, delayMs = 2000): Promise<string> {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: prompt,
+      });
+      
+      return (response as any)?.text || (response as any)?.response?.text || ''; // Success! Return the response text
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const isServerOverloaded = errorMessage.includes('503') || errorMessage.includes('UNAVAILABLE');
+      const isRateLimited = errorMessage.includes('429') || errorMessage.includes('RESOURCE_EXHAUSTED');
+
+      if ((isServerOverloaded || isRateLimited) && i < retries - 1) {
+        console.warn(`Gemini busy (Attempt ${i + 1}/${retries}). Retrying in ${delayMs / 1000}s...`);
+        await delay(delayMs);
+        delayMs *= 2; // Exponentially increase wait time (2s, 4s, etc.)
+        continue;
+      }
+      
+      // If it's a different error or we ran out of retries, throw it to the catch block below
+      throw error;
+    }
+  }
+  throw new Error('Failed to generate content after all retries');
+}
+
+// ========== CONSTANTS ==========
+const DEFAULT_RESOURCE_LINKS = [
+  { title: 'Khan Academy', url: 'https://www.khanacademy.org' },
+  { title: 'NCERT Textbooks', url: 'https://ncert.nic.in/' },
+  { title: 'Physics Wallah', url: 'https://www.pw.live/' }
+];
+
+// ========== HELPER FUNCTIONS ==========
+
+/**
+ * Format AI response as HTML with proper heading hierarchy
+ * @param textContent - Raw text content from AI
+ * @param subject - Optional subject for context
+ * @returns Formatted HTML string
+ */
+const formatAIResponse = (textContent: string, subject?: string): string => {
+  return `<h3>${subject ? `${subject}: ` : ''}Response to your question</h3>
+  <div class="response-content">
+    ${textContent.split('\n').map((line: string) => {
+      if (line.trim().startsWith('#')) {
+        const level = line.match(/^#+/)?.[0].length || 3;
+        const text = line.replace(/^#+\s/, '');
+        return `<h${level}>${text}</h${level}>`;
+      }
+      if (line.trim()) {
+        return `<p>${line}</p>`;
+      }
+      return '';
+    }).join('')}
+  </div>`;
+};
+
+/**
+ * Build curriculum context for the AI prompt
+ * @param subject - Optional subject name
+ * @returns Curriculum context string
+ */
+const buildCurriculumContext = (subject?: string): string => {
+  return `You are an educational AI tutor designed to help students with their studies.
+Subject: ${subject || 'General Knowledge'}
+Educational Context: Provide responses appropriate for CBSE/ICSE curriculum.
+Format: Provide educational, accurate responses with clear explanations.
+Important: Always include educational value and cite sources where applicable.`;
+};
 
 router.use((req, _res, next) => {
   if (!process.env.DATABASE_URL) {
@@ -366,17 +444,17 @@ router.delete(
 router.post(
   '/submissions',
   asyncHandler(async (req: Request, res: Response) => {
-    const { assignmentId, studentId, content } = req.body;
+    const { assignmentId, studentId, contents } = req.body;
 
-    if (!assignmentId || !studentId || !content) {
+    if (!assignmentId || !studentId || !contents) {
       throw new AppError(
         400,
-        'assignmentId, studentId, and content are required',
+        'assignmentId, studentId, and contents are required',
       );
     }
 
     const submission = await prisma.submission.create({
-      data: { assignmentId, studentId, content },
+      data: { assignmentId, studentId, contents },
       include: { assignment: true, student: true },
     });
 
@@ -413,12 +491,12 @@ router.get(
 router.put(
   '/submissions/:id',
   asyncHandler(async (req: Request, res: Response) => {
-    const { content, grade, feedback } = req.body;
+    const { contents, grade, feedback } = req.body;
 
     const submission = await prisma.submission.update({
       where: { id: req.params.id },
       data: {
-        ...(content && { content }),
+        ...(contents && { contents }),
         ...(grade !== undefined && { grade }),
         ...(feedback && { feedback }),
         ...(grade !== undefined && { gradedAt: new Date() }),
@@ -452,56 +530,20 @@ router.post(
     }
 
     let response = '';
-    let resourceLinks: any[] = [];
 
     try {
-      // Use Gemini API to generate response
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-
-      // Build curriculum context
-      const curriculumContext = `You are an educational AI tutor designed to help students with their studies.
-Subject: ${subject || 'General Knowledge'}
-Educational Context: Provide responses appropriate for CBSE/ICSE curriculum.
-Format: Provide educational, accurate responses with clear explanations.
-Important: Always include educational value and cite sources where applicable.`;
-
+      // Build and execute AI prompt with retry logic
+      const curriculumContext = buildCurriculumContext(subject);
       const fullPrompt = `${curriculumContext}\n\nStudent Question: ${query}\n\nPlease provide a comprehensive, age-appropriate educational response.`;
+      const textContent = await generateContentWithRetry(fullPrompt);
 
-      const result = await model.generateContent(fullPrompt);
-      const textContent = result.response.text();
-
-      // Format response with HTML
-      response = `<h3>${subject ? `${subject}: ` : ''}Response to your question</h3>
-      <div class="response-content">
-        ${textContent.split('\n').map((line: string) => {
-          if (line.trim().startsWith('#')) {
-            const level = line.match(/^#+/)?.[0].length || 3;
-            const text = line.replace(/^#+\s/, '');
-            return `<h${level}>${text}</h${level}>`;
-          }
-          if (line.trim()) {
-            return `<p>${line}</p>`;
-          }
-          return '';
-        }).join('')}
-      </div>`;
-
-      // Add resource links
-      resourceLinks = [
-        { title: 'Khan Academy', url: 'https://www.khanacademy.org' },
-        { title: 'NCERT Textbooks', url: 'https://ncert.nic.in/' },
-        { title: 'Physics Wallah', url: 'https://www.pw.live/' }
-      ];
+      // Format response as HTML
+      response = formatAIResponse(textContent, subject);
 
     } catch (error) {
       console.error('Gemini API error:', error);
       response = `<h3>Response about ${subject || 'your topic'}</h3>
-      <p>Apologies, there was an issue fetching AI response. Please ensure your Gemini API key is valid.</p>
-      <p>Error: ${error instanceof Error ? error.message : 'Unknown error'}</p>`;
-      
-      resourceLinks = [
-        { title: 'Khan Academy', url: 'https://www.khanacademy.org' }
-      ];
+      <p>Apologies, there was an issue fetching AI response. Please try again later.</p>`;
     }
 
     // Save search query if student ID provided
@@ -518,7 +560,7 @@ Important: Always include educational value and cite sources where applicable.`;
 
     res.status(201).json({
       response,
-      resourceLinks,
+      resourceLinks: DEFAULT_RESOURCE_LINKS,
       message: 'Search completed successfully'
     });
   }),
@@ -640,8 +682,8 @@ router.post(
           initialQueryId: queryId,
           followUpQueries: [followUpQuestion],
           conversationLog: JSON.stringify([
-            { type: 'question', content: query.query },
-            { type: 'followup', content: followUpQuestion }
+            { type: 'question', contents: query.query },
+            { type: 'followup', contents: followUpQuestion }
           ]),
         },
       });

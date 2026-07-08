@@ -34,8 +34,6 @@ export default function SignInForm() {
       }
 
       const data = await response.json();
-      setStatus('Sign in successful! Redirecting...');
-      setSession(data.user);
       
       // Store user information in localStorage for the site-header and other components
       localStorage.setItem('userId', data.user?.id || '');
@@ -43,20 +41,27 @@ export default function SignInForm() {
       localStorage.setItem('userGrade', data.user?.grade ? `Grade ${data.user.grade}` : 'Grade 10');
       localStorage.setItem('userRole', data.user?.role ? (data.user.role === 'STUDENT' ? 'Student' : data.user.role === 'INSTRUCTOR' ? 'Teacher' : 'Admin') : 'Student');
       
-      // Redirect to dashboard after 1 second
-      setTimeout(() => {
-        window.location.href = '/dashboard';
-      }, 1000);
+      // Redirect to dashboard immediately
+      window.location.href = '/dashboard';
     } catch (error) {
       setStatus(error instanceof Error ? error.message : 'Sign in failed. Please try again.');
     }
   };
 
   const handleSignOut = async () => {
+    // Clear all user data from localStorage
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userGrade');
+    localStorage.removeItem('userRole');
+    
     setSession(null);
     setStatus('Signed out successfully.');
     setEmail('');
     setPassword('');
+    
+    // Redirect to login page
+    window.location.href = '/login';
   };
 
   return (

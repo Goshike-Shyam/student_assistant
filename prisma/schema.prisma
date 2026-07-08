@@ -106,7 +106,7 @@ model Submission {
   assignmentId String
   student      User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
   studentId    String
-  content      String
+  contents     String
   grade        Float?
   feedback     String?
   submittedAt  DateTime @default(now())

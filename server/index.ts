@@ -8,7 +8,7 @@ dotenv.config({ path: path.join(__dirname, '../.env') });
 
 import express from 'express';
 import cors from 'cors';
-import routes from './routes';
+import routes from './routes.js';
 import { errorHandler } from './middleware';
 
 const app = express();

@@ -19,9 +19,18 @@ export default function ResourcesPage() {
   const [searchResponses, setSearchResponses] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [earlierSearches, setEarlierSearches] = useState<any[]>([]);
+  const [studentId, setStudentId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Get student ID from localStorage
+  useEffect(() => {
+    const storedStudentId = localStorage.getItem('userId');
+    if (storedStudentId) {
+      setStudentId(storedStudentId);
+    }
+  }, []);
 
   const subjects = [
     'Mathematics',
@@ -76,6 +85,7 @@ export default function ResourcesPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          studentId: studentId, // Include studentId to persist search history
           query: searchQuery,
           subject: selectedSubject,
           attachments: attachedFiles.map(f => f.name),
@@ -95,6 +105,7 @@ export default function ResourcesPage() {
       if (response.ok) {
         const data = await response.json();
         setSearchResponses(prev => [
+          ...prev,
           {
             id: Date.now(),
             query: searchQuery,
@@ -102,8 +113,7 @@ export default function ResourcesPage() {
             response: data.response,
             resourceLinks: data.resourceLinks,
             timestamp: new Date().toLocaleTimeString()
-          },
-          ...prev
+          }
         ]);
 
         // Add to earlier searches for smart search
