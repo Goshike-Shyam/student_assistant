@@ -5,6 +5,7 @@ import { Router, Request, Response } from 'express';
 import { GoogleGenAI } from '@google/genai';
 import prisma from './prisma.js';
 import { asyncHandler, AppError } from './middleware.js';
+import { isValidSubjectForBoardAndGrade } from '../lib/subjects-seed.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -109,13 +110,11 @@ router.use((req, _res, next) => {
 router.post(
   '/users',
   asyncHandler(async (req: Request, res: Response) => {
-    const { email, name, password, role, grade, board } = req.body;
+    const { email, name, password, role, grade, board, subjects } = req.body;
 
     if (!email || !name || !password) {
       throw new AppError(400, 'Email, name, and password are required');
     }
-
-    
 
     const user = await prisma.user.create({
       data: {
@@ -123,10 +122,22 @@ router.post(
         name,
         password, // In production, hash the password
         role: role || 'STUDENT',
-        grade: grade ? parseInt(grade.match(/\d+/)?.[0] || '10') : 10,
+        grade: grade ? parseInt(String(grade).match(/\d+/)?.[0] || '10') : 10,
         curriculum: board || 'CBSE',
       },
     });
+
+    // If subjects are provided, create ChildSubject records
+    if (Array.isArray(subjects) && subjects.length > 0) {
+      for (const subject of subjects) {
+        await prisma.childSubject.create({
+          data: {
+            childId: user.id,
+            subjectName: subject,
+          },
+        });
+      }
+    }
 
     res.status(201).json(user);
   }),
@@ -151,6 +162,7 @@ router.post(
         name: true,
         role: true,
         grade: true,
+        curriculum: true,
         password: true,
         createdAt: true,
       },
@@ -184,6 +196,27 @@ router.get(
       },
     });
     res.json(users);
+  }),
+);
+
+// Get subjects for a specific user
+router.get(
+  '/users/:userId/subjects',
+  asyncHandler(async (req: Request, res: Response) => {
+    const { userId } = req.params;
+
+    if (!userId) {
+      throw new AppError(400, 'User ID is required');
+    }
+
+    const childSubjects = await prisma.childSubject.findMany({
+      where: { childId: userId },
+      select: { subjectName: true },
+      orderBy: { subjectName: 'asc' },
+    });
+
+    const subjects = childSubjects.map((cs) => cs.subjectName);
+    res.json({ subjects, count: subjects.length });
   }),
 );
 
@@ -436,6 +469,99 @@ router.delete(
       where: { id: req.params.id },
     });
     res.status(204).send();
+  }),
+);
+
+// Generate assignment using AI with curriculum validation
+router.post(
+  '/assignments/generate',
+  asyncHandler(async (req: Request, res: Response) => {
+    const { child_id, subject, grade, board, topic, complexity } = req.body;
+
+    // Validate required fields
+    if (!child_id || !subject || !grade || !board || !topic || !complexity) {
+      throw new AppError(400, 'Missing required fields');
+    }
+
+    // Validate subject matches curriculum
+    if (!isValidSubjectForBoardAndGrade(subject, board, grade)) {
+      throw new AppError(400, `Subject "${subject}" is not valid for ${board} Grade ${grade}`);
+    }
+
+    // Build prompt for LLM
+    const prompt = `You are a ${board} curriculum teacher for Grade ${grade}.
+Generate a ${complexity} assignment on "${topic}" for subject "${subject}".
+Return ONLY valid JSON in this exact format, no markdown or extra text:
+{
+  "title": "Assignment Title",
+  "topic": "${topic}",
+  "instructions": "Clear instructions for the assignment",
+  "questions": [
+    {
+      "id": 1,
+      "type": "MCQ",
+      "question": "Question text",
+      "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
+      "marks": 1,
+      "correct_answer": "Option 1"
+    }
+  ],
+  "total_marks": 20,
+  "estimated_minutes": 45
+}`;
+
+    let assignmentData: any = null;
+    let lastError = '';
+
+    // Try 3 times to get valid JSON
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const response = await generateContentWithRetry(prompt, 1, 0); // Single attempt per try
+        
+        // Extract JSON from response
+        const jsonMatch = response.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) {
+          lastError = 'No JSON found in response';
+          continue;
+        }
+
+        const parsed = JSON.parse(jsonMatch[0]);
+        
+        // Validate structure
+        if (parsed.title && parsed.topic && parsed.instructions && Array.isArray(parsed.questions)) {
+          assignmentData = parsed;
+          break;
+        } else {
+          lastError = 'Invalid structure in JSON';
+          continue;
+        }
+      } catch (error) {
+        lastError = error instanceof Error ? error.message : 'Unknown error';
+        if (attempt < 2) {
+          await delay(1000 * (attempt + 1));
+        }
+      }
+    }
+
+    if (!assignmentData) {
+      throw new AppError(503, `Failed to generate assignment. ${lastError}`);
+    }
+
+    // Calculate total marks
+    const totalMarks = assignmentData.questions.reduce((sum: number, q: any) => sum + (q.marks || 0), 0);
+
+    // Prepare response (strip correct answers)
+    const clientQuestions = assignmentData.questions.map(({ correct_answer, ...rest }: any) => rest);
+
+    res.status(201).json({
+      assignment_id: `temp_${Date.now()}`,
+      title: assignmentData.title,
+      topic: assignmentData.topic,
+      instructions: assignmentData.instructions,
+      questions: clientQuestions,
+      total_marks: totalMarks,
+      estimated_minutes: assignmentData.estimated_minutes,
+    });
   }),
 );
 

@@ -1,12 +1,13 @@
 'use client';
 
-import { FormEvent, useState } from 'react';
+import { FormEvent, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
+import { getSubjectsByBoardAndGrade } from '@/lib/subjects-seed';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -25,9 +26,30 @@ export default function SignupPage() {
   const [phone, setPhone] = useState('');
   const [grade, setGrade] = useState('Grade 9');
   const [board, setBoard] = useState('CBSE');
+  const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
+  const [availableSubjects, setAvailableSubjects] = useState<string[]>([]);
   const [termsChecked, setTermsChecked] = useState(false);
   const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Update available subjects when grade or board changes
+  useEffect(() => {
+    const gradeNum = parseInt(grade.replace('Grade ', ''), 10);
+    const boardMap: Record<string, string> = {
+      'CBSE': 'CBSE',
+      'ICSE': 'ICSE',
+      'State Board': 'STATE_BOARD',
+    };
+    const subjects = getSubjectsByBoardAndGrade(boardMap[board] || 'CBSE', gradeNum);
+    setAvailableSubjects(subjects);
+    setSelectedSubjects([]); // Reset selection when board/grade changes
+  }, [grade, board]);
+
+  const toggleSubject = (subject: string) => {
+    setSelectedSubjects((prev) =>
+      prev.includes(subject) ? prev.filter((s) => s !== subject) : [...prev, subject]
+    );
+  };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -43,9 +65,21 @@ export default function SignupPage() {
       return;
     }
 
+    if (selectedSubjects.length === 0) {
+      setStatus({ type: 'error', message: 'Please select at least one subject.' });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
+      const gradeNum = parseInt(grade.replace('Grade ', ''), 10);
+      const boardMap: Record<string, string> = {
+        'CBSE': 'CBSE',
+        'ICSE': 'ICSE',
+        'State Board': 'STATE_BOARD',
+      };
+
       const response = await fetch(`${API_URL}/api/users`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -55,8 +89,9 @@ export default function SignupPage() {
           password,
           role: roleMap[role] ?? 'STUDENT',
           phone,
-          grade,
-          board,
+          grade: gradeNum,
+          board: boardMap[board] || 'CBSE',
+          subjects: selectedSubjects,
         }),
       });
 
@@ -174,6 +209,37 @@ export default function SignupPage() {
                 <input id="terms" type="checkbox" className="h-4 w-4 accent-cyan-600" checked={termsChecked} onChange={(event) => setTermsChecked(event.target.checked)} />
                 <label htmlFor="terms" className="text-sm text-slate-700">I agree to the Terms of Use and Privacy Policy.</label>
               </div>
+            </div>
+
+            {/* Subjects Selection */}
+            <div>
+              <Label className="mb-3 block">Select Your Subjects</Label>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {availableSubjects.length > 0 ? (
+                  availableSubjects.map((subject) => (
+                    <button
+                      key={subject}
+                      type="button"
+                      onClick={() => toggleSubject(subject)}
+                      className={`rounded-lg border-2 px-4 py-3 text-sm font-medium transition ${
+                        selectedSubjects.includes(subject)
+                          ? 'border-cyan-600 bg-cyan-50 text-cyan-900'
+                          : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+                      }`}
+                    >
+                      <span className={`mr-2 ${selectedSubjects.includes(subject) ? '✓' : '○'}`}></span>
+                      {subject}
+                    </button>
+                  ))
+                ) : (
+                  <p className="text-sm text-slate-500">Select grade and board to see available subjects</p>
+                )}
+              </div>
+              {selectedSubjects.length > 0 && (
+                <p className="mt-3 text-sm text-slate-600">
+                  Selected: {selectedSubjects.length} subject{selectedSubjects.length !== 1 ? 's' : ''}
+                </p>
+              )}
             </div>
 
             {status ? (

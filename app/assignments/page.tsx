@@ -1,135 +1,135 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { Sidebar } from '@/components/ui/sidebar';
+import { SiteHeader } from '@/components/ui/site-header';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 export default function AssignmentsPage() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [subjects, setSubjects] = useState<string[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+      window.location.href = '/login';
+      return;
+    }
+
+    // Fetch user's registered subjects from Express backend API
+    const fetchSubjects = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/users/${userId}/subjects`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const fetchedSubjects = data.subjects || [];
+          
+          // Show empty state if no subjects found (not a fallback)
+          if (fetchedSubjects.length === 0) {
+            setError('No subjects registered');
+          }
+          setSubjects(fetchedSubjects);
+        } else {
+          // Show error state instead of fallback
+          setError('Failed to load subjects. Please refresh the page.');
+          setSubjects([]);
+        }
+      } catch (error) {
+        // Show error state instead of fallback
+        setError('Unable to load your subjects. Please refresh the page.');
+        setSubjects([]);
+      }
+    };
+
+    fetchSubjects();
+    setIsAuthenticated(true);
+    setIsLoading(false);
+  }, []);
+
+  if (isLoading) {
+    return null;
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
   return (
-    <div className="flex pt-16 min-h-screen">
-      {/* SIDEBAR */}
-      <Sidebar activeSubject="History" />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
+      <SiteHeader />
 
-      {/* MAIN */}
-      <main className="flex-1 overflow-x-hidden">
-        <div className="px-10 py-10">
-          {/* Header + progress */}
-          <div className="mb-7">
-            <h1 className="qs font-bold text-[36px] text-[#0b1c30] mb-4">Assignment Tracker</h1>
-            <div className="flex items-center gap-4">
-              <div className="flex-1 h-3 bg-[#e5eeff] rounded-full overflow-hidden" style={{ maxWidth: '600px' }}>
-                <div className="h-full rounded-full" style={{ width: '65%', background: 'linear-gradient(90deg,#006e2f,#22c55e)' }}></div>
-              </div>
-              <span className="text-sm font-bold text-[#006e2f] whitespace-nowrap">65% Term Complete</span>
+      <div className="flex pt-24">
+        {/* SIDEBAR - Optional */}
+        {/* <Sidebar activeSubject="Assignments" /> */}
+
+        {/* MAIN */}
+        <main className="flex-1 px-6 py-10">
+          <div className="max-w-6xl mx-auto space-y-8">
+            {/* Header */}
+            <div>
+              <h1 className="text-4xl font-bold text-slate-900 mb-2">Assignments</h1>
+              <p className="text-slate-600">Select a subject to generate practice assignments</p>
             </div>
-          </div>
 
-          {/* Calendar + Deadlines */}
-          <div className="grid grid-cols-5 gap-6 mb-7">
-            {/* CALENDAR */}
-            <div className="col-span-3 card p-6">
-              <div className="flex items-center justify-between mb-5">
-                <h2 className="qs font-bold text-xl text-[#0b1c30]">November 2024</h2>
-                <div className="flex items-center gap-1">
-                  <button className="w-8 h-8 rounded hover:bg-[#eff4ff] flex items-center justify-center text-[#3d4a3d]">
-                    <span className="mat">chevron_left</span>
-                  </button>
-                  <button className="w-8 h-8 rounded hover:bg-[#eff4ff] flex items-center justify-center text-[#3d4a3d]">
-                    <span className="mat">chevron_right</span>
-                  </button>
-                </div>
+            {/* Error/Empty State */}
+            {error && subjects.length === 0 && (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 text-center space-y-3">
+                <p className="text-amber-900 font-medium">📚 {error}</p>
+                {error === 'No subjects registered' && (
+                  <p className="text-sm text-amber-700">
+                    It looks like you haven't added your subjects yet. Please update your profile to get started.
+                  </p>
+                )}
               </div>
-              <div className="grid grid-cols-7 gap-2 text-center text-sm">
-                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
-                  <div key={day} className="p-2 text-[#6d7b6c] font-semibold">{day}</div>
-                ))}
-                {Array.from({ length: 42 }).map((_, idx) => {
-                  const day = idx - 3;
-                  const isToday = day === 15;
-                  const hasEvent = [8, 15, 22, 28].includes(day);
-                  
-                  return (
-                    <div
-                      key={idx}
-                      className={`cal-cell p-3 text-xs ${isToday ? 'cal-cell today' : ''} ${day < 1 || day > 30 ? 'cal-cell other-month' : ''}`}
-                    >
-                      <div className="font-semibold text-[#0b1c30]">{day > 0 && day <= 30 ? day : ''}</div>
-                      {hasEvent && day > 0 && day <= 30 && (
-                        <span className="event-tag bg-[#ff8e4d] text-white">Due</span>
-                      )}
+            )}
+
+            {/* Subjects Grid */}
+            {subjects.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {subjects.map((subject) => (
+                  <Link
+                    key={subject}
+                    href={`/assignments/${encodeURIComponent(subject)}`}
+                    className="group"
+                  >
+                    <div className="bg-white rounded-lg border border-slate-200 p-6 hover:shadow-lg hover:border-blue-300 transition-all cursor-pointer">
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-lg font-semibold text-slate-900 group-hover:text-blue-600">
+                          {subject}
+                        </h3>
+                        <span className="text-blue-600 opacity-0 group-hover:opacity-100">→</span>
+                      </div>
+                      <p className="text-sm text-slate-600">
+                        Generate practice assignments on any topic
+                      </p>
                     </div>
-                  );
-                })}
+                  </Link>
+                ))}
               </div>
-            </div>
+            )}
 
-            {/* DEADLINES */}
-            <div className="col-span-2 card p-6">
-              <h2 className="qs font-bold text-lg text-[#0b1c30] mb-4">Upcoming Deadlines</h2>
-              <div className="space-y-3">
-                <div className="rounded-lg border border-[#e5eeff] p-3 hover:bg-[#f8f9ff] transition">
-                  <div className="flex items-start justify-between mb-1">
-                    <p className="font-semibold text-[#0b1c30] text-sm">History Essay</p>
-                    <span className="text-[10px] font-bold text-[#ff8e4d]">2 days</span>
-                  </div>
-                  <p className="text-xs text-[#6d7b6c]">Due Nov 8, 5:00 PM</p>
-                </div>
-                <div className="rounded-lg border border-[#e5eeff] p-3 hover:bg-[#f8f9ff] transition">
-                  <div className="flex items-start justify-between mb-1">
-                    <p className="font-semibold text-[#0b1c30] text-sm">Math Assignment</p>
-                    <span className="text-[10px] font-bold text-[#006e2f]">5 days</span>
-                  </div>
-                  <p className="text-xs text-[#6d7b6c]">Due Nov 11, 8:00 PM</p>
-                </div>
-                <div className="rounded-lg border border-[#e5eeff] p-3 hover:bg-[#f8f9ff] transition">
-                  <div className="flex items-start justify-between mb-1">
-                    <p className="font-semibold text-[#0b1c30] text-sm">Science Project</p>
-                    <span className="text-[10px] font-bold text-[#0058be]">7 days</span>
-                  </div>
-                  <p className="text-xs text-[#6d7b6c]">Due Nov 13, 3:00 PM</p>
-                </div>
-              </div>
+            {/* Info Section */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 space-y-3">
+              <h3 className="font-semibold text-blue-900">How it works</h3>
+              <ul className="text-sm text-blue-800 space-y-2">
+                <li>✓ Select a subject above</li>
+                <li>✓ Enter a topic you want to practice</li>
+                <li>✓ Choose difficulty level</li>
+                <li>✓ Generate and solve the assignment</li>
+                <li>✓ Get instant AI-powered feedback</li>
+              </ul>
             </div>
           </div>
-
-          {/* SUBMISSIONS TABLE */}
-          <div className="card p-6">
-            <h2 className="qs font-bold text-lg text-[#0b1c30] mb-5">Your Submissions</h2>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-[#e5eeff]">
-                    <th className="text-left p-3 text-[#6d7b6c] font-semibold">Assignment</th>
-                    <th className="text-left p-3 text-[#6d7b6c] font-semibold">Subject</th>
-                    <th className="text-left p-3 text-[#6d7b6c] font-semibold">Status</th>
-                    <th className="text-left p-3 text-[#6d7b6c] font-semibold">Submitted</th>
-                    <th className="text-left p-3 text-[#6d7b6c] font-semibold">Grade</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[
-                    { name: 'Chapter 1 Summary', subject: 'History', status: 'Graded', submitted: 'Nov 3', grade: 'A' },
-                    { name: 'Quadratic Equations', subject: 'Mathematics', status: 'Submitted', submitted: 'Nov 4', grade: '—' },
-                    { name: 'Lab Report', subject: 'Science', status: 'Under Review', submitted: 'Nov 5', grade: '—' }
-                  ].map((item) => (
-                    <tr key={item.name} className="tr border-b border-[#e5eeff] hover:bg-[#f8f9ff]">
-                      <td className="p-3 font-semibold text-[#0b1c30]">{item.name}</td>
-                      <td className="p-3 text-[#3d4a3d]">{item.subject}</td>
-                      <td className="p-3">
-                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold ${
-                          item.status === 'Graded' ? 'bg-[#22c55e]/15 text-[#006e2f]' :
-                          item.status === 'Submitted' ? 'bg-[#0058be]/15 text-[#0058be]' :
-                          'bg-[#ff8e4d]/15 text-[#ff8e4d]'
-                        }`}>
-                          {item.status}
-                        </span>
-                      </td>
-                      <td className="p-3 text-[#6d7b6c]">{item.submitted}</td>
-                      <td className="p-3 font-semibold text-[#0b1c30]">{item.grade}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 }

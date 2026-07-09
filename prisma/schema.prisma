@@ -56,6 +56,8 @@ model User {
   conversationHistories ConversationHistory[]
   parentReports         ParentReport[]
   practiceAttempts      PracticeAttempt[]
+  childSubjects         ChildSubject[]
+  generatedAssignments  GeneratedAssignment[]
 }
 
 model Course {
@@ -215,4 +217,41 @@ model PracticeAttempt {
   updatedAt     DateTime @updatedAt
 
   @@unique([userId, testId])
+}
+
+// Child Subjects - Tracks which subjects a student has registered for
+model ChildSubject {
+  id            String   @id @default(uuid())
+  child         User     @relation(fields: [childId], references: [id], onDelete: Cascade)
+  childId       String
+  subjectName   String   @db.VarChar(100)
+  createdAt     DateTime @default(now())
+
+  @@unique([childId, subjectName])
+}
+
+// AI-Generated Assignments
+model GeneratedAssignment {
+  id                    String   @id @default(uuid())
+  child                 User     @relation(fields: [childId], references: [id], onDelete: Cascade)
+  childId               String
+  subject               String
+  topic                 String
+  title                 String
+  instructions          String
+  board                 String
+  grade                 Int
+  complexity            String   // Easy, Medium, Hard, Mixed
+  
+  questionsJson         String   // JSON array of questions with correct_answer
+  submittedAnswersJson  String?  // JSON array of submitted answers (null if not submitted)
+  feedbackJson          String?  // JSON object with AI feedback (null if not graded)
+  
+  score                 Float?   // Total marks awarded
+  totalMarks            Int
+  estimatedMinutes      Int
+  submittedAt           DateTime?
+  
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 }

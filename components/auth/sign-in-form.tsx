@@ -38,7 +38,8 @@ export default function SignInForm() {
       // Store user information in localStorage for the site-header and other components
       localStorage.setItem('userId', data.user?.id || '');
       localStorage.setItem('userName', data.user?.name || 'User');
-      localStorage.setItem('userGrade', data.user?.grade ? `Grade ${data.user.grade}` : 'Grade 10');
+      localStorage.setItem('userGrade', data.user?.grade ? String(data.user.grade) : '9');
+      localStorage.setItem('userBoard', data.user?.curriculum || 'CBSE');
       localStorage.setItem('userRole', data.user?.role ? (data.user.role === 'STUDENT' ? 'Student' : data.user.role === 'INSTRUCTOR' ? 'Teacher' : 'Admin') : 'Student');
       
       // Redirect to dashboard immediately
