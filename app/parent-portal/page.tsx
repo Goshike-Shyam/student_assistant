@@ -171,7 +171,14 @@ export default function ParentPortalPage() {
                             {stat.count} {stat.count === 1 ? 'search' : 'searches'}
                           </span>
                         </div>
-                        <div className="w-full bg-slate-200 rounded-full h-2">
+                        <div
+                          role="progressbar"
+                          aria-valuenow={Math.round((stat.count / Math.max(...subjectStats.map(s => s.count))) * 100)}
+                          aria-valuemin={0}
+                          aria-valuemax={100}
+                          aria-label={`${stat.subject}: ${stat.count} ${stat.count === 1 ? 'search' : 'searches'}`}
+                          className="w-full bg-slate-200 rounded-full h-2"
+                        >
                           <div 
                             className="bg-gradient-to-r from-cyan-500 to-blue-600 h-2 rounded-full"
                             style={{ width: `${(stat.count / Math.max(...subjectStats.map(s => s.count))) * 100}%` }}

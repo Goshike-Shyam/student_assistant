@@ -22,12 +22,13 @@ export interface AssignmentGenerated {
   topic: string;
   instructions: string;
   questions: Question[];
-  total_marks: number;
-  estimated_minutes: number;
+  totalMarks: number;
+  estimatedMinutes: number;
 }
 
 export interface AssignmentResponse extends AssignmentGenerated {
-  assignment_id: string;
+  /** UUID from the DB row — comes from generate API as `assignmentId` */
+  id: string;
 }
 
 export interface AssignmentGenerateRequest {
@@ -40,25 +41,36 @@ export interface AssignmentGenerateRequest {
 }
 
 export interface QuestionFeedback {
-  question_id: number;
-  is_correct: boolean;
-  marks_awarded: number;
+  question_id:       number;
+  is_correct:        boolean;
+  marks_awarded:     number;
+  marks_possible:    number;
   brief_explanation: string;
 }
 
-export interface SubmissionFeedback {
-  per_question_feedback: QuestionFeedback[];
-  total_marks_awarded: number;
-  total_marks_possible: number;
-  percentage: number;
-  grade_label: GradeLabel;
-  overall_feedback: string;
+/** Full rich feedback returned by the submit API and stored in DB feedbackJson */
+export interface FeedbackResult {
+  per_question_feedback:  QuestionFeedback[];
+  total_marks_awarded:    number;
+  total_marks_possible:   number;
+  percentage:             number;
+  grade_label:            GradeLabel;
+  grade_emoji:            string;
+  strengths:              string;
+  improvement_areas:      string;
+  overall_feedback:       string;
+  parent_summary:         string;
+  next_steps:             string[];
+  encouragement_badge:    string;
 }
 
+/** Backward-compat alias */
+export type SubmissionFeedback = FeedbackResult;
+
 export interface SubmitRequest {
-  assignment_id: string;
+  assignmentId: string;
   answers: Array<{
-    question_id: number;
+    questionId: number;
     answer: string;
   }>;
 }

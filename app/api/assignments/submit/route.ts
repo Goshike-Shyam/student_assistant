@@ -1,78 +1,116 @@
+/**
+ * SUBMIT CONTRACT — DO NOT CHANGE ORDER
+ * 1. Validate payload (assignmentId + answers required)
+ * 2. DB lookup FIRST — return 404 immediately if not found
+ * 3. Check already-submitted (409 if true)
+ * 4. Fetch student name from User table for personalised prompt
+ * 5. Call Gemini with buildEvalPrompt() — 45s timeout
+ * 6. Parse JSON response (strips markdown fences) → FeedbackResult
+ * 7. DB update: feedbackJson, score, submittedAt
+ * 8. Return FeedbackResult to client
+ * Gemini is NEVER called before DB lookup — prevents 100s timeout then 404
+ * feedbackJson always contains: per_question_feedback, overall_feedback,
+ *   parent_summary, next_steps, encouragement_badge — used by parent report
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prismaClient';
-import {
-  SubmitRequest,
-  SubmissionFeedback,
-  Question,
-  QuestionFeedback,
-} from '@/types/assignments';
+import { FeedbackResult, Question } from '@/types/assignments';
 import { generateContentWithRetry } from '@/server/utils';
+import { logAiCredit } from '@/lib/ai-credit-logger';
 
-const LLM_TIMEOUT_MS = 20000;
+const LLM_TIMEOUT_MS = 45000; // 45s — LLM evaluation can be slow for long assignments
 
 /**
- * Build LLM prompt for assignment evaluation
+ * Build a rich, personalised LLM evaluation prompt.
+ * Includes correct_answer from DB (never sent to client).
  */
-function buildEvaluationPrompt(
-  board: string,
+function buildEvalPrompt(
+  questions: any[],
+  answers: Array<{ questionId: number; answer: string }>,
+  studentName: string,
   grade: number,
-  subject: string,
-  topic: string,
-  questions: Question[],
-  studentAnswers: Array<{ question_id: number; answer: string }>
+  board: string,
+  subject: string
 ): string {
-  const questionsForEval = questions.map((q) => ({
-    id: q.id,
-    type: q.type,
-    question: q.question,
-    options: q.options,
-    marks: q.marks,
-    correct_answer: q.correct_answer,
-  }));
+  const qa = questions
+    .map((q: any, i: number) => {
+      const studentAns =
+        answers.find((a) => String(a.questionId) === String(q.id))?.answer ?? '(no answer)';
+      return `Q${i + 1} [${q.type}] [${q.marks} marks]
+Question: ${q.question}
+${q.options ? `Options: ${q.options.join(' | ')}` : ''}
+Correct answer: ${q.correct_answer ?? 'N/A'}
+Student answered: ${studentAns}`;
+    })
+    .join('\n\n');
 
-  return `You are a ${board} Grade ${grade} teacher marking a ${subject} assignment on "${topic}".
-Evaluate each student answer carefully.
+  return `You are a warm, encouraging ${board} Grade ${grade} ${subject} teacher.
+Student name: ${studentName}
+Your task: evaluate this assignment and provide feedback that is:
+- Age-appropriate for Grade ${grade}
+- Specific to ${board} ${subject} curriculum
+- Always encouraging, never discouraging
+- Constructive — tell the student HOW to improve, not just what is wrong
+- Celebratory for correct answers
+- Empathetic and motivating for wrong answers
 
-QUESTIONS AND CORRECT ANSWERS:
-${JSON.stringify(questionsForEval, null, 2)}
+${qa}
 
-STUDENT'S ANSWERS:
-${JSON.stringify(studentAnswers, null, 2)}
-
-Return ONLY valid JSON in this exact format:
+Return ONLY this exact JSON structure, no markdown fences, no extra text:
 {
   "per_question_feedback": [
     {
-      "question_id": 1,
-      "is_correct": true,
-      "marks_awarded": 1,
-      "brief_explanation": "Clear and correct answer."
+      "question_id": <number matching q id>,
+      "is_correct": <boolean>,
+      "marks_awarded": <number>,
+      "marks_possible": <number>,
+      "brief_explanation": "<1-2 sentences. If correct: celebrate + reinforce why. If wrong: explain correct answer simply + encourage. Always end positively.>"
     }
   ],
-  "total_marks_awarded": 15,
-  "total_marks_possible": 20,
-  "percentage": 75,
-  "grade_label": "B",
-  "overall_feedback": "Good understanding of the topic. You answered most questions correctly. Work on [area] to improve further."
+  "total_marks_awarded": <number>,
+  "total_marks_possible": <number>,
+  "percentage": <number 0-100>,
+  "grade_label": "<one of: A+ | A | B+ | B | C | D | Needs Improvement>",
+  "grade_emoji": "<one of: 🌟 | ⭐ | 👍 | 🙂 | 💪 | 📚>",
+  "strengths": "<2-3 sentences about what the student did well overall>",
+  "improvement_areas": "<2-3 sentences about specific topics to revise, framed positively>",
+  "overall_feedback": "<4-5 sentences personalised to ${studentName}. (1) Open with genuine praise for attempting the assignment. (2) Highlight their strongest answer. (3) Gently note one improvement area with a specific study tip. (4) Connect to their future potential. (5) Close with an energetic motivational line for Grade ${grade}.>",
+  "parent_summary": "<3-4 sentences FOR PARENTS (not student). Include: score, strongest area shown, area needing home support, and one specific action the parent can take. Professional and warm tone.>",
+  "next_steps": [
+    "<specific actionable study tip 1 for this topic>",
+    "<specific actionable study tip 2 for this topic>",
+    "<specific actionable study tip 3 for this topic>"
+  ],
+  "encouragement_badge": "<one of: Rising Star | Quick Learner | Hard Worker | Improving Fast | Knowledge Seeker | Subject Champion>"
 }
 
-Rules:
-- Award full marks only if the answer is correct or demonstrates complete understanding
-- For MCQ: Full marks if option matches correct_answer, 0 otherwise
-- For SHORT_ANSWER/FILL_BLANK: Full marks for exact answer or reasonable equivalent, partial marks for partial understanding
-- For LONG_ANSWER: Award marks proportionally to completeness and correctness
-- For TRUE_FALSE: Full marks if correct, 0 otherwise
-- Grade labels: A+ (95-100%), A (85-94%), B+ (75-84%), B (65-74%), C (55-64%), D (45-54%), Needs Improvement (<45%)
-- Explanation must be 1-2 sentences, grade-appropriate, encouraging
-- Keep overall_feedback to 3-4 sentences`;
+Scoring rules:
+- MCQ / TRUE_FALSE: full marks if correct, 0 if wrong
+- FILL_BLANK: full marks if answer matches correct_answer (case-insensitive, trimmed)
+- SHORT_ANSWER / LONG_ANSWER: partial marks allowed (0, 25%, 50%, 75%, or 100% of marks) based on key concept coverage
+- Never give negative marks
+- percentage = (total_marks_awarded / total_marks_possible) * 100, rounded to 1 decimal
+- grade_label: A+(90-100) A(80-89) B+(70-79) B(60-69) C(50-59) D(40-49) Needs Improvement(<40)`;
 }
 
 /**
- * Parse and validate feedback JSON from LLM
+ * Parse and validate FeedbackResult JSON from LLM.
+ * Handles raw JSON AND markdown-fenced JSON (```json ... ```).
+ * Uses regex extraction so stray text around the JSON block is ignored.
  */
-function parseFeedbackResponse(jsonStr: string): SubmissionFeedback | null {
+function parseFeedbackResponse(raw: string): FeedbackResult | null {
   try {
-    const parsed = JSON.parse(jsonStr);
+    // 1. Strip markdown code fences if present
+    const stripped = raw
+      .replace(/^```(?:json)?\s*/i, '')
+      .replace(/\s*```\s*$/, '')
+      .trim();
+
+    // 2. Extract the outermost JSON object in case there's surrounding text
+    const jsonMatch = stripped.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) return null;
+
+    const parsed = JSON.parse(jsonMatch[0]);
 
     if (
       !Array.isArray(parsed.per_question_feedback) ||
@@ -85,7 +123,7 @@ function parseFeedbackResponse(jsonStr: string): SubmissionFeedback | null {
       return null;
     }
 
-    return parsed as SubmissionFeedback;
+    return parsed as FeedbackResult;
   } catch {
     return null;
   }
@@ -93,127 +131,131 @@ function parseFeedbackResponse(jsonStr: string): SubmissionFeedback | null {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = (await request.json()) as SubmitRequest;
-    const { assignment_id, answers } = body;
+    const body = await request.json();
+    const { assignmentId, answers } = body as { assignmentId?: string; answers?: any[] };
 
-    if (!assignment_id || !Array.isArray(answers) || answers.length === 0) {
+    // STEP 1 — validate payload
+    if (!assignmentId || !Array.isArray(answers) || answers.length === 0) {
       return NextResponse.json(
-        { error: 'Missing or invalid assignment_id or answers' },
+        { error: 'assignmentId and answers are required' },
         { status: 400 }
       );
     }
 
-    // Fetch assignment with correct answers
+    // Reject temp_ IDs immediately — never query DB for them
+    console.log('[Submit] received id:', assignmentId, 'type:', typeof assignmentId);
+    if (String(assignmentId).startsWith('temp_')) {
+      return NextResponse.json(
+        { error: 'Temporary ID received — assignment was not saved to DB. Please regenerate the assignment.' },
+        { status: 400 }
+      );
+    }
+
+    // STEP 2 — DB lookup FIRST, before any AI call
     const assignment = await prisma.generatedAssignment.findUnique({
-      where: { id: assignment_id },
+      where: { id: assignmentId },
     });
 
     if (!assignment) {
+      console.error('[Submit] Assignment not found for id:', assignmentId);
       return NextResponse.json(
-        { error: 'Assignment not found' },
+        { error: `Assignment not found. ID: ${assignmentId}` },
         { status: 404 }
       );
     }
 
-    // Check if already submitted
+    // STEP 3 — check already submitted
     if (assignment.submittedAt) {
       return NextResponse.json(
         { error: 'This assignment has already been submitted' },
-        { status: 400 }
+        { status: 409 }
       );
     }
 
-    // Parse stored questions
+    // STEP 4 — parse stored questions (include correct_answer for grading)
     let questions: Question[];
     try {
       questions = JSON.parse(assignment.questionsJson);
     } catch {
-      return NextResponse.json(
-        { error: 'Invalid assignment data' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Invalid assignment data' }, { status: 500 });
     }
 
-    // Validate all questions were answered
-    const answeredQuestionIds = new Set(answers.map((a) => a.question_id));
-    if (answeredQuestionIds.size !== questions.length) {
-      return NextResponse.json(
-        { error: 'Not all questions were answered' },
-        { status: 400 }
-      );
-    }
+    // STEP 5 — fetch student name for personalised feedback
+    const student = await prisma.user.findUnique({
+      where: { id: assignment.childId },
+      select: { name: true },
+    });
+    const studentName = student?.name ?? 'Student';
 
-    // Call LLM for evaluation with retry logic
-    const prompt = buildEvaluationPrompt(
-      assignment.board,
-      assignment.grade,
-      assignment.subject,
-      assignment.topic,
+    // STEP 6 — build rich evaluation prompt and call Gemini
+    const prompt = buildEvalPrompt(
       questions,
-      answers
+      answers as Array<{ questionId: number; answer: string }>,
+      studentName,
+      assignment.grade,
+      assignment.board,
+      assignment.subject
     );
 
-    let feedback: SubmissionFeedback | null = null;
+    let feedback: FeedbackResult | null = null;
     let lastError: string | null = null;
 
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
         const response = await Promise.race([
           generateContentWithRetry(prompt),
-          new Promise<string>((_, reject) =>
+          new Promise<never>((_, reject) =>
             setTimeout(() => reject(new Error('LLM request timeout')), LLM_TIMEOUT_MS)
           ),
         ]);
 
-        feedback = parseFeedbackResponse(response);
-        if (feedback) {
-          break;
+        const responseText = typeof response === 'string' ? response : response.text;
+
+        // Log AI credit (fire-and-forget)
+        if (typeof response === 'object' && response.promptTokens) {
+          logAiCredit({
+            userId: assignment.childId,
+            userRole: 'STUDENT',
+            feature: 'ASSIGNMENT_FEEDBACK',
+            promptTokens: response.promptTokens,
+            completionTokens: response.completionTokens,
+          }).catch(console.error);
         }
+
+        feedback = parseFeedbackResponse(responseText);
+        if (feedback) break;
         lastError = 'Invalid JSON response from LLM';
       } catch (error) {
         lastError = error instanceof Error ? error.message : 'Unknown error';
         if (attempt < 2) {
-          await new Promise((resolve) =>
-            setTimeout(resolve, 1000 * (attempt + 1))
-          );
+          await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1)));
         }
       }
     }
 
     if (!feedback) {
-      console.error('[POST /api/assignments/submit] LLM evaluation error:', lastError);
+      console.error('[POST /api/assignments/submit] LLM evaluation failed:', lastError);
       return NextResponse.json(
         { error: 'Failed to evaluate assignment. Please try again.' },
         { status: 503 }
       );
     }
 
-    // Update assignment with submission data
-    const percentage = feedback.total_marks_awarded / assignment.totalMarks * 100;
-    const updatedAssignment = await prisma.generatedAssignment.update({
-      where: { id: assignment_id },
+    // STEP 7 — persist to DB
+    await prisma.generatedAssignment.update({
+      where: { id: assignmentId },
       data: {
         submittedAnswersJson: JSON.stringify(answers),
-        feedbackJson: JSON.stringify(feedback),
-        score: feedback.total_marks_awarded,
-        submittedAt: new Date(),
+        feedbackJson:         JSON.stringify(feedback),
+        score:                feedback.total_marks_awarded,
+        submittedAt:          new Date(),
       },
     });
 
-    return NextResponse.json(
-      {
-        assignment_id,
-        score: feedback.total_marks_awarded,
-        total_marks: assignment.totalMarks,
-        ...feedback,
-      },
-      { status: 200 }
-    );
+    // STEP 8 — return full FeedbackResult to client
+    return NextResponse.json(feedback, { status: 200 });
   } catch (error) {
     console.error('[POST /api/assignments/submit] Error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

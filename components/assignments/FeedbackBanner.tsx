@@ -1,95 +1,65 @@
 'use client';
 
-import { SubmissionFeedback } from '@/types/assignments';
+import { FeedbackResult } from '@/types/assignments';
 
 interface FeedbackBannerProps {
-  feedback: SubmissionFeedback & {
-    score?: number;
-    total_marks?: number;
-    percentage?: number;
-  };
+  feedback: FeedbackResult;
 }
 
 export default function FeedbackBanner({ feedback }: FeedbackBannerProps) {
-  const gradeColors: { [key: string]: string } = {
-    'A+': 'bg-emerald-100 text-emerald-800 border-emerald-300',
-    'A': 'bg-emerald-100 text-emerald-800 border-emerald-300',
-    'B+': 'bg-blue-100 text-blue-800 border-blue-300',
-    'B': 'bg-blue-100 text-blue-800 border-blue-300',
-    'C': 'bg-amber-100 text-amber-800 border-amber-300',
-    'D': 'bg-orange-100 text-orange-800 border-orange-300',
-    'Needs Improvement': 'bg-red-100 text-red-800 border-red-300',
-  };
+  const pct = feedback.percentage;
 
-  const colorClass = gradeColors[feedback.grade_label] || 'bg-slate-100 text-slate-800 border-slate-300';
+  const bannerColors =
+    pct >= 90 ? 'bg-green-50 border-green-400 text-green-900' :
+    pct >= 70 ? 'bg-blue-50 border-blue-400 text-blue-900' :
+    pct >= 50 ? 'bg-amber-50 border-amber-400 text-amber-900' :
+                'bg-red-50 border-red-300 text-red-900';
 
   return (
-    <div className={`rounded-lg border-2 p-6 space-y-4 mb-6 ${colorClass}`}>
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-bold">Assignment Submitted</h3>
-          <p className="text-sm opacity-90">Thank you! Here's your feedback.</p>
+    <div className="space-y-4 mb-6">
+      {/* ── Top summary banner ── */}
+      <div className={`rounded-xl p-6 border-2 text-center ${bannerColors}`}>
+        <div className="text-5xl mb-2">{feedback.grade_emoji ?? '🎓'}</div>
+        <div className="text-3xl font-bold mb-1">{feedback.grade_label}</div>
+        <div className="text-xl font-medium mb-3">
+          {feedback.total_marks_awarded} / {feedback.total_marks_possible} marks
+          &nbsp;({feedback.percentage.toFixed(1)}%)
         </div>
-        <div className="text-right">
-          <p className="text-3xl font-bold">
-            {feedback.percentage}%
-          </p>
-          <p className="text-lg font-semibold">{feedback.grade_label}</p>
+        <div className="inline-flex items-center gap-2 bg-white rounded-full px-4 py-1 border text-sm font-semibold mb-4 text-gray-700">
+          🏅 {feedback.encouragement_badge}
         </div>
-      </div>
-
-      {/* Score Details */}
-      <div className="grid grid-cols-3 gap-4 py-4 border-y border-current opacity-75">
-        <div className="text-center">
-          <p className="text-sm opacity-75">Marks Awarded</p>
-          <p className="text-2xl font-bold">
-            {feedback.score?.toFixed(1) || feedback.total_marks_awarded}
-          </p>
-        </div>
-        <div className="text-center">
-          <p className="text-sm opacity-75">Total Marks</p>
-          <p className="text-2xl font-bold">
-            {feedback.total_marks || feedback.total_marks_possible}
-          </p>
-        </div>
-        <div className="text-center">
-          <p className="text-sm opacity-75">Percentage</p>
-          <p className="text-2xl font-bold">{feedback.percentage}%</p>
-        </div>
-      </div>
-
-      {/* Overall Feedback */}
-      <div className="space-y-2">
-        <h4 className="font-semibold text-sm">Teacher's Comments</h4>
-        <p className="text-sm leading-relaxed">
+        <p className="text-base leading-relaxed max-w-2xl mx-auto">
           {feedback.overall_feedback}
         </p>
       </div>
 
-      {/* Question-by-question feedback (if included) */}
-      {feedback.per_question_feedback && feedback.per_question_feedback.length > 0 && (
-        <details className="space-y-2 mt-4 pt-4 border-t border-current opacity-75">
-          <summary className="font-semibold text-sm cursor-pointer">
-            View feedback for each question ({feedback.per_question_feedback.length})
-          </summary>
-          <div className="mt-3 space-y-2 ml-2">
-            {feedback.per_question_feedback.map((qf, idx) => (
-              <div key={idx} className="text-sm p-2 bg-current opacity-5 rounded">
-                <div className="flex justify-between mb-1">
-                  <span className="font-semibold">
-                    Q{qf.question_id} {qf.is_correct ? '✅' : '❌'}
-                  </span>
-                  <span>
-                    {qf.marks_awarded} mark{qf.marks_awarded !== 1 ? 's' : ''}
-                  </span>
-                </div>
-                <p>{qf.brief_explanation}</p>
-              </div>
+      {/* ── Strengths + Keep Improving ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="rounded-lg p-4 bg-green-50 border border-green-200">
+          <h3 className="font-semibold text-green-900 mb-2">💪 Your Strengths</h3>
+          <p className="text-sm text-green-800 leading-relaxed">{feedback.strengths}</p>
+        </div>
+        <div className="rounded-lg p-4 bg-blue-50 border border-blue-200">
+          <h3 className="font-semibold text-blue-900 mb-2">📖 Keep Improving</h3>
+          <p className="text-sm text-blue-800 leading-relaxed">{feedback.improvement_areas}</p>
+        </div>
+      </div>
+
+      {/* ── Next Steps checklist ── */}
+      {feedback.next_steps && feedback.next_steps.length > 0 && (
+        <div className="rounded-lg p-4 bg-amber-50 border border-amber-200">
+          <h3 className="font-semibold text-amber-900 mb-3">🎯 Your Next Steps</h3>
+          <ul className="space-y-2">
+            {feedback.next_steps.map((step, i) => (
+              <li key={i} className="flex items-start gap-2 text-sm text-amber-900">
+                <span className="mt-0.5 text-amber-700 font-bold">✓</span>
+                {step}
+              </li>
             ))}
-          </div>
-        </details>
+          </ul>
+        </div>
       )}
     </div>
   );
 }
+

@@ -106,26 +106,28 @@ export default function SignInForm() {
       ) : (
         <form className="space-y-5" onSubmit={handleSignIn}>
           <div>
-            <label className="block text-sm font-semibold text-[#0b1c30] mb-2.5">Email address</label>
+            <label htmlFor="signin-email" className="block text-sm font-semibold text-[#0b1c30] mb-2.5">Email address</label>
             <input
+              id="signin-email"
               type="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               placeholder="you@example.com"
               required
-              className="w-full px-4 py-3 border-2 border-[#bccbb9] rounded-xl text-[#0b1c30] placeholder-[#6d7b6c] focus:border-[#0058be] focus:outline-none transition-colors font-base"
+              className="w-full px-4 py-3 border-2 border-[#bccbb9] rounded-xl text-[#0b1c30] placeholder-[#4B5563] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0058be] focus-visible:ring-offset-2 focus-visible:border-[#0058be] transition-colors font-base"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-[#0b1c30] mb-2.5">Password</label>
+            <label htmlFor="signin-password" className="block text-sm font-semibold text-[#0b1c30] mb-2.5">Password</label>
             <input
+              id="signin-password"
               type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder="Enter your password"
               required
-              className="w-full px-4 py-3 border-2 border-[#bccbb9] rounded-xl text-[#0b1c30] placeholder-[#6d7b6c] focus:border-[#0058be] focus:outline-none transition-colors font-base"
+              className="w-full px-4 py-3 border-2 border-[#bccbb9] rounded-xl text-[#0b1c30] placeholder-[#4B5563] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0058be] focus-visible:ring-offset-2 focus-visible:border-[#0058be] transition-colors font-base"
             />
           </div>
 
@@ -137,7 +139,7 @@ export default function SignInForm() {
           </button>
 
           {status ? (
-            <p className={`text-sm text-center ${status.includes('successful') ? 'text-[#006e2f]' : 'text-[#ba1a1a]'}`}>
+            <p role="alert" className={`text-sm text-center ${status.includes('successful') ? 'text-[#006e2f]' : 'text-[#ba1a1a]'}`}>
               {status}
             </p>
           ) : null}

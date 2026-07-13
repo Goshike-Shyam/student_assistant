@@ -255,3 +255,88 @@ model GeneratedAssignment {
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
 }
+
+// AI Credit Logging
+model AiCreditLog {
+  id               BigInt   @id @default(autoincrement()) @db.BigInt
+  userId           String   @map("user_id") @db.VarChar(36)
+  userRole         String   @map("user_role") @db.VarChar(20)
+  sessionId        String?  @map("session_id") @db.VarChar(36)
+  feature          String   @db.VarChar(100)
+  modelProvider    String   @default("GOOGLE") @map("model_provider") @db.VarChar(50)
+  modelName        String   @default("gemini-2.5-flash") @map("model_name") @db.VarChar(100)
+  promptTokens     Int      @default(0) @map("prompt_tokens") @db.Integer
+  completionTokens Int      @default(0) @map("completion_tokens") @db.Integer
+  totalTokens      Int      @default(0) @map("total_tokens") @db.Integer
+  costUsd          Decimal  @default(0) @map("cost_usd") @db.Decimal(10, 6)
+  latencyMs        Int?     @map("latency_ms") @db.Integer
+  wasFallback      Boolean  @default(false) @map("was_fallback")
+  fallbackReason   String?  @map("fallback_reason") @db.VarChar(255)
+  createdAt        DateTime @default(now()) @map("created_at")
+  
+  @@index([userId], name: "idx_user")
+  @@index([createdAt], name: "idx_date")
+  @@index([feature], name: "idx_feature")
+  @@map("ai_credit_logs")
+}
+
+model AiCreditDailySummary {
+  id            BigInt   @id @default(autoincrement()) @db.BigInt
+  summaryDate   DateTime @map("summary_date") @db.Date
+  userId        String   @map("user_id") @db.VarChar(36)
+  userRole      String   @map("user_role") @db.VarChar(20)
+  feature       String   @db.VarChar(100)
+  modelName     String   @map("model_name") @db.VarChar(100)
+  callCount     Int      @default(0) @map("call_count") @db.Integer
+  totalTokens   BigInt   @default(0) @map("total_tokens") @db.BigInt
+  totalCostUsd  Decimal  @default(0) @map("total_cost_usd") @db.Decimal(12, 6)
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  
+  @@unique([summaryDate, userId, feature, modelName], name: "uq_daily")
+  @@index([summaryDate, userId], name: "idx_date_user")
+  @@map("ai_credit_daily_summary")
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  CONTENT_MOD
+  SUPPORT
+  FINANCE
+}
+
+model Admin {
+  id           BigInt    @id @default(autoincrement()) @db.BigInt
+  name         String    @db.VarChar(255)
+  email        String    @unique @db.VarChar(320)
+  passwordHash String    @map("password_hash") @db.VarChar(255)
+  role         AdminRole @default(SUPPORT)
+  isActive     Boolean   @default(true) @map("is_active")
+  invitedBy    BigInt?   @map("invited_by") @db.BigInt
+  lastLogin    DateTime? @map("last_login")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  
+  inviter      Admin?    @relation("AdminInviter", fields: [invitedBy], references: [id], onDelete: SetNull)
+  invitees     Admin[]   @relation("AdminInviter")
+  sentInvites  AdminInvite[]
+  
+  @@map("admins")
+}
+
+model AdminInvite {
+  id        BigInt   @id @default(autoincrement()) @db.BigInt
+  email     String   @db.VarChar(320)
+  role      AdminRole
+  tokenHash String   @map("token_hash") @db.VarChar(255)
+  invitedBy BigInt   @map("invited_by") @db.BigInt
+  isUsed    Boolean  @default(false) @map("is_used")
+  expiresAt DateTime @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  inviter   Admin    @relation(fields: [invitedBy], references: [id], onDelete: Cascade)
+  
+  @@index([tokenHash], name: "idx_token")
+  @@index([email], name: "idx_email")
+  @@map("admin_invites")
+}

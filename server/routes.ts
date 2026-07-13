@@ -6,6 +6,8 @@ import { GoogleGenAI } from '@google/genai';
 import prisma from './prisma.js';
 import { asyncHandler, AppError } from './middleware.js';
 import { isValidSubjectForBoardAndGrade } from '../lib/subjects-seed.js';
+import { generateContentWithRetry, GenerateContentResult } from './utils.js';
+import { logAiCredit } from '../lib/ai-credit-logger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,36 +19,6 @@ const router = Router();
 
 // Helper function to force a pause (delay) in execution
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-// Retry logic for Gemini API with 503 error handling
-async function generateContentWithRetry(prompt: string, retries = 3, delayMs = 2000): Promise<string> {
-  for (let i = 0; i < retries; i++) {
-    try {
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
-      });
-      
-      return (response as any)?.text || (response as any)?.response?.text || ''; // Success! Return the response text
-
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      const isServerOverloaded = errorMessage.includes('503') || errorMessage.includes('UNAVAILABLE');
-      const isRateLimited = errorMessage.includes('429') || errorMessage.includes('RESOURCE_EXHAUSTED');
-
-      if ((isServerOverloaded || isRateLimited) && i < retries - 1) {
-        console.warn(`Gemini busy (Attempt ${i + 1}/${retries}). Retrying in ${delayMs / 1000}s...`);
-        await delay(delayMs);
-        delayMs *= 2; // Exponentially increase wait time (2s, 4s, etc.)
-        continue;
-      }
-      
-      // If it's a different error or we ran out of retries, throw it to the catch block below
-      throw error;
-    }
-  }
-  throw new Error('Failed to generate content after all retries');
-}
 
 // ========== CONSTANTS ==========
 const DEFAULT_RESOURCE_LINKS = [
@@ -475,6 +447,14 @@ router.delete(
 // Generate assignment using AI with curriculum validation
 router.post(
   '/assignments/generate',
+  /**
+   * GENERATE CONTRACT — DO NOT CHANGE RESPONSE SHAPE
+   * - Saves to DB (prisma.generatedAssignment.create) BEFORE returning response
+   * - Returns FLAT camelCase: { assignmentId, totalMarks, estimatedMinutes, ... }
+   * - correct_answer stripped before sending to client (stays in DB questionsJson)
+   * - Client reads response.assignmentId and stores as assignment.id
+   * - assignmentId is a UUID string (not numeric)
+   */
   asyncHandler(async (req: Request, res: Response) => {
     const { child_id, subject, grade, board, topic, complexity } = req.body;
 
@@ -516,7 +496,17 @@ Return ONLY valid JSON in this exact format, no markdown or extra text:
     // Try 3 times to get valid JSON
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
-        const response = await generateContentWithRetry(prompt, 1, 0); // Single attempt per try
+        const result = await generateContentWithRetry(prompt, 1, 0); // Single attempt per try
+        const response = result.text;
+
+        // Log AI credit usage (fire-and-forget)
+        logAiCredit({
+          userId: child_id,
+          userRole: 'STUDENT',
+          feature: 'ASSIGNMENT_GEN',
+          promptTokens: result.promptTokens,
+          completionTokens: result.completionTokens,
+        }).catch(console.error);
         
         // Extract JSON from response
         const jsonMatch = response.match(/\{[\s\S]*\}/);
@@ -550,17 +540,34 @@ Return ONLY valid JSON in this exact format, no markdown or extra text:
     // Calculate total marks
     const totalMarks = assignmentData.questions.reduce((sum: number, q: any) => sum + (q.marks || 0), 0);
 
-    // Prepare response (strip correct answers)
+    // Save assignment to DB (stores correct answers server-side for grading)
+    const savedAssignment = await prisma.generatedAssignment.create({
+      data: {
+        childId: child_id,
+        subject,
+        topic: assignmentData.topic,
+        title: assignmentData.title,
+        instructions: assignmentData.instructions,
+        board,
+        grade: typeof grade === 'string' ? parseInt(grade, 10) : grade,
+        complexity,
+        questionsJson: JSON.stringify(assignmentData.questions), // includes correct_answer
+        totalMarks,
+        estimatedMinutes: assignmentData.estimated_minutes,
+      },
+    });
+
+    // Prepare response (strip correct answers for client)
     const clientQuestions = assignmentData.questions.map(({ correct_answer, ...rest }: any) => rest);
 
     res.status(201).json({
-      assignment_id: `temp_${Date.now()}`,
-      title: assignmentData.title,
-      topic: assignmentData.topic,
-      instructions: assignmentData.instructions,
-      questions: clientQuestions,
-      total_marks: totalMarks,
-      estimated_minutes: assignmentData.estimated_minutes,
+      assignmentId:     savedAssignment.id,
+      title:            assignmentData.title,
+      topic:            assignmentData.topic,
+      instructions:     assignmentData.instructions,
+      questions:        clientQuestions,
+      totalMarks,
+      estimatedMinutes: assignmentData.estimated_minutes,
     });
   }),
 );
@@ -661,7 +668,19 @@ router.post(
       // Build and execute AI prompt with retry logic
       const curriculumContext = buildCurriculumContext(subject);
       const fullPrompt = `${curriculumContext}\n\nStudent Question: ${query}\n\nPlease provide a comprehensive, age-appropriate educational response.`;
-      const textContent = await generateContentWithRetry(fullPrompt);
+      const result = await generateContentWithRetry(fullPrompt);
+      const textContent = result.text;
+
+      // Log AI credit usage (fire-and-forget)
+      if (studentId) {
+        logAiCredit({
+          userId: studentId,
+          userRole: 'STUDENT',
+          feature: 'QUERY',
+          promptTokens: result.promptTokens,
+          completionTokens: result.completionTokens,
+        }).catch(console.error);
+      }
 
       // Format response as HTML
       response = formatAIResponse(textContent, subject);

@@ -46,6 +46,9 @@ interface ChildAssignmentStats {
     submittedAt: string;
     score: number;
     totalMarks: number;
+    grade_label?: string;
+    encouragement_badge?: string;
+    parent_summary?: string;
   }>;
 }
 
@@ -94,6 +97,9 @@ export default function AssignmentReportsPage() {
             submittedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
             score: 18,
             totalMarks: 20,
+            grade_label: 'A',
+            encouragement_badge: 'Subject Champion',
+            parent_summary: 'Aryan scored 18/20 (90%) on Quadratic Equations, demonstrating strong algebra skills. He showed excellent understanding of factorisation and the quadratic formula. Minor improvement is needed in word-problem interpretation. You can help at home by encouraging Aryan to solve 2-3 practice problems daily from his NCERT textbook.',
           },
         ],
       },
@@ -146,28 +152,28 @@ export default function AssignmentReportsPage() {
               {/* Key Metrics Cards */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="bg-white rounded-lg border border-slate-200 p-4 text-center">
-                  <p className="text-3xl font-bold text-blue-600">
+                  <p className="text-3xl font-bold text-blue-700">
                     {child.submittedAssignments}/{child.totalAssignments}
                   </p>
-                  <p className="text-sm text-slate-600 mt-1">Completed</p>
+                  <p className="text-sm text-slate-700 mt-1">Completed</p>
                 </div>
                 <div className="bg-white rounded-lg border border-slate-200 p-4 text-center">
-                  <p className="text-3xl font-bold text-emerald-600">
+                  <p className="text-3xl font-bold text-emerald-700">
                     {child.averageScore}%
                   </p>
-                  <p className="text-sm text-slate-600 mt-1">Average Score</p>
+                  <p className="text-sm text-slate-700 mt-1">Average Score</p>
                 </div>
                 <div className="bg-white rounded-lg border border-slate-200 p-4 text-center">
-                  <p className="text-3xl font-bold text-amber-600">
+                  <p className="text-3xl font-bold text-amber-700">
                     {child.gradeDistribution['A+'] + child.gradeDistribution['A']}
                   </p>
-                  <p className="text-sm text-slate-600 mt-1">A Grade Count</p>
+                  <p className="text-sm text-slate-700 mt-1">A Grade Count</p>
                 </div>
                 <div className="bg-white rounded-lg border border-slate-200 p-4 text-center">
-                  <p className="text-3xl font-bold text-purple-600">
+                  <p className="text-3xl font-bold text-purple-700">
                     {Object.keys(child.subjectPerformance).length}
                   </p>
-                  <p className="text-sm text-slate-600 mt-1">Subjects</p>
+                  <p className="text-sm text-slate-700 mt-1">Subjects</p>
                 </div>
               </div>
 
@@ -185,7 +191,14 @@ export default function AssignmentReportsPage() {
                             {data.averageScore}%
                           </span>
                         </div>
-                        <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div
+                          role="progressbar"
+                          aria-valuenow={data.averageScore}
+                          aria-valuemin={0}
+                          aria-valuemax={100}
+                          aria-label={`Score: ${data.averageScore}%`}
+                          className="h-2 bg-slate-100 rounded-full overflow-hidden"
+                        >
                           <div
                             className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full"
                             style={{ width: `${data.averageScore}%` }}
@@ -226,12 +239,19 @@ export default function AssignmentReportsPage() {
                                 {count} ({percentage.toFixed(0)}%)
                               </span>
                             </div>
-                            <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                              <div
-                                className={`h-full ${colorMap[grade]}`}
-                                style={{ width: `${percentage}%` }}
-                              ></div>
-                            </div>
+                        <div
+                          role="progressbar"
+                          aria-valuenow={percentage}
+                          aria-valuemin={0}
+                          aria-valuemax={100}
+                          aria-label={`${grade}: ${percentage.toFixed(0)}%`}
+                          className="h-2 bg-slate-100 rounded-full overflow-hidden"
+                        >
+                          <div
+                            className={`h-full ${colorMap[grade]}`}
+                            style={{ width: `${percentage}%` }}
+                          ></div>
+                        </div>
                           </div>
                         );
                       })}
@@ -244,25 +264,56 @@ export default function AssignmentReportsPage() {
                 <h3 className="text-lg font-semibold text-slate-900 mb-4">Recent Assignments</h3>
                 <div className="space-y-3">
                   {child.recentAssignments.map((assignment, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center justify-between p-3 bg-slate-50 rounded-lg"
-                    >
-                      <div>
-                        <p className="font-semibold text-slate-900">{assignment.subject}</p>
-                        <p className="text-sm text-slate-600">{assignment.topic}</p>
-                        <p className="text-xs text-slate-500">
-                          {new Date(assignment.submittedAt).toLocaleDateString()}
-                        </p>
+                    <div key={idx} className="space-y-2">
+                      <div
+                        className="flex items-center justify-between p-3 bg-slate-50 rounded-lg"
+                      >
+                        <div>
+                          <p className="font-semibold text-slate-900">{assignment.subject}</p>
+                          <p className="text-sm text-slate-600">{assignment.topic}</p>
+                          <p className="text-xs text-slate-500">
+                            {new Date(assignment.submittedAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold text-slate-900">
+                            {assignment.score}/{assignment.totalMarks}
+                          </p>
+                          <p className="text-sm text-emerald-700">
+                            {Math.round((assignment.score / assignment.totalMarks) * 100)}%
+                          </p>
+                          {assignment.grade_label && (
+                            <span className="text-xs font-bold text-blue-700">
+                              {assignment.grade_label}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-semibold text-slate-900">
-                          {assignment.score}/{assignment.totalMarks}
-                        </p>
-                        <p className="text-sm text-emerald-600">
-                          {Math.round((assignment.score / assignment.totalMarks) * 100)}%
-                        </p>
-                      </div>
+                      {/* Teacher's Note for Parents — from feedbackJson.parent_summary */}
+                      {assignment.parent_summary && (
+                        <div className="rounded-lg p-4 bg-blue-50 border border-blue-200">
+                          <h4 className="font-semibold text-blue-800 text-sm mb-1">
+                            📋 Teacher's Note for Parents
+                          </h4>
+                          <p className="text-sm text-blue-700 leading-relaxed">
+                            {assignment.parent_summary}
+                          </p>
+                          <div className="flex items-center gap-3 mt-2 text-xs text-blue-600">
+                            <span>
+                              Score:{' '}
+                              <strong>
+                                {Math.round((assignment.score / assignment.totalMarks) * 100)}%
+                              </strong>
+                            </span>
+                            {assignment.grade_label && (
+                              <span>Grade: <strong>{assignment.grade_label}</strong></span>
+                            )}
+                            {assignment.encouragement_badge && (
+                              <span>Badge: <strong>{assignment.encouragement_badge}</strong></span>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

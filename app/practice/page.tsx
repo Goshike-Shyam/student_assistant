@@ -16,11 +16,11 @@ export default function PracticePage() {
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'Easy':
-        return 'bg-emerald-100 text-emerald-700';
+        return 'bg-emerald-100 text-emerald-900';
       case 'Medium':
-        return 'bg-amber-100 text-amber-700';
+        return 'bg-amber-100 text-amber-900';
       case 'Hard':
-        return 'bg-rose-100 text-rose-700';
+        return 'bg-rose-100 text-rose-900';
       default:
         return 'bg-slate-100 text-slate-700';
     }
@@ -85,11 +85,13 @@ export default function PracticePage() {
               <input
                 type="text"
                 placeholder="Search tests..."
-                className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-[#0058be] focus:ring-1 focus:ring-[#0058be]"
+                aria-label="Search practice tests"
+                className="w-full px-4 py-2 border border-slate-200 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0058be] focus-visible:ring-offset-2 focus-visible:border-[#0058be]"
               />
-              <span className="mat absolute right-3 top-2.5 text-slate-400">search</span>
+              <span className="mat absolute right-3 top-2.5 text-slate-500" aria-hidden="true">search</span>
             </div>
-            <select className="px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-[#0058be] focus:ring-1 focus:ring-[#0058be]">
+            <label htmlFor="subject-filter" className="sr-only">Filter by subject</label>
+            <select id="subject-filter" className="px-4 py-2 border border-slate-200 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0058be] focus-visible:ring-offset-2 focus-visible:border-[#0058be]">
               <option>All Subjects</option>
               <option>Mathematics</option>
               <option>Science</option>
@@ -99,7 +101,8 @@ export default function PracticePage() {
               <option>Geography</option>
               <option>Economics</option>
             </select>
-            <select className="px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-[#0058be] focus:ring-1 focus:ring-[#0058be]">
+            <label htmlFor="level-filter" className="sr-only">Filter by difficulty level</label>
+            <select id="level-filter" className="px-4 py-2 border border-slate-200 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0058be] focus-visible:ring-offset-2 focus-visible:border-[#0058be]">
               <option>All Levels</option>
               <option>Easy</option>
               <option>Medium</option>
@@ -125,10 +128,17 @@ export default function PracticePage() {
                 {/* Progress Bar */}
                 <div className="mb-4">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs text-slate-600 font-medium">Progress</span>
+                    <span className="text-xs text-slate-700 font-medium">Progress</span>
                     <span className="text-xs font-bold text-[#0058be]">{test.progress}%</span>
                   </div>
-                  <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                  <div
+                    role="progressbar"
+                    aria-valuenow={test.progress}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-label={`Test progress: ${test.progress}%`}
+                    className="w-full h-2 bg-slate-200 rounded-full overflow-hidden"
+                  >
                     <div
                       className="h-full bg-gradient-to-r from-[#0058be] to-[#006e2f] transition-all"
                       style={{ width: `${test.progress}%` }}

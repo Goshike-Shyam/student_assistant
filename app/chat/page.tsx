@@ -25,7 +25,7 @@ export default function ChatPage() {
               {['Fractions: step-by-step', 'Algebra practice', 'Reading', 'Science diagram'].map((item, index) => (
                 <button key={item} className="flex w-full items-center justify-between rounded-3xl border border-slate-200 bg-white px-4 py-3 text-left text-sm text-slate-700 hover:bg-slate-50">
                   <span>{item}</span>
-                  {index === 2 ? <Badge variant="warning">1</Badge> : <Circle className="h-4 w-4 text-slate-400" />}
+                  {index === 2 ? <Badge variant="warning">1</Badge> : <Circle className="h-4 w-4 text-slate-500" aria-hidden="true" />}
                 </button>
               ))}
             </div>
@@ -47,7 +47,7 @@ export default function ChatPage() {
               {['Spelling drill', 'Algebra set', 'Science diagram'].map((item) => (
                 <button key={item} className="flex w-full items-center justify-between rounded-3xl border border-slate-200 bg-white px-4 py-3 text-left text-sm text-slate-700 hover:bg-slate-50">
                   <span>{item}</span>
-                  <span className="text-xs text-slate-400">1h ago</span>
+                  <span className="text-xs text-slate-600">1h ago</span>
                 </button>
               ))}
             </div>
@@ -70,7 +70,7 @@ export default function ChatPage() {
                 <h1 className="mt-2 text-3xl font-semibold text-slate-900">Ask the AI Tutor</h1>
               </div>
               <div className="flex items-center gap-3">
-                <Input placeholder="Search lessons, questions or resources..." className="max-w-md" />
+                <Input aria-label="Search lessons, questions or resources" placeholder="Search lessons, questions or resources..." className="max-w-md" />
                 <Button className="rounded-full bg-slate-950 px-5 py-3 text-sm text-white hover:bg-slate-800">Search</Button>
               </div>
             </div>
@@ -119,8 +119,8 @@ export default function ChatPage() {
             </div>
 
             <div className="mt-6 flex items-center gap-3 rounded-full border border-slate-200 bg-white px-4 py-3">
-              <Input placeholder="Type a message..." className="border-none p-0 placeholder:text-slate-400" />
-              <button className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-cyan-600 text-white hover:bg-cyan-700"><Send className="h-5 w-5" /></button>
+              <Input aria-label="Type your message to the AI tutor" placeholder="Type a message..." className="border-none p-0 placeholder:text-slate-500" />
+              <button aria-label="Send message" className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-cyan-600 text-white hover:bg-cyan-700"><Send className="h-5 w-5" aria-hidden="true" /></button>
             </div>
           </Card>
         </section>

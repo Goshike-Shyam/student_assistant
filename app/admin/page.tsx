@@ -1,20 +1,31 @@
 'use client';
 
-import { AdminSidebar } from '@/components/ui/admin-sidebar';
 import { useState, useEffect } from 'react';
 
 export default function AdminDashboard() {
   const [mounted, setMounted] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [adminName, setAdminName] = useState<string>('Admin');
+  const [adminInitials, setAdminInitials] = useState<string>('AD');
 
   useEffect(() => {
     // Check if user is authenticated
     const userId = localStorage.getItem('userId');
+    const userName = localStorage.getItem('userName');
     if (!userId) {
       // Not authenticated, redirect to login
       window.location.href = '/login';
       return;
     }
+    
+    // Extract initials from name
+    if (userName) {
+      setAdminName(userName);
+      const parts = userName.split(' ');
+      const initials = parts.map(p => p[0]).join('').toUpperCase().slice(0, 2);
+      setAdminInitials(initials);
+    }
+    
     setIsAuthenticated(true);
     setMounted(true);
   }, []);
@@ -24,12 +35,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="flex min-h-screen">
-      {/* SIDEBAR */}
-      <AdminSidebar />
-
-      {/* RIGHT SECTION */}
-      <div className="flex-1 flex flex-col min-h-screen">
+    <div className="flex-1 flex flex-col min-h-screen">
         {/* Admin Top Nav */}
         <nav className="h-16 bg-white border-b border-[#e5eeff] flex items-center justify-between px-8 sticky top-0 z-40" style={{ boxShadow: '0 2px 8px rgba(0,88,190,.04)' }}>
           <div className="flex items-center gap-8">
@@ -42,21 +48,27 @@ export default function AdminDashboard() {
           </div>
           <div className="flex items-center gap-3">
             <div className="relative flex items-center">
-              <span className="mat absolute left-3 text-[#6d7b6c] text-lg pointer-events-none">search</span>
-              <input type="text" placeholder="Search analytics..." className="pl-9 pr-4 py-2 border border-[#bccbb9] rounded-full text-sm bg-[#f8f9ff] w-44 transition-colors focus:outline-none" style={{ fontFamily: 'inherit' }} />
+              <span className="mat absolute left-3 text-[#4B5563] text-lg pointer-events-none" aria-hidden="true">search</span>
+              <input
+                type="text"
+                placeholder="Search analytics..."
+                aria-label="Search analytics"
+                className="pl-9 pr-4 py-2 border border-[#bccbb9] rounded-full text-sm bg-[#f8f9ff] w-44 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0058be] focus-visible:ring-offset-2"
+                style={{ fontFamily: 'inherit' }}
+              />
             </div>
-            <button className="relative w-9 h-9 rounded-full hover:bg-[#eff4ff] flex items-center justify-center text-[#3d4a3d]">
-              <span className="mat">Notifications</span>
-              <span className="absolute top-1 right-1 w-4 h-4 bg-[#ba1a1a] rounded-full text-[9px] text-white font-bold flex items-center justify-center">3</span>
+            <button aria-label="View notifications (3 unread)" className="relative w-9 h-9 rounded-full hover:bg-[#eff4ff] flex items-center justify-center text-[#3d4a3d]">
+              <span className="mat" aria-hidden="true">Notifications</span>
+              <span className="absolute top-1 right-1 w-4 h-4 bg-[#ba1a1a] rounded-full text-[9px] text-white font-bold flex items-center justify-center" aria-hidden="true">3</span>
             </button>
-            <button className="w-9 h-9 rounded-full hover:bg-[#eff4ff] flex items-center justify-center text-[#3d4a3d]">
-              <span className="mat">Settings</span>
+            <button aria-label="Settings" className="w-9 h-9 rounded-full hover:bg-[#eff4ff] flex items-center justify-center text-[#3d4a3d]">
+              <span className="mat" aria-hidden="true">Settings</span>
             </button>
             <div className="flex items-center gap-2 ml-1">
-              <div className="w-9 h-9 rounded-full bg-[#213145] border-2 border-[#adc6ff] flex items-center justify-center font-bold text-white text-xs qs">AR</div>
+              <div className="w-9 h-9 rounded-full bg-[#213145] border-2 border-[#adc6ff] flex items-center justify-center font-bold text-white text-xs qs">{adminInitials}</div>
               <div>
-                <p className="text-sm font-semibold leading-none">Alex Rivera</p>
-                <p className="text-[10px] text-[#6d7b6c] mt-0.5">SYSTEM ADMIN</p>
+                <p className="text-sm font-semibold leading-none">{adminName}</p>
+                <p className="text-[10px] text-[#374151] mt-0.5">ADMIN</p>
               </div>
             </div>
           </div>
@@ -78,7 +90,7 @@ export default function AdminDashboard() {
                   <span className="mat text-[#0058be] text-xl">group</span>
                 </div>
                 <div className="flex-1">
-                  <p className="text-xs text-[#6d7b6c] font-medium mb-0.5">Total Active Students</p>
+                  <p className="text-xs text-[#374151] font-medium mb-0.5">Total Active Students</p>
                   <p className="qs font-bold text-2xl text-[#0b1c30]">12,482</p>
                 </div>
               </div>
@@ -94,7 +106,7 @@ export default function AdminDashboard() {
                   <span className="mat text-[#006e2f] text-xl">task_alt</span>
                 </div>
                 <div className="flex-1">
-                  <p className="text-xs text-[#6d7b6c] font-medium mb-0.5">Completion Rate</p>
+                  <p className="text-xs text-[#374151] font-medium mb-0.5">Completion Rate</p>
                   <p className="qs font-bold text-2xl text-[#0b1c30]">76.2%</p>
                 </div>
               </div>
@@ -110,7 +122,7 @@ export default function AdminDashboard() {
                   <span className="mat text-[#9d4300] text-xl">payments</span>
                 </div>
                 <div className="flex-1">
-                  <p className="text-xs text-[#6d7b6c] font-medium mb-0.5">Platform Revenue</p>
+                  <p className="text-xs text-[#374151] font-medium mb-0.5">Platform Revenue</p>
                   <p className="qs font-bold text-2xl text-[#0b1c30]">$48,290</p>
                 </div>
               </div>
@@ -126,7 +138,7 @@ export default function AdminDashboard() {
                   <span className="mat text-[#0058be] text-xl">bolt</span>
                 </div>
                 <div className="flex-1">
-                  <p className="text-xs text-[#6d7b6c] font-medium mb-0.5">Engagement Score</p>
+                  <p className="text-xs text-[#374151] font-medium mb-0.5">Engagement Score</p>
                   <p className="qs font-bold text-2xl text-[#0b1c30]">8.4/10</p>
                 </div>
               </div>
@@ -154,7 +166,7 @@ export default function AdminDashboard() {
                 {[65, 78, 82, 71, 89, 76, 85].map((value, idx) => (
                   <div key={idx} className="flex flex-col items-center gap-2 flex-1">
                     <div className="w-full rounded-t-lg bg-gradient-to-t from-[#0058be] to-[#adc6ff]" style={{ height: `${value * 1.5}px` }}></div>
-                    <span className="text-xs text-[#6d7b6c] font-medium">{['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][idx]}</span>
+                    <span className="text-xs text-[#374151] font-medium">{['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][idx]}</span>
                   </div>
                 ))}
               </div>
@@ -171,14 +183,13 @@ export default function AdminDashboard() {
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <p className="qs font-bold text-3xl text-[#0b1c30]">82%</p>
-                    <p className="text-xs text-[#6d7b6c] mt-1">Active Users</p>
+                    <p className="text-xs text-[#374151] mt-1">Active Users</p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </main>
-      </div>
     </div>
   );
 }

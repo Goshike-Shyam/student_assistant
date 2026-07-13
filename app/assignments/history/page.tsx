@@ -125,13 +125,13 @@ export default function AssignmentHistoryPage() {
               <table className="w-full text-sm">
                 <thead className="bg-slate-50 border-b border-slate-200">
                   <tr>
-                    <th className="text-left p-4 font-semibold text-slate-700">Subject</th>
-                    <th className="text-left p-4 font-semibold text-slate-700">Topic</th>
-                    <th className="text-left p-4 font-semibold text-slate-700">Generated</th>
-                    <th className="text-left p-4 font-semibold text-slate-700">Submitted</th>
-                    <th className="text-left p-4 font-semibold text-slate-700">Score</th>
-                    <th className="text-left p-4 font-semibold text-slate-700">Grade</th>
-                    <th className="text-left p-4 font-semibold text-slate-700">Action</th>
+                    <th scope="col" className="text-left p-4 font-semibold text-slate-700">Subject</th>
+                    <th scope="col" className="text-left p-4 font-semibold text-slate-700">Topic</th>
+                    <th scope="col" className="text-left p-4 font-semibold text-slate-700">Generated</th>
+                    <th scope="col" className="text-left p-4 font-semibold text-slate-700">Submitted</th>
+                    <th scope="col" className="text-left p-4 font-semibold text-slate-700">Score</th>
+                    <th scope="col" className="text-left p-4 font-semibold text-slate-700">Grade</th>
+                    <th scope="col" className="text-left p-4 font-semibold text-slate-700">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -153,16 +153,16 @@ export default function AssignmentHistoryPage() {
                             {assignment.score}/{assignment.totalMarks}
                           </span>
                         ) : (
-                          <span className="text-slate-400">—</span>
+                          <span className="text-slate-500" aria-label="Not submitted">—</span>
                         )}
                       </td>
                       <td className="p-4">
                         {assignment.grade ? (
-                          <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded font-semibold text-xs">
+                          <span className="px-2 py-1 bg-blue-100 text-blue-900 rounded font-semibold text-xs">
                             {assignment.grade}
                           </span>
                         ) : (
-                          <span className="text-slate-400">—</span>
+                          <span className="text-slate-500" aria-label="No grade yet">—</span>
                         )}
                       </td>
                       <td className="p-4">

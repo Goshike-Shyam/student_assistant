@@ -60,10 +60,10 @@ export default function AdminContentPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Title</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Type</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Status</th>
-                  <th className="text-right py-3 px-4 font-semibold text-gray-700">Actions</th>
+                  <th scope="col" className="text-left py-3 px-4 font-semibold text-gray-700">Title</th>
+                  <th scope="col" className="text-left py-3 px-4 font-semibold text-gray-700">Type</th>
+                  <th scope="col" className="text-left py-3 px-4 font-semibold text-gray-700">Status</th>
+                  <th scope="col" className="text-right py-3 px-4 font-semibold text-gray-700">Actions</th>
                 </tr>
               </thead>
               <tbody>

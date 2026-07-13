@@ -268,7 +268,7 @@ export default function ResourcesPage() {
                 id="subject"
                 value={selectedSubject}
                 onChange={(e) => setSelectedSubject(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-cyan-500 focus:outline-none transition-colors"
+              className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 focus-visible:border-cyan-500 transition-colors"
               >
                 <option value="">Select subject...</option>
                 {subjects.map(subject => (
@@ -310,7 +310,7 @@ export default function ResourcesPage() {
                   }
                 }}
                 placeholder="Type your question... (Shift+Enter for new line)"
-                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder-slate-400 focus:border-cyan-500 focus:outline-none transition-colors resize-none overflow-hidden"
+                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 focus-visible:border-cyan-500 transition-colors resize-none overflow-hidden"
                 style={{ minHeight: '44px', maxHeight: '120px' }}
               />
             </div>

@@ -43,7 +43,7 @@ export default function HomePage() {
               </div>
               <div>
                 <p className="qs font-bold text-2xl text-white leading-none">EduSpark</p>
-                <p className="text-white/50 text-xs mt-0.5 tracking-wide">Learning Platform</p>
+              <p className="text-gray-200 text-xs mt-0.5 tracking-wide">Learning Platform</p>
               </div>
             </div>
 
@@ -52,7 +52,7 @@ export default function HomePage() {
               <h2 className="qs font-bold text-[42px] leading-[1.2] text-white mb-4">
                 Empowering every<br />learner with a<br /><span className="text-[#6bff8f]">vibrant,<br />personalized</span><br />journey.
               </h2>
-              <p className="text-white/65 text-[15px] leading-relaxed max-w-sm">Adaptive learning paths, interactive quests, and real-time progress tracking — built for every grade level.</p>
+              <p className="text-gray-100 text-[15px] leading-relaxed max-w-sm">Adaptive learning paths, interactive quests, and real-time progress tracking — built for every grade level.</p>
             </div>
 
             {/* Illustration placeholder */}
@@ -60,8 +60,8 @@ export default function HomePage() {
               <div className="float-slow w-[78%] aspect-[4/3] rounded-3xl border border-white/15 flex flex-col items-center justify-center relative overflow-hidden" style={{ background: 'rgba(255,255,255,.07)', backdropFilter: 'blur(10px)' }}>
                 <div className="absolute top-4 right-4 w-8 h-8 rounded-full bg-[#ff8e4d]/30 border border-[#ff8e4d]/40"></div>
                 <div className="absolute bottom-6 left-6 w-6 h-6 rounded-full bg-[#22c55e]/30 border border-[#22c55e]/40"></div>
-                <span className="mat text-white/25 text-7xl mb-2" style={{ fontVariationSettings: "'FILL' 0,'wght' 200,'GRAD' 0,'opsz' 48" }}>auto_stories</span>
-                <p className="text-white/25 text-xs tracking-widest font-mono">[ hero illustration ]</p>
+                <span className="mat text-white/25 text-7xl mb-2" style={{ fontVariationSettings: "'FILL' 0,'wght' 200,'GRAD' 0,'opsz' 48" }} aria-hidden="true">auto_stories</span>
+                <p className="text-gray-300 text-xs tracking-widest font-mono" aria-hidden="true">[ hero illustration ]</p>
               </div>
             </div>
 
@@ -77,7 +77,7 @@ export default function HomePage() {
                 <div className="w-9 h-9 rounded-full bg-[#22c55e] flex items-center justify-center font-bold text-white text-sm qs">JD</div>
                 <div>
                   <p className="text-white font-semibold text-sm leading-none">Jane Doe</p>
-                  <p className="text-white/55 text-xs mt-0.5">Principal, Oakwood Academy</p>
+                  <p className="text-gray-200 text-xs mt-0.5">Principal, Oakwood Academy</p>
                 </div>
               </div>
             </div>
@@ -96,7 +96,7 @@ export default function HomePage() {
 
               <div className="mb-8">
                 <h1 className="qs font-bold text-[38px] text-[#0b1c30] leading-tight mb-2">Welcome to EduSpark</h1>
-                <p className="text-[#6d7b6c] text-base">Personalized learning, homework support, and progress tracking in one place.</p>
+                <p className="text-[#374151] text-base">Personalized learning, homework support, and progress tracking in one place.</p>
               </div>
 
               <div className="space-y-4">
@@ -116,7 +116,7 @@ export default function HomePage() {
               </div>
 
               <div className="pt-4 border-t border-[#e5eeff] mt-4">
-                <p className="text-sm text-[#6d7b6c] text-center">
+                <p className="text-sm text-[#374151] text-center">
                   Start your learning journey today
                 </p>
               </div>
@@ -138,7 +138,7 @@ export default function HomePage() {
           {/* Welcome Section */}
           <div className="space-y-3">
             <h1 className="text-4xl font-bold text-slate-900">Welcome back, {userName}! 👋</h1>
-            <p className="text-lg text-slate-600">Continue your learning journey with personalized insights and resources.</p>
+              <p className="text-lg text-slate-700">Continue your learning journey with personalized insights and resources.</p>
           </div>
 
           {/* Quick Access Cards */}

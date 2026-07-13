@@ -1,6 +1,14 @@
 'use client';
 
-import React from 'react';
+import React, { createContext, useContext } from 'react';
+
+interface RadioGroupContextValue {
+  value?: string;
+  onValueChange?: (value: string) => void;
+  disabled?: boolean;
+}
+
+const RadioGroupContext = createContext<RadioGroupContextValue>({});
 
 interface RadioGroupProps {
   value?: string;
@@ -16,17 +24,11 @@ export function RadioGroup({
   children,
 }: RadioGroupProps) {
   return (
-    <fieldset disabled={disabled} className={disabled ? 'opacity-50' : ''}>
-      {React.Children.map(children, (child) => {
-        if (React.isValidElement(child)) {
-          return React.cloneElement(child, {
-            checked: value === (child.props as any).value,
-            onChange: () => onValueChange?.((child.props as any).value),
-          } as any);
-        }
-        return child;
-      })}
-    </fieldset>
+    <RadioGroupContext.Provider value={{ value, onValueChange, disabled }}>
+      <fieldset disabled={disabled} className={disabled ? 'opacity-50' : ''}>
+        {children}
+      </fieldset>
+    </RadioGroupContext.Provider>
   );
 }
 
@@ -41,18 +43,17 @@ interface RadioGroupItemProps {
 export function RadioGroupItem({
   value,
   id,
-  checked,
-  onChange,
   disabled,
 }: RadioGroupItemProps) {
+  const ctx = useContext(RadioGroupContext);
   return (
     <input
       type="radio"
       id={id}
       value={value}
-      checked={checked}
-      onChange={onChange}
-      disabled={disabled}
+      checked={ctx.value === value}
+      onChange={() => ctx.onValueChange?.(value)}
+      disabled={disabled ?? ctx.disabled}
       className="w-4 h-4 cursor-pointer"
     />
   );

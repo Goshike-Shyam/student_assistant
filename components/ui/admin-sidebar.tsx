@@ -1,10 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import type { Route } from "next";
 
 export function AdminSidebar() {
+  const pathname = usePathname();
   type NavItem = {
     id: string;
     label: string;
@@ -16,6 +17,7 @@ export function AdminSidebar() {
     { id: 'progress', label: 'Student Progress', icon: 'trending_up', href: '/admin/progress' as Route },
     { id: 'financials', label: 'Financials', icon: 'account_balance_wallet', href: '/admin/financials' as Route },
     { id: 'users', label: 'User Management', icon: 'manage_accounts', href: '/admin/users' as Route },
+    { id: 'credits', label: 'Credit Tracking', icon: 'bolt', href: '/admin/credits' as Route },
     { id: 'content', label: 'Content Library', icon: 'library_books', href: '/admin/content' as Route },
     { id: 'settings', label: 'Settings', icon: 'settings', href: '/admin/settings' as Route },
   ];
@@ -36,7 +38,8 @@ export function AdminSidebar() {
       {/* Nav */}
       <nav className="flex flex-col gap-0.5 flex-1">
         {navItems.map((item) => (
-          <Link key={item.id} href={item.href} className="adm-link">
+          <Link key={item.id} href={item.href}
+            className={`adm-link${pathname === item.href || (item.href !== '/admin' && pathname.startsWith(item.href)) ? ' active bg-[#eff4ff] text-[#0058be] font-semibold' : ''}`}>
             <span className="mat text-[#6d7b6c]">{item.icon}</span>
             {item.label}
           </Link>

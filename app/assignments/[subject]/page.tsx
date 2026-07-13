@@ -7,9 +7,10 @@ import { SiteHeader } from '@/components/ui/site-header';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { AssignmentResponse, ComplexityLevel } from '@/types/assignments';
+import { AssignmentResponse, ComplexityLevel, FeedbackResult } from '@/types/assignments';
 import QuestionCard from '@/components/assignments/QuestionCard';
 import AssignmentToolbar from '@/components/assignments/AssignmentToolbar';
+import FeedbackBanner from '@/components/assignments/FeedbackBanner';
 
 export default function SubjectAssignmentPage() {
   const params = useParams();
@@ -30,6 +31,7 @@ export default function SubjectAssignmentPage() {
   const [assignment, setAssignment] = useState<AssignmentResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [unansweredCount, setUnansweredCount] = useState(0);
+  const [feedback, setFeedback] = useState<FeedbackResult | null>(null);
 
   // State for student answers
   const [answers, setAnswers] = useState<{ [key: number]: string }>({});
@@ -111,7 +113,25 @@ export default function SubjectAssignmentPage() {
       }
 
       const data = await response.json();
-      setAssignment(data);
+      console.log('[Generate] received assignmentId:', data.assignmentId);
+
+      // The generate route now saves to DB directly — assignmentId is always a real UUID.
+      // Reject any temp_ value (from old Express server code) as invalid.
+      if (!data.assignmentId || String(data.assignmentId).startsWith('temp_')) {
+        console.error('[Generate] Invalid assignmentId:', data.assignmentId);
+        throw new Error('Assignment generation failed — invalid ID returned. Please try again.');
+      }
+
+      setAssignment({
+        id:               data.assignmentId,
+        title:            data.title,
+        topic:            data.topic,
+        instructions:     data.instructions,
+        questions:        data.questions,
+        totalMarks:       data.totalMarks,
+        estimatedMinutes: data.estimatedMinutes,
+      });
+      setFeedback(null); // Reset feedback for new assignment
       setAnswers({}); // Reset answers for new assignment
       setUnansweredCount(data.questions.length);
     } catch (err) {
@@ -231,7 +251,11 @@ export default function SubjectAssignmentPage() {
                 assignment={assignment}
                 unansweredCount={unansweredCount}
                 answers={answers}
+                onSubmitSuccess={setFeedback}
               />
+
+              {/* Rich Feedback Panel — shown after submission */}
+              {feedback && <FeedbackBanner feedback={feedback} />}
 
               {/* Assignment Content */}
               <div className="bg-white rounded-lg border border-slate-200 p-8 space-y-6">
@@ -239,8 +263,8 @@ export default function SubjectAssignmentPage() {
                 <div className="border-b border-slate-200 pb-4 space-y-2">
                   <h2 className="text-2xl font-bold text-slate-900">{assignment.title}</h2>
                   <p className="text-sm text-slate-600">
-                    <span className="font-semibold">{assignment.total_marks} marks</span> •{' '}
-                    <span className="font-semibold">{assignment.estimated_minutes} minutes</span>
+                    <span className="font-semibold">{assignment.totalMarks} marks</span> •{' '}
+                    <span className="font-semibold">{assignment.estimatedMinutes} minutes</span>
                   </p>
                 </div>
 
@@ -254,17 +278,24 @@ export default function SubjectAssignmentPage() {
 
                 {/* Questions */}
                 <div className="space-y-4">
-                  {assignment.questions.map((question, idx) => (
-                    <QuestionCard
-                      key={question.id}
-                      question={question}
-                      questionNumber={idx + 1}
-                      answer={answers[question.id] || ''}
-                      onAnswerChange={(answer) =>
-                        handleAnswerChange(question.id, answer)
-                      }
-                    />
-                  ))}
+                  {assignment.questions.map((question, idx) => {
+                    const qFeedback = feedback?.per_question_feedback?.find(
+                      (f) => String(f.question_id) === String(question.id)
+                    );
+                    return (
+                      <QuestionCard
+                        key={question.id}
+                        question={question}
+                        questionNumber={idx + 1}
+                        answer={answers[question.id] || ''}
+                        onAnswerChange={(answer) =>
+                          handleAnswerChange(question.id, answer)
+                        }
+                        feedback={qFeedback}
+                        isReadOnly={!!feedback}
+                      />
+                    );
+                  })}
                 </div>
               </div>
             </div>
