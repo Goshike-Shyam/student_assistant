@@ -9,7 +9,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prismaClient';
-import { generateContentWithRetry } from '@/server/utils';
+import { callGeminiWithRetry } from '@/lib/ai-with-retry';
 import { logAiCredit } from '@/lib/ai-credit-logger';
 import { AssignmentGenerateRequest } from '@/types/assignments';
 
@@ -136,24 +136,26 @@ export async function POST(request: NextRequest) {
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
         const result = await Promise.race([
-          generateContentWithRetry(prompt, 1, 0),
+          callGeminiWithRetry(prompt, 2048),
           new Promise<never>((_, reject) =>
             setTimeout(() => reject(new Error('LLM timeout')), LLM_TIMEOUT_MS)
           ),
         ]);
 
-        const responseText = typeof result === 'string' ? result : result.text;
+        const responseText = result.text;
 
         // Log AI credit (fire-and-forget)
-        if (typeof result === 'object' && result.promptTokens) {
-          logAiCredit({
-            userId: child_id,
-            userRole: 'STUDENT',
-            feature: 'ASSIGNMENT_GEN',
-            promptTokens: result.promptTokens,
-            completionTokens: result.completionTokens,
-          }).catch(console.error);
-        }
+        logAiCredit({
+          userId: child_id,
+          userRole: 'STUDENT',
+          feature: 'ASSIGNMENT_GEN',
+          promptTokens: 0,
+          completionTokens: 0,
+        }).catch(console.error);
+
+        console.log(
+          `[Generate] model=${result.modelUsed} fallback=${result.usedFallback} attempts=${result.attemptsTaken}`,
+        );
 
         // Strip markdown fences, extract outermost JSON object
         const stripped = responseText
@@ -181,8 +183,17 @@ export async function POST(request: NextRequest) {
     }
 
     if (!assignmentData) {
+      const isBusy =
+        lastError.toLowerCase().includes('unavailable') ||
+        lastError.includes('503') ||
+        lastError.toLowerCase().includes('models failed') ||
+        lastError.toLowerCase().includes('overloaded');
       return NextResponse.json(
-        { error: `Failed to generate assignment. ${lastError}` },
+        {
+          error: isBusy
+            ? 'AI service is temporarily busy. Please try again in a few seconds.'
+            : `Failed to generate assignment. ${lastError}`,
+        },
         { status: 503 }
       );
     }

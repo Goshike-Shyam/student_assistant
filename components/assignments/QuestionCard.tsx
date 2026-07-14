@@ -9,6 +9,14 @@
  * LONG_ANSWER        → Textarea rows={6}
  * Unknown types fall through to LONG_ANSWER Textarea — never throw or show error.
  * Adding a new type? Add a new block below AND in types/assignments.ts.
+ *
+ * OPTION TEXT CONTRAST CONTRACT — DO NOT CHANGE
+ * Radio option Labels: text-gray-900 (#111827) — contrast 16:1 on white — WCAG AAA ✓
+ * Question text:       text-slate-700 (inherits from card)
+ * Marks label:         text-slate-600
+ * Warning banner text: text-amber-900 on bg-amber-50
+ * NEVER use on white bg: text-gray-400, text-slate-200,
+ *   text-muted-foreground, text-slate-400 for option text
  */
 'use client';
 
@@ -56,7 +64,7 @@ export default function QuestionCard({
             {question.options?.map((option, idx) => (
               <div key={idx} className="flex items-center gap-3">
                 <RadioGroupItem value={option} id={`q${question.id}_opt${idx}`} />
-                <Label htmlFor={`q${question.id}_opt${idx}`} className="cursor-pointer">
+                <Label htmlFor={`q${question.id}_opt${idx}`} className="text-gray-900 font-normal cursor-pointer select-none">
                   {option}
                 </Label>
               </div>
@@ -78,7 +86,7 @@ export default function QuestionCard({
             {['True', 'False'].map((option) => (
               <div key={option} className="flex items-center gap-2">
                 <RadioGroupItem value={option} id={`q${question.id}_${option}`} />
-                <Label htmlFor={`q${question.id}_${option}`} className="cursor-pointer">
+                <Label htmlFor={`q${question.id}_${option}`} className="text-gray-900 font-normal cursor-pointer select-none">
                   {option}
                 </Label>
               </div>
@@ -225,8 +233,9 @@ export default function QuestionCard({
 
       {/* Unanswered indicator */}
       {!answer && !isReadOnly && (
-        <div className="mt-3 p-2 bg-amber-50 border border-amber-200 rounded text-sm text-amber-800">
-          ⚠️ This question is not answered
+        <div className="flex items-center gap-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 mt-3" role="alert">
+          <span aria-hidden="true">⚠️</span>
+          <span className="text-sm text-amber-900 font-medium">This question is not answered</span>
         </div>
       )}
     </div>

@@ -236,11 +236,48 @@ export default function SubjectAssignmentPage() {
               </Button>
             </div>
 
-            {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                {error}
-              </div>
-            )}
+            {error && (() => {
+              const isBusy =
+                error.toLowerCase().includes('busy') ||
+                error.toLowerCase().includes('demand') ||
+                error.toLowerCase().includes('unavailable') ||
+                error.includes('503');
+              return (
+                <div
+                  className={`flex items-start gap-3 rounded-lg border p-4 mt-1 ${
+                    isBusy
+                      ? 'border-amber-200 bg-amber-50'
+                      : 'border-red-200 bg-red-50'
+                  }`}
+                  role="alert"
+                  aria-live="assertive"
+                >
+                  <span className="text-lg" aria-hidden="true">
+                    {isBusy ? '⚠️' : '❌'}
+                  </span>
+                  <div className="flex-1">
+                    <p className={`text-sm font-medium mb-1 ${isBusy ? 'text-amber-900' : 'text-red-700'}`}>
+                      {isBusy
+                        ? 'AI is temporarily busy due to high demand. Click "Try Again" — it usually resolves in seconds.'
+                        : error}
+                    </p>
+                    {isBusy && (
+                      <button
+                        onClick={() => {
+                          setError(null);
+                          handleGenerateAssignment();
+                        }}
+                        disabled={isGenerating}
+                        className="text-sm font-medium text-amber-800 underline hover:text-amber-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 disabled:opacity-50"
+                        aria-label="Try generating assignment again"
+                      >
+                        {isGenerating ? 'Retrying...' : 'Try Again →'}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
 
           {/* Assignment Display */}

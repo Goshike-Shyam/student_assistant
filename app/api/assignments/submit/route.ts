@@ -15,7 +15,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prismaClient';
 import { FeedbackResult, Question } from '@/types/assignments';
-import { generateContentWithRetry } from '@/server/utils';
+import { callGeminiWithRetry } from '@/lib/ai-with-retry';
 import { logAiCredit } from '@/lib/ai-credit-logger';
 
 const LLM_TIMEOUT_MS = 45000; // 45s — LLM evaluation can be slow for long assignments
@@ -203,24 +203,26 @@ export async function POST(request: NextRequest) {
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
         const response = await Promise.race([
-          generateContentWithRetry(prompt),
+          callGeminiWithRetry(prompt, 2048),
           new Promise<never>((_, reject) =>
             setTimeout(() => reject(new Error('LLM request timeout')), LLM_TIMEOUT_MS)
           ),
         ]);
 
-        const responseText = typeof response === 'string' ? response : response.text;
+        const responseText = response.text;
 
         // Log AI credit (fire-and-forget)
-        if (typeof response === 'object' && response.promptTokens) {
-          logAiCredit({
-            userId: assignment.childId,
-            userRole: 'STUDENT',
-            feature: 'ASSIGNMENT_FEEDBACK',
-            promptTokens: response.promptTokens,
-            completionTokens: response.completionTokens,
-          }).catch(console.error);
-        }
+        logAiCredit({
+          userId: assignment.childId,
+          userRole: 'STUDENT',
+          feature: 'ASSIGNMENT_FEEDBACK',
+          promptTokens: 0,
+          completionTokens: 0,
+        }).catch(console.error);
+
+        console.log(
+          `[Submit] model=${response.modelUsed} fallback=${response.usedFallback} attempts=${response.attemptsTaken}`,
+        );
 
         feedback = parseFeedbackResponse(responseText);
         if (feedback) break;
