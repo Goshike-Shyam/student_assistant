@@ -48,16 +48,17 @@ model User {
   parentEmail          String?
   subscriptionPlan     SubscriptionPlan @default(FREE)
 
-  courses               Course[]       @relation("InstructorCourses")
-  enrollments           Enrollment[]
-  submissions           Submission[]
-  assignments           Assignment[]   @relation("CreatedBy")
-  searchQueries         SearchQuery[]
-  conversationHistories ConversationHistory[]
-  parentReports         ParentReport[]
-  practiceAttempts      PracticeAttempt[]
-  childSubjects         ChildSubject[]
-  generatedAssignments  GeneratedAssignment[]
+  courses                    Course[]       @relation("InstructorCourses")
+  enrollments                Enrollment[]
+  submissions                Submission[]
+  assignments                Assignment[]   @relation("CreatedBy")
+  searchQueries              SearchQuery[]
+  conversationHistories      ConversationHistory[]
+  parentReports              ParentReport[]
+  childSubjects              ChildSubject[]
+  generatedAssignments       GeneratedAssignment[]
+  practiceTests              PracticeTest[]
+  practiceAttempts           PracticeAttempt[]
 }
 
 model Course {
@@ -186,39 +187,6 @@ model ParentReport {
   updatedAt       DateTime @updatedAt
 }
 
-// Practice Tests
-model PracticeTest {
-  id          String   @id @default(uuid())
-  title       String
-  description String?
-  subject     String
-  difficulty  String   // Easy, Medium, Hard
-  duration    Int      // in minutes
-  totalQuestions Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  attempts    PracticeAttempt[]
-}
-
-// User Practice Test Attempts
-model PracticeAttempt {
-  id            String   @id @default(uuid())
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId        String
-  test          PracticeTest @relation(fields: [testId], references: [id], onDelete: Cascade)
-  testId        String
-  progress      Int      @default(0) // Percentage
-  score         Float?
-  status        String   @default("In Progress") // In Progress, Complete
-  startedAt     DateTime @default(now())
-  completedAt   DateTime?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  @@unique([userId, testId])
-}
-
 // Child Subjects - Tracks which subjects a student has registered for
 model ChildSubject {
   id            String   @id @default(uuid())
@@ -339,4 +307,52 @@ model AdminInvite {
   @@index([tokenHash], name: "idx_token")
   @@index([email], name: "idx_email")
   @@map("admin_invites")
+}
+
+// ─── AI-Generated Practice Tests ─────────────────────────────────────────────
+// PRACTICE ROUTE CONTRACT
+// Prisma models: prisma.practiceTest    (@@map "practice_tests")
+//                prisma.practiceAttempt (@@map "practice_attempts")
+// NEVER use: prisma.generatedPracticeTest / prisma.generatedPracticeAttempt
+// childId: UUID string from User.id (no conversion needed)
+// practiceTestId: saved.id.toString() from DB — never temp_*
+
+model PracticeTest {
+  id            String   @id @default(uuid())
+  childId       String   @map("child_id")
+  subject       String
+  topic         String
+  complexity    String   // Easy, Medium, Hard, Mixed
+  questionsJson String   @map("questions_json") // JSON array with correct_answer (server-only)
+  totalMarks    Int      @map("total_marks")
+  durationMins  Int      @default(15) @map("duration_mins")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  child    User             @relation(fields: [childId], references: [id], onDelete: Cascade)
+  attempts PracticeAttempt[]
+
+  @@index([childId], name: "idx_pt_child")
+  @@index([childId, subject], name: "idx_pt_child_subject")
+  @@map("practice_tests")
+}
+
+model PracticeAttempt {
+  id              String    @id @default(uuid())
+  practiceTestId  String    @map("practice_test_id")
+  childId         String    @map("child_id")
+  answersJson     String    @map("answers_json")  // [{questionId, answer}]
+  feedbackJson    String?   @map("feedback_json") // Full AI feedback JSON
+  score           Float?                          // Percentage 0-100
+  marksAwarded    Int?      @map("marks_awarded")
+  marksPossible   Int?      @map("marks_possible")
+  timeTakenSecs   Int?      @map("time_taken_secs")
+  completedAt     DateTime? @map("completed_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  test  PracticeTest @relation(fields: [practiceTestId], references: [id], onDelete: Cascade)
+  child User         @relation(fields: [childId], references: [id], onDelete: Cascade)
+
+  @@index([childId, practiceTestId], name: "idx_pa_child_test")
+  @@index([childId, createdAt], name: "idx_pa_child_date")
+  @@map("practice_attempts")
 }
