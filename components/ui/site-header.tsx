@@ -150,11 +150,18 @@ export function SiteHeader() {
 
               <div className="border-t border-[#f8f9ff] mt-1 pt-1">
                 <button
-                  onClick={() => {
-                    localStorage.removeItem('userId');
-                    localStorage.removeItem('userName');
-                    localStorage.removeItem('userGrade');
-                    localStorage.removeItem('userRole');
+                  onClick={async () => {
+                    // 1. Clear server-side Supabase auth cookies
+                    try {
+                      await fetch('/api/auth/logout', { method: 'POST' });
+                    } catch {
+                      // Non-critical — continue logout
+                    }
+                    // 2. Clear ALL client-side storage
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    // 3. Hard redirect — forces full page reload so no
+                    //    cached React state remains
                     window.location.href = '/login';
                   }}
                   className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-[#ba1a1a] hover:bg-[#fff4f4] transition-colors text-left"

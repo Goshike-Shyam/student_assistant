@@ -59,6 +59,9 @@ model User {
   generatedAssignments       GeneratedAssignment[]
   practiceTests              PracticeTest[]
   practiceAttempts           PracticeAttempt[]
+  // Teacher-role relations (student side)
+  classEnrollments           ClassEnrollment[]              @relation("StudentEnrollments")
+  teacherSubmissions         TeacherAssignmentSubmission[]  @relation("StudentSubmissions")
 }
 
 model Course {
@@ -355,4 +358,194 @@ model PracticeAttempt {
   @@index([childId, practiceTestId], name: "idx_pa_child_test")
   @@index([childId, createdAt], name: "idx_pa_child_date")
   @@map("practice_attempts")
+}
+
+// ─── Teacher Role ─────────────────────────────────────────────────────────────
+// TEACHER SCHEMA CONTRACT
+// - Teacher is a separate entity from User/Admin
+// - childId in enrollment/submission tables = User.id (UUID string, role=STUDENT)
+// - All teacher IDs are BigInt; all childId/userId are String UUIDs
+// - NEVER mix Teacher sessions with Admin or Student sessions
+
+model Teacher {
+  id            BigInt    @id @default(autoincrement()) @db.BigInt
+  name          String    @db.VarChar(255)
+  email         String    @unique @db.VarChar(320)
+  passwordHash  String    @map("password_hash") @db.VarChar(255)
+  schoolName    String    @map("school_name") @db.VarChar(255)
+  mobile        String?   @db.VarChar(512)
+  isActive      Boolean   @default(true) @map("is_active")
+  emailVerified Boolean   @default(false) @map("email_verified")
+  lastLogin     DateTime? @map("last_login")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  classes     TeacherClass[]
+  assignments TeacherAssignment[]
+
+  @@map("teachers")
+}
+
+model TeacherClass {
+  id           BigInt   @id @default(autoincrement()) @db.BigInt
+  teacherId    BigInt   @map("teacher_id") @db.BigInt
+  className    String   @map("class_name") @db.VarChar(100)
+  grade        String   @db.VarChar(5)
+  board        String   @db.VarChar(20)
+  academicYear String   @default("2024-25") @map("academic_year") @db.VarChar(20)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  teacher     Teacher               @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  subjects    TeacherClassSubject[]
+  enrollments ClassEnrollment[]
+  assignments TeacherAssignment[]
+  inviteTokens ClassInviteToken[]
+
+  @@index([teacherId], name: "idx_tc_teacher")
+  @@map("teacher_classes")
+}
+
+model TeacherClassSubject {
+  id          BigInt @id @default(autoincrement()) @db.BigInt
+  teacherId   BigInt @map("teacher_id") @db.BigInt
+  classId     BigInt @map("class_id") @db.BigInt
+  subjectName String @map("subject_name") @db.VarChar(100)
+
+  class TeacherClass @relation(fields: [classId], references: [id], onDelete: Cascade)
+
+  @@unique([classId, subjectName], name: "uq_tcs")
+  @@map("teacher_class_subjects")
+}
+
+model ClassEnrollment {
+  id         BigInt   @id @default(autoincrement()) @db.BigInt
+  classId    BigInt   @map("class_id") @db.BigInt
+  childId    String   @map("child_id") @db.VarChar(36)
+  enrolledAt DateTime @default(now()) @map("enrolled_at")
+
+  class TeacherClass @relation(fields: [classId], references: [id], onDelete: Cascade)
+  child User         @relation("StudentEnrollments", fields: [childId], references: [id], onDelete: Cascade)
+
+  @@unique([classId, childId], name: "uq_enrollment")
+  @@index([classId], name: "idx_ce_class")
+  @@index([childId], name: "idx_ce_child")
+  @@map("class_enrollments")
+}
+
+model TeacherAssignment {
+  id            BigInt   @id @default(autoincrement()) @db.BigInt
+  teacherId     BigInt   @map("teacher_id") @db.BigInt
+  classId       BigInt   @map("class_id") @db.BigInt
+  subject       String   @db.VarChar(100)
+  topic         String   @db.VarChar(255)
+  complexity    String   @db.VarChar(20)
+  instructions  String?  @db.Text
+  questionsJson Json     @map("questions_json")
+  totalMarks    Int      @map("total_marks") @db.Integer
+  dueDate       DateTime @map("due_date")
+  isPublished   Boolean  @default(true) @map("is_published")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  teacher     Teacher                       @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  class       TeacherClass                  @relation(fields: [classId], references: [id], onDelete: Cascade)
+  submissions TeacherAssignmentSubmission[]
+  reminders   AssignmentReminder[]
+
+  @@index([teacherId], name: "idx_ta_teacher")
+  @@index([classId], name: "idx_ta_class")
+  @@index([dueDate], name: "idx_ta_due")
+  @@map("teacher_assignments")
+}
+
+model TeacherAssignmentSubmission {
+  id                  BigInt    @id @default(autoincrement()) @db.BigInt
+  teacherAssignmentId BigInt    @map("teacher_assignment_id") @db.BigInt
+  childId             String    @map("child_id") @db.VarChar(36)
+  answersJson         Json?     @map("answers_json")
+  aiFeedbackJson      Json?     @map("ai_feedback_json")
+  teacherFeedbackJson Json?     @map("teacher_feedback_json")
+  teacherReviewedAt   DateTime? @map("teacher_reviewed_at")
+  teacherReleasedAt   DateTime? @map("teacher_released_at")
+  score               Decimal?  @db.Decimal(5, 2)
+  status              String    @default("NOT_STARTED") @db.VarChar(20)
+  submittedAt         DateTime? @map("submitted_at")
+  reminderSentAt      DateTime? @map("reminder_sent_at")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  assignment TeacherAssignment @relation(fields: [teacherAssignmentId], references: [id], onDelete: Cascade)
+  child      User              @relation("StudentSubmissions", fields: [childId], references: [id], onDelete: Cascade)
+
+  @@unique([teacherAssignmentId, childId], name: "uq_submission")
+  @@index([teacherAssignmentId], name: "idx_sub_assignment")
+  @@index([childId], name: "idx_sub_child")
+  @@index([status], name: "idx_sub_status")
+  @@map("teacher_assignment_submissions")
+}
+
+model AssignmentReminder {
+  id                  BigInt   @id @default(autoincrement()) @db.BigInt
+  teacherAssignmentId BigInt   @map("teacher_assignment_id") @db.BigInt
+  childId             String   @map("child_id") @db.VarChar(36)
+  parentEmail         String   @map("parent_email") @db.VarChar(320)
+  sentAt              DateTime @default(now()) @map("sent_at")
+  channel             String   @default("EMAIL") @db.VarChar(20)
+
+  assignment TeacherAssignment @relation(fields: [teacherAssignmentId], references: [id], onDelete: Cascade)
+
+  @@index([teacherAssignmentId, childId], name: "idx_reminder_assignment")
+  @@map("assignment_reminders")
+}
+
+model ClassInviteToken {
+  id        BigInt   @id @default(autoincrement()) @db.BigInt
+  classId   BigInt   @map("class_id") @db.BigInt
+  tokenHash String   @map("token_hash") @db.VarChar(255)
+  expiresAt DateTime @map("expires_at")
+  isUsed    Boolean  @default(false) @map("is_used")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  class TeacherClass @relation(fields: [classId], references: [id], onDelete: Cascade)
+
+  @@index([tokenHash], name: "idx_cit_token")
+  @@map("class_invite_tokens")
+}
+
+model TeacherQuestionBank {
+  id          BigInt   @id @default(autoincrement()) @db.BigInt
+  teacherId   BigInt   @map("teacher_id") @db.BigInt
+  subject     String   @db.VarChar(100)
+  grade       String   @db.VarChar(5)
+  board       String   @db.VarChar(20)
+  questionJson Json    @map("question_json")
+  usedCount   Int      @default(0) @map("used_count") @db.Integer
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([teacherId, subject], name: "idx_qb_teacher_subject")
+  @@map("teacher_question_bank")
+}
+
+model ParentCommunicationLog {
+  id            BigInt   @id @default(autoincrement()) @db.BigInt
+  teacherId     BigInt   @map("teacher_id") @db.BigInt
+  childId       String   @map("child_id") @db.VarChar(36)
+  parentEmail   String   @map("parent_email") @db.VarChar(320)
+  messageType   String   @map("message_type") @db.VarChar(50)
+  subject       String   @db.VarChar(255)
+  sentAt        DateTime @default(now()) @map("sent_at")
+
+  @@index([teacherId, childId], name: "idx_pcl_teacher_child")
+  @@map("parent_communication_logs")
+}
+
+model TeacherVerificationToken {
+  id         BigInt   @id @default(autoincrement()) @db.BigInt
+  teacherId  BigInt   @map("teacher_id") @db.BigInt
+  tokenHash  String   @unique @map("token_hash") @db.VarChar(255)
+  expiresAt  DateTime @map("expires_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([tokenHash], name: "idx_tvt_token")
+  @@map("teacher_verification_tokens")
 }
