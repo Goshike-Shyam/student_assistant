@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface User {
   id?: string;
@@ -69,10 +70,15 @@ export default function SignInForm() {
     <div className="w-full max-w-[420px]">
       {/* Mobile logo */}
       <div className="flex lg:hidden items-center gap-2 mb-8">
-        <div className="w-8 h-8 bg-[#0058be] rounded-xl flex items-center justify-center">
-          <span className="mat-fill text-white text-lg">school</span>
-        </div>
-        <span className="qs font-bold text-xl text-[#006e2f]">EduSpark</span>
+        <Image
+          src="/veda-ai-logo.png"
+          alt="Veda AI — Student Assistant"
+          width={32}
+          height={32}
+          className="rounded-xl object-contain"
+          priority
+        />
+        <span className="qs font-bold text-xl text-[#006e2f]">Student Assistant</span>
       </div>
 
       <div className="mb-8">

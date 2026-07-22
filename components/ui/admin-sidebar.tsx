@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import type { Route } from "next";
 
@@ -26,9 +27,13 @@ export function AdminSidebar() {
     <aside className="w-60 shrink-0 bg-white border-r border-[#e5eeff] min-h-screen sticky top-0 flex flex-col py-6 px-4" style={{ boxShadow: '2px 0 8px rgba(0,88,190,.04)' }}>
       {/* Logo */}
       <div className="flex items-center gap-3 mb-8 px-2">
-        <div className="w-10 h-10 bg-[#006e2f] rounded-2xl flex items-center justify-center shadow-md">
-          <span className="mat-fill text-white text-xl">school</span>
-        </div>
+        <Image
+          src="/veda-ai-logo.png"
+          alt="Veda AI logo"
+          width={40}
+          height={40}
+          className="rounded-xl bg-white p-1 object-contain flex-shrink-0"
+        />
         <div>
           <p className="qs font-bold text-[17px] text-[#006e2f] leading-none">Admin Portal</p>
           <p className="text-[#6d7b6c] text-[11px] mt-0.5">System Management</p>

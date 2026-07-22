@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { GraduationCap, Eye, EyeOff, CheckCircle } from 'lucide-react'
+import { Eye, EyeOff, CheckCircle } from 'lucide-react'
 
 export default function TeacherLoginPage() {
   const router = useRouter()
@@ -76,12 +77,14 @@ export default function TeacherLoginPage() {
         <div className="bg-white rounded-2xl shadow-lg p-8 border border-green-100">
           {/* Header */}
           <div className="mb-8 text-center">
-            <div
-              className="w-14 h-14 bg-[#006e2f] rounded-2xl flex items-center justify-center mx-auto mb-4"
-              aria-hidden="true"
-            >
-              <GraduationCap className="w-7 h-7 text-white" aria-hidden="true" />
-            </div>
+            <Image
+              src="/veda-ai-logo.png"
+              alt="Veda AI — Student Assistant"
+              width={56}
+              height={56}
+              className="mx-auto mb-4 rounded-2xl border border-slate-100 p-1 object-contain"
+              priority
+            />
             <h1 className="font-bold text-2xl text-gray-900 mb-1">Teacher Portal</h1>
             <p className="text-gray-600 text-sm">School Assistant — Sign in to continue</p>
           </div>

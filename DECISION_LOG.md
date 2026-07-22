@@ -1,7 +1,7 @@
-# EduSpark - Decision Log
+# Student Assistant - Decision Log
 
 **Purpose:** Document all architectural and implementation decisions, rationale, and trade-offs  
-**Last Updated:** June 19, 2026  
+**Last Updated:** July 20, 2026  
 **Scope:** All major technical decisions made in the project
 
 ---
@@ -549,86 +549,58 @@ Use standard HTTP status codes (200, 201, 400, 401, 403, 404, 500).
 
 ## 5. Authentication & Security Decisions
 
-### Decision 5.1: Supabase Authentication (Planned)
+### Decision 5.1: Multi-Tier Authentication (Not Single Supabase Auth)
 
-**Date:** Architecture Phase  
+**Date:** June–July 2026  
 **Decided By:** Security Team  
-**Status:** 🚧 Partially Implemented (Basic endpoint exists)
+**Status:** ✅ Implemented (Phase 3)
 
 **Decision:**
-Use Supabase Authentication for user management (JWT tokens, email verification, OAuth).
+Use three separate authentication mechanisms for three user tiers rather than a single Supabase Auth flow for everyone.
 
-**Alternatives Considered:**
-- Manual JWT implementation (error-prone)
-- Auth0 (third-party, more complex)
-- Firebase Authentication (Google-dependent)
-- Session-based (cookies, old pattern)
+| Tier | Mechanism | Session Storage |
+|------|-----------|----------------|
+| Students | Supabase Auth (JWT) | localStorage |
+| Teachers | Custom HMAC JWT | `sa-teacher-session` cookie |
+| Admins | bcrypt + session cookie | `sa-admin-session` httpOnly cookie (24h) |
 
 **Rationale:**
-1. **Integrated:** Built into Supabase database
-2. **Secure:** Supabase handles password hashing, token generation
-3. **Features:** Email verification, password reset, 2FA
-4. **OAuth:** Google, GitHub, Microsoft login support
-5. **No Reinvention:** Don't build auth from scratch
+1. **Security Isolation:** Admin compromise cannot cascade to student sessions
+2. **Admin Lockdown:** Admin accounts are invite-only (no public registration), with rate-limited login
+3. **No next-auth dependency:** Lighter-weight, more transparent custom implementation
+4. **Teacher context:** HMAC JWT allows embedding teacher/school context in token
 
-**Current Implementation Gap:**
-- ⚠️ Passwords stored plaintext (should use bcrypt)
-- Basic signin endpoint exists but no JWT verification middleware
+**Alternatives Considered:**
+- Single Supabase Auth for all (simpler but no invite-only enforcement for admins)
+- next-auth (heavier, more complex configuration)
 
-**Next Steps:**
-1. Add password hashing (bcrypt)
-2. Generate JWT tokens on signin
-3. Add JWT verification middleware
-4. Protect endpoints with role-based access control
+**Tradeoffs:**
+- More code to maintain (three auth paths)
+- Consistent auth UX important to not confuse users
+- Student passwords still not hashed (bcrypt needed — tracked as Bug 1)
 
 ---
 
-### Decision 5.2: Role-Based Access Control (RBAC) - Planned
+### Decision 5.2: Role-Based Access Control — Admin Tier Only (Students Pending)
 
-**Date:** Security Planning  
+**Date:** July 2026  
 **Decided By:** Security Team  
-**Status:** 🚧 Not Yet Implemented
+**Status:** 🚧 Partially Implemented
 
 **Decision:**
-Implement role-based access control (RBAC) with roles: STUDENT, INSTRUCTOR, ADMIN.
+Admin RBAC fully implemented (SUPER_ADMIN / CONTENT_MOD / SUPPORT / FINANCE). Student/teacher Express endpoint RBAC deferred.
 
-**Architecture:**
-```
-Route Handler
-  ↓
-Auth Middleware (verify JWT token)
-  ↓
-RBAC Middleware (check user.role)
-  ↓
-Business Logic
-```
+**Admin RBAC Implemented:**
+- `SUPER_ADMIN`: can invite admins, deactivate accounts
+- `CONTENT_MOD / SUPPORT / FINANCE`: limited roles
+- Only SUPER_ADMIN creatable via seed script; others via invite
+- Admin route guard in `app/admin/layout.tsx` (client-side check)
 
-**Example Middleware:**
-```typescript
-export function requireRole(...roles: Role[]) {
-  return (req: Request, res: Response, next: NextFunction) => {
-    if (!roles.includes(req.user.role)) {
-      res.status(403).json({ message: 'Forbidden' });
-    } else {
-      next();
-    }
-  };
-}
+**Student/Teacher RBAC Still Missing:**
+- Express endpoints not protected with role middleware
+- See PROJECT_CONTEXT.md Bug 2
 
-// Usage
-app.post('/api/assignments', 
-  requireAuth, 
-  requireRole('INSTRUCTOR', 'ADMIN'),
-  createAssignmentHandler
-);
-```
-
-**Roles and Permissions:**
-- **STUDENT:** Read-only (practice, resources, profile)
-- **INSTRUCTOR:** Create/grade assignments, view course analytics
-- **ADMIN:** Full access to user management, global analytics
-
-**Implementation Timeline:** After password hashing
+**Implementation Timeline:** After student password hashing is done
 
 ---
 
@@ -1045,57 +1017,207 @@ Single PostgreSQL database initially (Supabase handles scaling).
 
 ---
 
-## 13. Lessons Learned & Retrospective
+## 15. Phase 3 Decisions (July 2026)
 
-### What Went Well ✅
-1. **Rapid MVP Development:** Good feature coverage in short time
-2. **Modern Stack:** Next.js + TypeScript + Tailwind is productive
-3. **Type Safety:** TypeScript caught errors early
-4. **Database Design:** Normalized schema with good relationships
-5. **UI Consistency:** Component-based approach maintained consistency
+### Decision 15.1: Separate Admin Model (Not Admin Role in User Table)
 
-### What Could Be Better 🔧
-1. **Security Implementation:** Plaintext passwords, no auth middleware
-2. **Testing:** No automated tests (manual testing only)
-3. **Error Handling:** Inconsistent error responses
-4. **Documentation:** Minimal inline comments
-5. **Icon Solution:** Emoji is temporary, should have SVG from start
+**Date:** July 2026  
+**Decided By:** Security Team  
+**Status:** ✅ Implemented
 
-### Technical Debt Identified 📋
-1. Password hashing not implemented (CRITICAL)
-2. No JWT verification (CRITICAL)
-3. No input validation (CRITICAL)
-4. No rate limiting (CRITICAL)
-5. No pagination (HIGH)
-6. No error logging (HIGH)
+**Decision:**
+Admin users exist in their own `Admin` table (separate from the `User` table), with their own `AdminRole` enum.
 
-### Recommendations for Next Phase 📍
-1. **Security First:** Implement password hashing, auth middleware
-2. **Testing:** Add unit tests for critical paths
-3. **Performance:** Add caching, optimize queries
-4. **Monitoring:** Set up error tracking (Sentry)
-5. **Documentation:** Add API docs (Swagger), component docs (Storybook)
+**Rationale:**
+1. **Security Isolation:** Admin auth uses bcrypt cost 12; student auth currently plaintext — mixing in one table is dangerous
+2. **Invite-Only:** Admin accounts created only via seed script or invite flow — impossible to accidentally promote a student account
+3. **Different Field Set:** Admins need `isActive`, `invitedBy`, `lastLogin`, `passwordHash` — not appropriate in User
+4. **Role Independence:** AdminRole (SUPER_ADMIN/CONTENT_MOD/SUPPORT/FINANCE) is distinct from user Role (STUDENT/INSTRUCTOR)
+
+**Implementation:**
+- `Admin` model with BigInt ID, bcrypt passwordHash, AdminRole enum
+- `AdminInvite` model with SHA-256 tokenHash (raw token never stored)
+- `scripts/seed-super-admin.ts` for first SUPER_ADMIN only
+
+**Tradeoffs:**
+- Two separate user management systems to maintain
+- Cannot share session/auth code between student and admin paths
+- But security isolation is worth the complexity
 
 ---
 
-## 14. Decision Review & Update Schedule
+### Decision 15.2: Invite-Only Admin Account Creation
 
-**Last Reviewed:** June 19, 2026  
-**Next Review:** September 19, 2026 (after summer developments)
+**Date:** July 2026  
+**Decided By:** Security Team  
+**Status:** ✅ Implemented
+
+**Decision:**
+Admin accounts created via two mechanisms only: (1) seed script for first SUPER_ADMIN, (2) invite token sent by existing SUPER_ADMIN. No public `/admin/register` page exists.
+
+**Security Properties:**
+- Raw invite tokens never stored in DB (only SHA-256 hash)
+- Tokens expire in 48 hours
+- Tokens marked as used after redemption (no replay)
+- SUPER_ADMIN role cannot be assigned via invite (seed only)
+- Password strength enforced: 12+ chars, uppercase, number, symbol
+
+**Rationale:**
+1. **Zero Attack Surface:** No registration endpoint to brute-force
+2. **Chain of Trust:** Every admin can be traced back to SUPER_ADMIN
+3. **Revocability:** `isActive=false` immediately blocks login
+
+---
+
+### Decision 15.3: AI Credit Logging — Fire-and-Forget Pattern
+
+**Date:** July 2026  
+**Decided By:** Architecture Team  
+**Status:** ✅ Implemented
+
+**Decision:**
+All LLM API calls log token usage to `AiCreditLog` using fire-and-forget (`.catch(console.error)`). The main request never waits for the log to complete.
+
+**Feature Names:** `QUERY`, `ASSIGNMENT_GEN`, `ASSIGNMENT_FEEDBACK`
+
+**Pricing Applied (Gemini 2.5 Flash):**
+- Input: $0.00015 per 1K tokens
+- Output: $0.00060 per 1K tokens
+
+**Rationale:**
+1. **Non-Blocking:** LLM response latency is already 3-10s; adding DB write would degrade UX
+2. **Operational, Not Functional:** A missing credit log is a reporting gap, not a feature failure
+3. **Aggregated View:** `AiCreditDailySummary` handles rollups for the admin dashboard
+4. **CSV Export:** Admin credits page supports CSV export for accounting
+
+**Tradeoffs:**
+- Under-counting possible if process crashes between LLM call and DB write
+- No transaction guarantee — acceptable for cost monitoring use case
+
+---
+
+### Decision 15.4: AI Assignment Workflow — Correct Answers Never Sent to Client
+
+**Date:** July 2026  
+**Decided By:** Security Team  
+**Status:** ✅ Implemented
+
+**Decision:**
+`GeneratedAssignment.questionsJson` stores questions WITH `correct_answer` field. API strips correct answers before sending to client. LLM evaluation happens server-side with access to correct answers.
+
+**Data Flow:**
+```
+POST /api/assignments/generate
+  → LLM generates questions with correct_answer
+  → Store full questions in DB (questionsJson)
+  → Strip correct_answer fields
+  → Return sanitized questions to client
+
+POST /api/assignments/submit
+  → Fetch full questions from DB (with correct_answer)
+  → Call LLM with student answers + correct answers
+  → Store feedback + score in DB
+  → Return feedback (no correct answers in response)
+```
+
+**Security Measures Implemented:**
+- ✅ Correct answers never in API response
+- ✅ Child ownership validated before generate/submit
+- ✅ Subject validated against curriculum
+- ✅ Re-submission blocked (400 error)
+- ⬜ Rate limiting on generation (pending)
+- ⬜ LLM prompt input sanitization (pending)
+
+---
+
+### Decision 15.5: Board-Aware Academic Year Calculation
+
+**Date:** July 2026  
+**Decided By:** Backend Team  
+**Status:** ✅ Implemented
+
+**Decision:**
+Academic year is computed dynamically based on the educational board (`lib/academic-year.ts`), not hardcoded as "2024-25".
+
+**Board → Year Start Month:**
+- CBSE, ICSE, STATE_BOARD: April (Apr 2026 → "2026-27")
+- Common Core (US): September (Sep 2026 → "2026-27")
+
+**Rationale:**
+1. **Accuracy:** CBSE year starts in April, US schools in September
+2. **Auto-Detection:** Teacher classes page auto-detects current academic year
+3. **No Stale Data:** Hardcoded "2024-25" would have broken in real deployment
+
+---
+
+### Decision 15.6: Teacher Notification Polling (60s Interval)
+
+**Date:** July 2026  
+**Decided By:** Frontend Team  
+**Status:** ✅ Implemented
+
+**Decision:**
+`NotificationBell` component polls `GET /api/teacher/notifications` every 60 seconds. No WebSocket/SSE used.
+
+**Polling Implementation:**
+```typescript
+useEffect(() => {
+  const interval = setInterval(fetchNotifications, 60_000);
+  return () => clearInterval(interval);
+}, []);
+```
+
+**Rationale:**
+1. **Simplicity:** No WebSocket infrastructure needed
+2. **Sufficient Freshness:** 60s delay acceptable for "pending review" notifications
+3. **Low Cost:** 1 DB query per teacher per minute is negligible
+4. **Easy to Upgrade:** Can switch to SSE/WebSocket in Phase 2
+
+**Tradeoffs:**
+- Notifications delayed up to 60s
+- Extra DB queries when no new notifications
+- But acceptable for current scale
+
+---
+
+## 16. Lessons Learned & Retrospective (Updated July 2026)
+
+### What Went Well ✅
+1. **Rapid MVP Development:** Good feature coverage across student/teacher/admin portals
+2. **Modern Stack:** Next.js + TypeScript + Tailwind is productive
+3. **Type Safety:** TypeScript caught errors early; `tsc --noEmit` used as verification
+4. **Admin Security:** Invite-only admin system with bcrypt is solid from day one
+5. **AI Integration:** LLM retry with exponential backoff handles rate limiting gracefully
+6. **Component Reuse:** Assignment components (QuestionCard, FeedbackBanner) work across contexts
+7. **Database Design:** Separate Admin model prevents accidental privilege escalation
+
+### What Could Be Better 🔧
+1. **Student Password Security:** Still plaintext — should have been done with admin passwords
+2. **DB Connectivity:** Next.js Prisma client credentials not working (Express works fine)
+3. **Session Threading:** childId not consistently passed from session to APIs
+4. **No Tests:** Manual testing only; complex flows (assignment generation) need integration tests
+5. **Dual LLM Implementation:** Assignment generation exists in both Express and Next.js routes
+
+### Technical Debt Identified 📋
+1. Student password hashing not implemented (CRITICAL)
+2. No JWT verification on Express endpoints (CRITICAL)
+3. Next.js Prisma DB connectivity broken (HIGH)
+4. Rate limiting on LLM generation missing (HIGH)
+5. Assignment history/parent reports using placeholder data (MEDIUM)
+6. No pagination on list endpoints (MEDIUM)
+
+---
+
+## 17. Decision Review & Update Schedule
+
+**Last Reviewed:** July 20, 2026  
+**Next Review:** October 20, 2026 (after academic year features stabilize)
 
 **Review Criteria:**
 - Are decisions still valid?
 - Have new decisions been made (not documented)?
 - Are there new constraints or requirements?
 - What lessons have we learned?
-
-**Decision Amendment Process:**
-1. Document current decision
-2. Identify new information/constraints
-3. Evaluate alternatives
-4. Make new decision
-5. Update this log
-6. Communicate to team
 
 ---
 
@@ -1138,9 +1260,9 @@ Single PostgreSQL database initially (Supabase handles scaling).
 ---
 
 **Document Statistics:**
-- Total Decisions Documented: 38
-- Status Breakdown: 21 Implemented ✅ | 10 Planned 🚧 | 7 Recommendations 📋
-- Last Updated: June 19, 2026
+- Total Decisions Documented: 50+
+- Status Breakdown: 32 Implemented ✅ | 8 Partially Implemented 🚧 | 10 Deferred/Planned 📋
+- Last Updated: July 20, 2026
 - Owner: Engineering Team
 - Audience: Engineering team, architects, new team members
 

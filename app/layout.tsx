@@ -15,8 +15,22 @@ import { Analytics } from "@vercel/analytics/next"
 import { Toaster } from 'sonner';
 
 export const metadata: Metadata = {
-  title: 'School Assistant',
-  description: 'School Assistant landing page and tutoring workspace with AI, progress tracking, and resources.'
+  title: 'Student Assistant | Veda AI',
+  description: 'AI-powered learning companion — Empowered with AI',
+  applicationName: 'Student Assistant',
+  icons: {
+    icon: [
+      { url: '/veda-ai-logo.png', sizes: 'any' },
+      { url: '/veda-ai-logo.png', sizes: '32x32', type: 'image/png' },
+    ],
+    apple: [{ url: '/veda-ai-logo.png', sizes: '180x180', type: 'image/png' }],
+    shortcut: '/veda-ai-logo.png',
+  },
+  openGraph: {
+    title: 'Student Assistant | Veda AI',
+    description: 'AI-powered learning companion for students — Empowered with AI',
+    images: [{ url: '/veda-ai-logo.png', width: 1200, height: 630, alt: 'Veda AI — Student Assistant logo' }],
+  },
 };
 
 export default function RootLayout({

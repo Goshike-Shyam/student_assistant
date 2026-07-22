@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { SiteHeader } from '@/components/ui/site-header';
 import Link from 'next/link';
 import { BookOpen, Users, TrendingUp, MessageSquare } from 'lucide-react';
@@ -38,11 +39,16 @@ export default function HomePage() {
 
             {/* Logo */}
             <div className="relative z-10 flex items-center gap-3 mb-10">
-              <div className="w-11 h-11 bg-white rounded-2xl flex items-center justify-center shadow-xl">
-                <span className="mat-fill text-[#0058be] text-2xl">school</span>
-              </div>
+              <Image
+                src="/veda-ai-logo.png"
+                alt="Veda AI — Student Assistant"
+                width={44}
+                height={44}
+                className="rounded-2xl bg-white p-1 object-contain flex-shrink-0 shadow-xl"
+                priority
+              />
               <div>
-                <p className="qs font-bold text-2xl text-white leading-none">EduSpark</p>
+                <p className="qs font-bold text-2xl text-white leading-none">Student Assistant</p>
               <p className="text-gray-200 text-xs mt-0.5 tracking-wide">Learning Platform</p>
               </div>
             </div>
@@ -88,14 +94,19 @@ export default function HomePage() {
             <div className="w-full max-w-[420px]">
               {/* Mobile logo */}
               <div className="flex lg:hidden items-center gap-2 mb-8">
-                <div className="w-8 h-8 bg-[#0058be] rounded-xl flex items-center justify-center">
-                  <span className="mat-fill text-white text-lg">school</span>
-                </div>
-                <span className="qs font-bold text-xl text-[#006e2f]">EduSpark</span>
+                <Image
+                  src="/veda-ai-logo.png"
+                  alt="Veda AI — Student Assistant"
+                  width={32}
+                  height={32}
+                  className="rounded-xl object-contain"
+                  priority
+                />
+                <span className="qs font-bold text-xl text-[#006e2f]">Student Assistant</span>
               </div>
 
               <div className="mb-8">
-                <h1 className="qs font-bold text-[38px] text-[#0b1c30] leading-tight mb-2">Welcome to EduSpark</h1>
+                <h1 className="qs font-bold text-[38px] text-[#0b1c30] leading-tight mb-2">Welcome to Student Assistant</h1>
                 <p className="text-[#374151] text-base">Personalized learning, homework support, and progress tracking in one place.</p>
               </div>
 
@@ -179,9 +190,9 @@ export default function HomePage() {
           {/* About Section */}
           <div className="bg-white rounded-lg border border-slate-200 p-8 space-y-6">
             <div>
-              <h2 className="text-2xl font-bold text-slate-900 mb-3">About EduSpark</h2>
+              <h2 className="text-2xl font-bold text-slate-900 mb-3">About Student Assistant</h2>
               <p className="text-slate-600 leading-relaxed">
-                EduSpark is an innovative learning platform designed to empower students with personalized education. Our AI-powered system adapts to each student's learning style, providing targeted support and engaging content across multiple subjects.
+                Student Assistant is an innovative learning platform designed to empower students with personalized education. Our AI-powered system adapts to each student's learning style, providing targeted support and engaging content across multiple subjects.
               </p>
             </div>
 

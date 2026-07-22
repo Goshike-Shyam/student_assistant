@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import SignInForm from '@/components/auth/sign-in-form';
 
 export default function LoginPage() {
@@ -11,11 +12,16 @@ export default function LoginPage() {
 
         {/* Logo */}
         <div className="relative z-10 flex items-center gap-3 mb-10">
-          <div className="w-11 h-11 bg-white rounded-2xl flex items-center justify-center shadow-xl">
-            <span className="mat-fill text-[#0058be] text-2xl">school</span>
-          </div>
+          <Image
+            src="/veda-ai-logo.png"
+            alt="Veda AI — Student Assistant"
+            width={44}
+            height={44}
+            className="rounded-2xl bg-white p-1 object-contain flex-shrink-0 shadow-xl"
+            priority
+          />
           <div>
-            <p className="qs font-bold text-2xl text-white leading-none">EduSpark</p>
+            <p className="qs font-bold text-2xl text-white leading-none">Student Assistant</p>
             <p className="text-gray-200 text-xs mt-0.5 tracking-wide">Learning Platform</p>
           </div>
         </div>

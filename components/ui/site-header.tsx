@@ -10,6 +10,7 @@
  */
 "use client";
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import type { Route } from 'next';
@@ -74,11 +75,17 @@ export function SiteHeader() {
         <Link
           href="/"
           className="qs font-bold text-[22px] text-[#006e2f] no-underline flex items-center gap-2"
+          aria-label="Student Assistant home"
         >
-          <div className="w-8 h-8 bg-[#0058be] rounded-xl flex items-center justify-center">
-            <span className="mat-fill text-white text-lg">school</span>
-          </div>
-          EduSpark
+          <Image
+            src="/veda-ai-logo.png"
+            alt="Veda AI — Student Assistant"
+            width={32}
+            height={32}
+            className="rounded-xl object-contain"
+            priority
+          />
+          Student Assistant
         </Link>
 
         <div className="flex items-center gap-0.5">

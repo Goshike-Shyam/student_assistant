@@ -1,15 +1,15 @@
-# EduSpark - Project Context Documentation
+# Student Assistant - Project Context Documentation
 
-**Last Updated:** June 22, 2026  
-**Status:** Phase 2 - Stabilization & Vercel Deployment Ready  
-**Current Priority:** Production deployment with zero compilation errors  
+**Last Updated:** July 20, 2026  
+**Status:** Phase 3 - Production Features Complete  
+**Current Priority:** Database connectivity validation & teacher/parent portal polish  
 **Team Size:** Educational LMS Development
 
 ---
 
 ## 1. Product Overview
 
-**EduSpark** is a modern, adaptive learning management system (LMS) designed as a comprehensive educational platform serving students, teachers, parents, and administrators.
+**Student Assistant** is a modern, adaptive learning management system (LMS) designed as a comprehensive educational platform serving students, teachers, parents, and administrators.
 
 ### Core Mission
 Enable engaging, personalized learning experiences through AI-powered tutoring, gamified practice, intelligent assignment tracking, and detailed analytics.
@@ -82,12 +82,14 @@ Next.js 16.2.6 (App Router, TypeScript)
 ### Backend
 ```
 Express.js 4.18.2 (API server)
-├─ Prisma ORM 4.16.0 (type-safe database)
+├─ Prisma ORM 4.16.0+ (type-safe database)
 ├─ TypeScript (backend type safety)
 ├─ CORS middleware (cross-origin requests)
 ├─ Async handler wrapper (error handling)
 ├─ Custom error middleware
-└─ @google/generative-ai (Gemini LLM integration)
+├─ bcryptjs (password hashing for admin accounts)
+├─ @google/generative-ai (Gemini LLM integration)
+└─ tsx (TypeScript script runner for seed scripts)
 ```
 
 ### AI/LLM Integration
@@ -139,48 +141,83 @@ PostgreSQL (via Supabase)
 ```
 d:\Shyam\School Project\School Project Workspace\
 
-📁 app/                              - Next.js App Router (12 pages)
+📁 app/                              - Next.js App Router
 ├── globals.css                      - Global styles, Tailwind directives, icon mappings
 ├── layout.tsx                       - Root layout with SiteHeader & IconEmojiReplacer
 ├── page.tsx                         - Landing/home page
 │
 ├── 📁 api/
-│   └── status/
-│       └── route.ts                 - GET /api/status endpoint
-│
-├── 📁 auth/
-│   ├── login/
-│   │   └── page.tsx                - Login page
-│   └── signup/
-│       └── page.tsx                - Signup/registration page
-│
-├── 📁 student/ (or app/ for student pages)
-│   ├── dashboard/
-│   │   └── page.tsx                - Student dashboard (home)
-│   ├── profile/
-│   │   └── page.tsx                - Student profile & settings
-│   ├── practice/
-│   │   └── page.tsx                - Practice tests library
+│   ├── status/route.ts              - GET /api/status endpoint
+│   ├── subjects/route.ts            - GET /api/subjects (user-registered or curriculum)
+│   ├── auth/logout/route.ts         - POST /api/auth/logout (clears student session)
 │   ├── assignments/
-│   │   └── page.tsx                - Assignment tracking & submission
-│   ├── ai-tutor/
-│   │   └── page.tsx                - AI homework helper
-│   ├── chat/
-│   │   └── page.tsx                - Conversational AI chat
-│   └── resources/
-│       └── page.tsx                - Learning resource library
+│   │   ├── generate/route.ts        - POST /api/assignments/generate (LLM assignment)
+│   │   └── submit/route.ts          - POST /api/assignments/submit (LLM evaluation)
+│   ├── admin/
+│   │   ├── auth/login/route.ts      - POST /api/admin/auth/login (bcrypt + session cookie)
+│   │   ├── invite/route.ts          - POST /api/admin/invite (SUPER_ADMIN only)
+│   │   ├── accept-invite/route.ts   - GET+POST /api/admin/accept-invite
+│   │   ├── users/route.ts           - GET /api/admin/users (pagination + search)
+│   │   ├── users/[id]/route.ts      - GET /api/admin/users/[id]
+│   │   └── credits/route.ts         - GET /api/admin/credits (AI usage + CSV export)
+│   ├── teacher/
+│   │   ├── classes/route.ts         - Teacher class management
+│   │   ├── analytics/route.ts       - Teacher analytics + recentActivity
+│   │   └── notifications/route.ts   - GET pending reviews & recent submissions
+│   └── student/
+│       └── [routes...]              - Student API routes
 │
 ├── 📁 admin/
-│   ├── dashboard/
-│   │   └── page.tsx                - Admin analytics dashboard
-│   └── users/
-│       └── page.tsx                - User management
+│   ├── layout.tsx                   - Admin layout with route guard (role check)
+│   ├── page.tsx                     - Admin dashboard (name/initials/ADMIN badge)
+│   ├── login/page.tsx               - Admin-only login (no registration link)
+│   ├── accept-invite/
+│   │   ├── page.tsx                 - Invite acceptance with password strength meter
+│   │   └── accept-invite-form.tsx   - Form component
+│   ├── users/page.tsx               - Users & Admin Accounts tabs (invite modal)
+│   └── credits/page.tsx             - AI credit usage dashboard + CSV export
+│
+├── 📁 assignments/
+│   ├── page.tsx                     - Registered subjects list
+│   ├── [subject]/page.tsx           - Generate assignment + answer + submit
+│   └── history/page.tsx             - Assignment history with filters
+│
+├── 📁 teacher/
+│   ├── layout.tsx                   - Teacher layout (NotificationBell + ClassSwitcher + Breadcrumbs)
+│   ├── page.tsx                     - Teacher root redirect
+│   ├── dashboard/page.tsx           - Enhanced with quick actions + activity feed
+│   ├── classes/page.tsx             - Classes list (academic year auto-detected)
+│   ├── classes/[classId]/page.tsx   - Class dashboard (students/assignments tabs)
+│   ├── students/[...]               - Student management pages
+│   └── [other teacher pages...]     - Other teacher section pages
 │
 ├── 📁 parent/
-│   └── portal/
-│       └── page.tsx                - Parent progress view (planned)
+│   └── reports/
+│       └── assignments/page.tsx     - Parent assignment report (metrics, charts, table)
+│
+├── 📁 parent-portal/
+│   └── page.tsx                     - Parent portal root
+│
+└── 📁 [student pages]
+    ├── dashboard/page.tsx           - Student dashboard
+    ├── profile/page.tsx             - Student profile
+    ├── practice/page.tsx            - Practice tests library
+    ├── ai-tutor/page.tsx            - AI homework helper
+    ├── chat/page.tsx                - Conversational AI chat
+    └── resources/page.tsx          - Learning resource library
 
 📁 components/                       - React components
+├── 📁 assignments/
+│   ├── QuestionCard.tsx             - Renders MCQ/TRUE_FALSE/FILL_BLANK/SHORT/LONG questions
+│   ├── AssignmentToolbar.tsx        - Download/Print/Submit toolbar
+│   └── FeedbackBanner.tsx           - Grade display with color-coded feedback
+│
+├── 📁 teacher/
+│   ├── TeacherSidebar.tsx           - Expandable sidebar (Question Bank + Settings)
+│   ├── TeacherBreadcrumbs.tsx       - Breadcrumb navigation for all teacher pages
+│   ├── NotificationBell.tsx         - Notification bell with 60s polling
+│   └── ClassSwitcher.tsx            - Class switcher dropdown in header
+│
 ├── 📁 auth/
 │   └── sign-in-form.tsx             - Signin form component
 │
@@ -192,12 +229,69 @@ d:\Shyam\School Project\School Project Workspace\
 │   ├── label.tsx                    - Form label
 │   ├── select.tsx                   - Select dropdown
 │   ├── textarea.tsx                 - Textarea field
-│   └── site-header.tsx              - Top navigation
+│   ├── radio-group.tsx              - RadioGroup for MCQ/TRUE_FALSE questions
+│   ├── admin-sidebar.tsx            - Admin sidebar navigation
+│   └── site-header.tsx              - Top navigation (student logout → /api/auth/logout)
 │
-├── sidebar.tsx                      - Student sidebar navigation
-├── admin-sidebar.tsx                - Admin sidebar navigation
 └── icon-emoji-replacer.tsx          - Icon rendering component (client-side emoji mapping)
 
+📁 lib/                              - Utilities & helpers
+├── supabaseClient.ts                - Supabase client initialization
+├── prismaClient.ts                  - Prisma singleton for Next.js API routes
+├── utils.ts                         - General utilities
+├── icon-emoji-map.ts                - Material icon to emoji mapping
+├── subjects-seed.ts                 - Board+grade → subject list (CBSE/ICSE/STATE/CORE)
+├── admin-auth.ts                    - Admin auth utils (bcrypt, invite tokens, password strength)
+├── academic-year.ts                 - Board-aware academic year (CBSE=April, Common Core=Sep)
+├── ai-credit-logger.ts              - Fire-and-forget AI credit logging (token cost calc)
+├── ai-with-retry.ts                 - LLM retry with exponential backoff (2s→4s→8s)
+└── email.ts                         - Email service utilities
+
+📁 scripts/                          - Utility scripts
+└── seed-super-admin.ts              - Seeds first SUPER_ADMIN (reads env vars, bcrypt cost 12)
+
+📁 server/                           - Express API server
+├── index.ts                         - Server entry point, config (port 4000)
+├── middleware.ts                    - CORS, error handling, auth guards
+├── prisma.ts                        - Prisma client singleton (server-side)
+├── routes.ts                        - API route definitions (AI credit logging on /search, /assignments/generate)
+└── utils.ts                         - generateContentWithRetry (returns GenerateContentResult with token counts)
+
+📁 types/
+└── assignments.ts                   - Assignment types (QuestionType, Question, AssignmentResponse, etc.)
+
+📁 prisma/                           - Database configuration
+├── schema.prisma                    - Database schema (12+ models)
+└── 📁 migrations/
+    ├── 20260528081721_init/
+    ├── 20260621053219_add_search_and_student_profile/
+    ├── 20260629162642_rename_content_to_contents/
+    ├── 20260708083158_add_subjects/
+    ├── 20260710131617_add_admin_tables/
+    └── [additional migrations]/
+
+📁 screenshots/                      - Design mockups & prototypes
+├── admin-analytics.html
+├── admin-users.html
+├── assignments.html
+├── enroll.html
+├── index.html
+├── parent-portal.html
+├── practice.html
+├── research.html
+└── student-home.html
+
+Configuration Files:
+├── .env                             - Environment variables (local development)
+├── middleware.ts                    - Next.js middleware (Cache-Control headers for login pages)
+├── next.config.mjs                  - Next.js configuration
+├── tsconfig.json                    - TypeScript configuration
+├── tailwind.config.ts               - Tailwind CSS configuration
+├── postcss.config.js                - PostCSS plugins
+├── package.json                     - Dependencies & scripts (includes seed:admin)
+├── vercel.json                      - Vercel deployment config
+└── next-env.d.ts                    - Next.js type definitions
+```
 📁 lib/                              - Utilities & helpers
 ├── supabaseClient.ts                - Supabase client initialization
 ├── utils.ts                         - General utilities
@@ -394,113 +488,172 @@ model User {
   id        String    @id @default(cuid())
   email     String    @unique
   name      String
-  password  String    // ⚠️ NOT HASHED - SECURITY ISSUE
+  password  String    // ⚠️ Student passwords not hashed - SECURITY ISSUE (admin passwords ARE hashed)
   role      Role      @default(STUDENT)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
   // Relationships
-  instructorCourses Course[]
-  enrollments       Enrollment[]
-  submissions       Submission[]
-  assignments       Assignment[]
-}
-
-enum Role {
-  STUDENT
-  INSTRUCTOR
-  ADMIN
+  instructorCourses  Course[]
+  enrollments        Enrollment[]
+  submissions        Submission[]
+  assignments        Assignment[]
+  childSubjects      ChildSubject[]
+  generatedAssignments GeneratedAssignment[]
 }
 ```
 
-### Course Model
+### Admin Model (separate from User)
+```prisma
+model Admin {
+  id           BigInt     @id @default(autoincrement())
+  email        String     @unique
+  passwordHash String     // bcrypt cost 12
+  name         String?
+  role         AdminRole  @default(SUPPORT)
+  isActive     Boolean    @default(true)
+  invitedBy    BigInt?    // self-referential (null for SUPER_ADMIN)
+  inviter      Admin?     @relation("AdminInvites", fields: [invitedBy], references: [id])
+  invitees     Admin[]    @relation("AdminInvites")
+  lastLogin    DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model AdminInvite {
+  id         BigInt    @id @default(autoincrement())
+  email      String
+  role       AdminRole
+  tokenHash  String    @unique  // SHA-256 of raw token
+  invitedBy  BigInt
+  isUsed     Int       @default(0)
+  expiresAt  DateTime  // 48 hours from creation
+  usedAt     DateTime?
+  createdAt  DateTime  @default(now())
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  CONTENT_MOD
+  SUPPORT
+  FINANCE
+}
+```
+
+### ChildSubject Model
+```prisma
+model ChildSubject {
+  id          String   @id @default(cuid())
+  childId     String
+  subjectName String
+  child       User     @relation(fields: [childId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([childId, subjectName])
+}
+```
+
+### GeneratedAssignment Model
+```prisma
+model GeneratedAssignment {
+  id                   String    @id @default(cuid())
+  childId              String
+  subject              String
+  topic                String
+  complexity           String
+  questionsJson        String    // Full questions WITH correct_answer (server-side only)
+  submittedAnswersJson String?   // null until submitted
+  feedbackJson         String?   // LLM evaluation JSON
+  score                Int?      // 0-100
+  submittedAt          DateTime?
+  createdAt            DateTime  @default(now())
+  child                User      @relation(fields: [childId], references: [id], onDelete: Cascade)
+}
+```
+
+### AI Credit Tracking Models
+```prisma
+model AiCreditLog {
+  id          BigInt   @id @default(autoincrement())
+  userId      BigInt?  // null for anonymous
+  featureName String   // QUERY | ASSIGNMENT_GEN | ASSIGNMENT_FEEDBACK
+  inputTokens Int
+  outputTokens Int
+  costUsd     Decimal  @db.Decimal(10, 6)
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([featureName])
+}
+
+model AiCreditDailySummary {
+  id           BigInt   @id @default(autoincrement())
+  date         DateTime @db.Date
+  featureName  String
+  totalCalls   Int      @default(0)
+  totalInput   Int      @default(0)
+  totalOutput  Int      @default(0)
+  totalCostUsd Decimal  @default(0) @db.Decimal(10, 6)
+  updatedAt    DateTime @updatedAt
+
+  @@unique([date, featureName])
+}
+```
+**Pricing (Gemini 2.5 Flash):** $0.00015/1K input tokens, $0.00060/1K output tokens
+
+### Original Models (User, Course, Enrollment, Assignment, Submission)
+
 ```prisma
 model Course {
   id          String    @id @default(cuid())
   title       String
   description String?
   code        String    @unique
-  instructorId String   // FK to User
+  instructorId String
   instructor  User      @relation(fields: [instructorId], references: [id], onDelete: Cascade)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-
-  // Relationships
   enrollments  Enrollment[]
   assignments  Assignment[]
 }
-```
 
-### Enrollment Model
-```prisma
 model Enrollment {
   id        String   @id @default(cuid())
   userId    String
   courseId  String
   createdAt DateTime @default(now())
-
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, courseId])  // Prevent duplicate enrollments
+  @@unique([userId, courseId])
 }
-```
 
-### Assignment Model
-```prisma
 model Assignment {
-  id        String       @id @default(cuid())
-  title     String
+  id          String           @id @default(cuid())
+  title       String
   description String?
-  courseId  String
-  createdBy String       // FK to User (instructor)
-  dueDate   DateTime
-  status    AssignmentStatus @default(PENDING)
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
-
-  course      Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  creator     User         @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  courseId    String
+  createdBy   String
+  dueDate     DateTime
+  status      AssignmentStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  course      Course           @relation(...)
+  creator     User             @relation(...)
   submissions Submission[]
 }
 
-enum AssignmentStatus {
-  PENDING
-  SUBMITTED
-  GRADED
-}
-```
-
-### Submission Model
-```prisma
 model Submission {
   id           String   @id @default(cuid())
   assignmentId String
   studentId    String
-  content      String   // Assignment submission content
-  grade        Int?     // 0-100
-  feedback     String?  // Teacher feedback
+  content      String
+  grade        Int?
+  feedback     String?
   submittedAt  DateTime @default(now())
   updatedAt    DateTime @updatedAt
-
-  assignment Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  student    User       @relation(fields: [studentId], references: [id], onDelete: Cascade)
-
-  @@unique([assignmentId, studentId])  // One submission per student per assignment
+  @@unique([assignmentId, studentId])
 }
-```
-
-### Relationships Diagram
-```
-User (Instructor) ──────creates─────→ Course
-                                        ↓
-User (Students) ──────enrolls in─────→ Enrollment
-                                        ↓
-                                    Course ──────has─────→ Assignment
-                                                            ↓
-                                                        Submission
-                                                            ↑
-User (Student) ──────makes submission─────────────→ Submission
 ```
 
 ---
@@ -924,18 +1077,73 @@ NODE_ENV=development
 - [x] Next.js 16 application with TypeScript
 - [x] Express API server with Prisma ORM
 - [x] PostgreSQL database on Supabase
-- [x] Database migrations and schema
+- [x] Database migrations and schema (12+ models)
 - [x] API error handling middleware
+- [x] Next.js middleware (Cache-Control headers for login pages)
 
 ### ✅ **User Management**
-- [x] User registration (role-based: Student/Teacher/Parent/Admin)
+- [x] Student registration (role-based: Student/Teacher/Parent/Admin)
 - [x] User signin/authentication endpoint
 - [x] User profile retrieval
 - [x] Database persistence for users
+- [x] Logout endpoint for students (clears Supabase session cookie + localStorage)
+
+### ✅ **Admin Account System (Secure)**
+- [x] Separate Admin model (not in User table) with bcrypt cost-12 password hashing
+- [x] AdminRole enum: SUPER_ADMIN, CONTENT_MOD, SUPPORT, FINANCE
+- [x] Admin login with rate limiting (5 attempts / 15 min per IP), httpOnly session cookie
+- [x] Invite-based admin account creation (no public registration)
+- [x] Invite tokens stored as SHA-256 hash (raw token never in DB), 48h expiry
+- [x] SUPER_ADMIN only via seed script (`npm run seed:admin`)
+- [x] Admin accept-invite page with password strength meter
+- [x] Admin users page: Users & Admin Accounts tabs, invite modal (SUPER_ADMIN only)
+- [x] Admin route guard (layout.tsx client-side role check)
+
+### ✅ **AI Credit Tracking**
+- [x] AiCreditLog model (per-request token logging, fire-and-forget)
+- [x] AiCreditDailySummary model (aggregated daily totals)
+- [x] Credit logging on: QUERY, ASSIGNMENT_GEN, ASSIGNMENT_FEEDBACK
+- [x] Admin credits dashboard (tables + CSV export)
+- [x] Gemini 2.5 Flash pricing applied ($0.00015/1K input, $0.00060/1K output)
+
+### ✅ **AI Assignment Workflow**
+- [x] ChildSubject model (tracks which subjects each student has registered)
+- [x] GeneratedAssignment model (stores questions with correct_answer server-side only)
+- [x] GET /api/subjects - returns user-registered or curriculum subjects
+- [x] POST /api/assignments/generate - LLM generates questions (correct answers hidden from client)
+- [x] POST /api/assignments/submit - LLM evaluates submission, stores feedback + score
+- [x] Subjects seed library (`lib/subjects-seed.ts`) - CBSE/ICSE/STATE_BOARD/COMMON_CORE
+- [x] Exponential backoff retry (`lib/ai-with-retry.ts`) - 2s → 4s → 8s, max 3 attempts
+- [x] Subject validation: prevents access to unregistered subjects
+- [x] Re-submission prevention (400 on duplicate submit)
+
+### ✅ **Assignment Frontend**
+- [x] Assignments list page (shows user-registered subjects, graceful empty/error states)
+- [x] Assignment subject page (generate → answer → submit flow)
+- [x] Assignment history page (table with filters: by subject, by status)
+- [x] Parent assignment report (metrics, subject performance chart, grade distribution, tips)
+- [x] QuestionCard component (MCQ / TRUE_FALSE / FILL_BLANK / SHORT / LONG_ANSWER)
+- [x] AssignmentToolbar component (Download/Print/Submit with unanswered count)
+- [x] FeedbackBanner component (color-coded grade + per-question expandable feedback)
+- [x] RadioGroup UI component
+
+### ✅ **Teacher Portal**
+- [x] Teacher layout with NotificationBell + ClassSwitcher + TeacherBreadcrumbs header bar
+- [x] TeacherSidebar with expandable items, Question Bank and Settings links
+- [x] TeacherBreadcrumbs for all teacher pages
+- [x] NotificationBell with 60s polling (pending reviews & recent submissions)
+- [x] ClassSwitcher dropdown in teacher header
+- [x] Enhanced teacher dashboard (quick actions + recent activity feed)
+- [x] Classes page with board-aware academic year auto-detection
+- [x] Class dashboard page ([classId]) with students/assignments tabs
+- [x] GET /api/teacher/notifications endpoint
+- [x] Academic year utility (`lib/academic-year.ts`): CBSE=April, Common Core=September
+- [x] POST /api/teacher/classes uses getAcademicYear(board)
+- [x] GET /api/teacher/analytics includes recentActivity
 
 ### ✅ **UI/UX Components**
-- [x] Base UI components (Button, Card, Input, Label, Select, Textarea, Badge)
-- [x] Site header/navigation
+- [x] Base UI components (Button, Card, Input, Label, Select, Textarea, Badge, RadioGroup)
+- [x] Site header/navigation (student logout via /api/auth/logout)
 - [x] Responsive design system
 - [x] Tailwind CSS styling
 - [x] Icon emoji replacement (client-side)
@@ -944,78 +1152,81 @@ NODE_ENV=development
 - [x] Landing/home page
 - [x] Student dashboard (stats, achievement levels, XP counter)
 - [x] Student profile page
-- [x] Practice tests library (6+ tests with difficulty ratings)
-- [x] Assignment tracking & deadline management
+- [x] Practice tests library (hardcoded 6 tests — see §17 for database integration plan)
 - [x] AI tutor interface
 - [x] Chat interface
 - [x] Resources library
-
-### ✅ **Teacher/Admin Pages**
-- [x] Admin analytics dashboard (KPI cards, charts)
-- [x] User management interface
-- [x] Admin navigation sidebar
 
 ### ✅ **Backend Infrastructure**
 - [x] CORS middleware
 - [x] Error handling
 - [x] Async route handlers
-- [x] Prisma client singleton
-
-### ✅ **Data Models**
-- [x] User model (with role enum)
-- [x] Course model
-- [x] Enrollment model
-- [x] Assignment model with status enum
-- [x] Submission model
+- [x] Prisma client singletons (server-side & Next.js routes)
+- [x] AI credit logging on all LLM endpoints
 
 ---
 
 ## 13. Features In Progress
 
-### 🚧 **Icon Rendering**
-- Current State: Emoji-based replacement working but suboptimal
-- Next Step: Evaluate SVG icon library (Lucide React)
-- Status: Functional but temporary solution
+### 🚧 **Database Connectivity (Next.js routes)**
+- Current State: Express backend connects successfully; Next.js Prisma client has auth issues with Supabase
+- Symptom: "Can't reach database server" from `/api/subjects`, `/api/assignments/*`
+- Workaround: Graceful degradation (API returns empty array / falls through)
+- Next Step: Verify credentials for Next.js Prisma client separately from Express
 
-### 🚧 **API Endpoint Completion**
-- Some CRUD endpoints implemented
-- Need comprehensive testing
-- Need pagination for large datasets
+### 🚧 **Practice Tests Database Integration**
+- Current State: 6 hardcoded tests in `app/practice/page.tsx`
+- Schema ready: PracticeTest + PracticeAttempt models defined
+- Blocker: Windows file lock on Prisma query engine DLL + DB connectivity issue above
+- See §17 for full 5-step decision guide
 
-### 🚧 **Database Seeding**
-- No seed script for demo data
-- Needed for testing, demos, presentations
+### 🚧 **Student Auth & Session**
+- Current State: localStorage-based session; Supabase client used for login
+- Missing: childId properly threaded through to assignment generation APIs
+- Students: localStorage + Supabase (no server-side session cookie)
+- Teachers: `sa-teacher-session` cookie (HMAC JWT via `lib/teacher-auth.ts`)
+- Admins: `sa-admin-session` cookie (httpOnly, 24h)
+
+### 🚧 **PDF/Word Export for Assignments**
+- Download buttons exist in AssignmentToolbar but are placeholders
+- Planned: jsPDF + html2canvas for PDF, docx package for Word
 
 ---
 
 ## 14. Pending Backlog
 
 ### 🔴 **CRITICAL - Security (Must Do Before Production)**
-- [ ] Implement password hashing (bcrypt)
-- [ ] Add authentication middleware (JWT verification)
-- [ ] Add role-based access control (RBAC)
-- [ ] Input validation on all endpoints
+- [ ] Hash student passwords (bcrypt) — admin passwords are already hashed ✅
+- [ ] Add JWT verification middleware for student-facing API routes
+- [ ] Add role-based access control (RBAC) for student/teacher Express endpoints
+- [ ] Input validation on all endpoints (express-validator or zod)
 - [ ] CSRF protection
-- [ ] Rate limiting
+- [ ] Rate limiting on student-facing endpoints (Express)
+- [ ] Rate limiting on LLM generation endpoints (prevent abuse)
+- [ ] Input sanitization for LLM prompts
 
 ### 🟠 **HIGH - Features (Next Sprint)**
+- [ ] Fix Next.js → Supabase DB connectivity (Prisma client credentials)
 - [ ] Email verification on signup
-- [ ] Password reset functionality
-- [ ] Parent portal implementation
-- [ ] Real-time notifications
+- [ ] Password reset functionality (requires email service)
+- [ ] Thread studentId/childId from session to assignment API calls properly
+- [ ] PDF export for assignments (jsPDF + html2canvas)
+- [ ] Word export for assignments (docx package)
+- [ ] Pending assignment banner / cron job for overdue detection
+- [ ] Practice tests database integration (see §17 for plan)
+- [ ] Real-time notifications (beyond 60s polling)
 - [ ] File upload for assignments
-- [ ] PDF document support
-- [ ] Video lecture integration
-- [ ] Database indexing optimization
 
 ### 🟡 **MEDIUM - Quality (Ongoing)**
-- [ ] Unit tests (Jest)
-- [ ] Integration tests (API)
-- [ ] E2E tests (Playwright)
+- [ ] Unit tests (Jest) for critical paths
+- [ ] Integration tests for API endpoints
+- [ ] E2E tests (Playwright) for user workflows
 - [ ] API documentation (OpenAPI/Swagger)
 - [ ] Error logging (Sentry/LogRocket)
 - [ ] Performance monitoring
-- [ ] Analytics implementation
+- [ ] Pagination for user/assignment list endpoints
+- [ ] N+1 query prevention audit on Prisma queries
+- [ ] Mobile-responsive sidebar (hamburger on small screens)
 
 ### 🟢 **LOW - Nice-To-Have**
 - [ ] Dark mode support
@@ -1025,7 +1236,8 @@ NODE_ENV=development
 - [ ] Accessibility improvements (WCAG AA)
 - [ ] Social features (discussion forums)
 - [ ] Advanced search/filters
-- [ ] Export reports (PDF/CSV)
+- [ ] Export reports (PDF/CSV) from parent portal
+- [ ] Storybook for component documentation
 
 ### 📱 **Planned Future Features**
 - [ ] Video streaming with HLS/DASH
@@ -1036,6 +1248,7 @@ NODE_ENV=development
 - [ ] ML-based student performance prediction
 - [ ] Integration with Google Classroom/Canvas
 - [ ] Batch user import (CSV)
+- [ ] Podcast/video generation from AI responses (see §17.B)
 
 ---
 
@@ -1105,14 +1318,30 @@ NODE_ENV=development
 - Single source of truth for styling
 - Follows React best practices
 
-### Decision 8: Supabase Auth (Planned)
+### Decision 8: Supabase Auth (Partial) + Custom Sessions
 **Context:** Authentication provider  
-**Decision:** Use Supabase Auth for signup/login (currently basic implementation)  
+**Decision:** Supabase Auth for students; custom HMAC JWT sessions for teachers; bcrypt + httpOnly cookie for admins  
 **Rationale:**
-- Integrated with database
-- Email verification out-of-box
-- OAuth support
-- Row-level security (RLS)
+- Each role has different security profile
+- Admin credentials most sensitive (bcrypt cost 12, no public registration)
+- No next-auth used anywhere (lighter-weight approach)
+- Three session types kept separate: localStorage (student), `sa-teacher-session` cookie, `sa-admin-session` cookie
+
+### Decision 9: Separate Admin Model
+**Context:** Admin user management  
+**Decision:** Admin has its own table (not a role in User table)  
+**Rationale:**
+- Admins have different auth requirements (bcrypt, invite-only)
+- AdminRole enum (SUPER_ADMIN/CONTENT_MOD/SUPPORT/FINANCE) separate from user Role
+- Prevents accidental escalation of student/teacher accounts to admin
+
+### Decision 10: Fire-and-Forget AI Credit Logging
+**Context:** Tracking Gemini API costs  
+**Decision:** All LLM calls log to AiCreditLog using `.catch(console.error)` (non-blocking)  
+**Rationale:**
+- LLM responses should not fail because logging failed
+- Cost tracking is operational, not functional
+- Aggregated daily summaries for dashboard efficiency
 
 ---
 
@@ -1120,47 +1349,47 @@ NODE_ENV=development
 
 ### 🔴 **CRITICAL**
 
-#### Bug 1: Plaintext Password Storage
-- **Issue:** User passwords stored in database without hashing
-- **Location:** `server/routes.ts` line ~45, `prisma/schema.prisma`
+#### Bug 1: Student Plaintext Password Storage
+- **Issue:** Student user passwords stored in database without hashing
+- **Location:** `server/routes.ts` (user creation), `prisma/schema.prisma`
 - **Impact:** Major security vulnerability
-- **Fix:** Implement bcrypt hashing before storage
+- **Fix:** Implement bcrypt hashing for student passwords (admin passwords already use bcrypt ✅)
 - **Priority:** Fix immediately before any production deployment
 - **Estimated Effort:** 2-3 hours
 
-#### Bug 2: No Authentication Middleware
-- **Issue:** API endpoints accessible without role verification
+#### Bug 2: No Authentication Middleware on Express Endpoints
+- **Issue:** Express API endpoints accessible without role verification (student/teacher routes)
 - **Location:** `server/routes.ts` (all endpoints)
-- **Impact:** Any user can access admin endpoints
-- **Fix:** Add middleware to verify JWT and check role
+- **Impact:** Any user can access other users' data
+- **Fix:** Add JWT verification middleware + role-based guards
+- **Note:** Admin routes use session cookie guard; student/teacher Express routes still unprotected
 - **Priority:** Before production
 - **Estimated Effort:** 4-5 hours
 
+#### Bug 3: Next.js Prisma DB Connectivity
+- **Issue:** Next.js API routes can't reach Supabase PostgreSQL ("Can't reach database server")
+- **Location:** `app/api/subjects/route.ts`, `app/api/assignments/*/route.ts`
+- **Impact:** Assignment workflow partially non-functional until resolved
+- **Workaround:** Graceful degradation (empty array returned, Express backend unaffected)
+- **Fix:** Verify DATABASE_URL credentials for Next.js Prisma client (likely different from Express)
+- **Estimated Effort:** 1-2 hours investigation
+
 ### 🟠 **HIGH**
 
-#### Bug 3: No Input Validation
-- **Issue:** API endpoints don't validate request data
-- **Location:** All route handlers
+#### Bug 4: No Input Validation
+- **Issue:** API endpoints don't validate request data (no zod/express-validator)
+- **Location:** All route handlers (both Express and Next.js API routes)
 - **Impact:** SQL injection, data corruption possible
-- **Fix:** Add express-validator middleware
+- **Fix:** Add validation middleware
 - **Priority:** Before production
 - **Estimated Effort:** 3-4 hours
 
-#### Bug 4: Icon Font Not Loading
-- **Issue:** Material Icons fail to load from CDN (net::ERR_ABORTED)
-- **Location:** `app/globals.css`
-- **Current Workaround:** Emoji replacement working
-- **Fix:** Either enable emoji permanently or use SVG library
-- **Priority:** High (cosmetic but affects UX)
+#### Bug 5: studentId Not Threaded to Assignment APIs
+- **Issue:** Assignment generation and submission APIs need authenticated childId from session
+- **Location:** `app/assignments/[subject]/page.tsx`, related API routes
+- **Impact:** Assignment generation may use wrong userId
+- **Fix:** After auth middleware: read childId from session/JWT
 - **Estimated Effort:** 2-3 hours
-
-#### Bug 5: CORS Issues Possible
-- **Issue:** CORS middleware exists but may need refinement
-- **Location:** `server/middleware.ts`
-- **Impact:** Cross-origin requests might fail
-- **Fix:** Test with production domain, adjust allowed origins
-- **Priority:** Before deployment
-- **Estimated Effort:** 1-2 hours
 
 ### 🟡 **MEDIUM**
 
@@ -1170,82 +1399,66 @@ NODE_ENV=development
 - **Solution:** Integrate Sentry or similar
 - **Estimated Effort:** 3-4 hours
 
-#### Debt 2: No Database Indexing
-- **Issue:** No performance optimization for queries
-- **Impact:** Slow queries on large datasets (12K+ students)
-- **Solution:** Add indexes on frequently queried fields (email, userId, courseId)
-- **Estimated Effort:** 2-3 hours
-
-#### Debt 3: No Pagination
-- **Issue:** GET /api/users returns all users at once
-- **Impact:** Performance degradation with many records
+#### Debt 2: No Pagination on List Endpoints
+- **Issue:** GET /api/users, GET /api/assignments return all records at once
+- **Impact:** Performance degradation with many records (12K+ students)
+- **Note:** Admin users page has pagination on frontend; needs backend support
 - **Solution:** Add limit/offset or cursor pagination
 - **Estimated Effort:** 2-3 hours
 
-#### Debt 4: No Request Validation
-- **Issue:** Missing express-validator setup
-- **Impact:** Invalid data can enter database
-- **Solution:** Add validation middleware for all endpoints
+#### Debt 3: Icon Rendering (Emoji Temporary)
+- **Issue:** Material Icons mapped to emoji - not production-quality
+- **Current Workaround:** Functional emoji replacement
+- **Solution:** Migrate to Lucide React or Heroicons (SVG-based)
 - **Estimated Effort:** 3-4 hours
 
-### 🟢 **LOW**
-
-#### Debt 5: TypeScript Strict Mode Not Enabled
+#### Debt 4: TypeScript Strict Mode Not Enabled
 - **Issue:** `tsconfig.json` doesn't have `"strict": true`
 - **Impact:** Some type errors not caught
-- **Solution:** Enable strict mode gradually
 - **Estimated Effort:** 2-3 hours (fixing errors)
 
-#### Debt 6: No Component Documentation
-- **Issue:** Component props not documented with JSDoc
-- **Impact:** Harder to use components correctly
-- **Solution:** Add JSDoc comments
-- **Estimated Effort:** 2-3 hours
-
-#### Debt 7: Missing API Documentation
-- **Issue:** No OpenAPI/Swagger spec
-- **Impact:** Hard for frontend to know all endpoints
-- **Solution:** Use swagger-jsdoc to auto-generate docs
-- **Estimated Effort:** 3-4 hours
+#### Debt 5: Assignment History / Parent Reports Use Placeholder Data
+- **Issue:** History page and parent assignment report use hardcoded mock data
+- **Fix:** Connect to `/api/assignments/history` and `/api/assignments/summary` endpoints
+- **Estimated Effort:** 2-3 hours each
 
 ### 📋 **Performance Issues**
-
 - No asset optimization (images, code splitting)
 - No caching strategy (Redis)
-- No query optimization (N+1 queries possible)
-- No rate limiting (DOS vulnerable)
+- No query optimization (N+1 queries possible in Prisma includes)
+- No rate limiting on LLM generation endpoints (potential cost abuse)
 
 ### 🏗️ **Architecture Debt**
-
 - No service layer (business logic mixed with routes)
-- No event bus (tightly coupled components)
-- No response formatting layer (inconsistent JSON)
-- No comprehensive error codes (hard to debug)
+- childId from session not consistently passed to APIs
+- Assignment generation in Express (`server/routes.ts`) vs. Next.js (`app/api/assignments/`) — dual implementation, should consolidate
+- Admin session system and student session system are architecturally separate (by design) but not documented in middleware
 
 ---
 
 ## 17. Next Immediate Actions
 
-### This Sprint (1 Week)
-1. Fix password hashing (CRITICAL security)
-2. Add authentication middleware (CRITICAL)
-3. Implement input validation (CRITICAL)
-4. Finalize icon rendering (Material vs emoji vs SVG)
-5. Add database seeding script
+### This Sprint (1-2 Weeks)
+1. **Fix Next.js DB connectivity** — resolve Supabase credentials for Prisma client in Next.js routes
+2. **Run pending migrations** — `npx prisma migrate dev` to apply AiCreditLog, Admin, GeneratedAssignment models
+3. **Seed super admin** — `SUPER_ADMIN_EMAIL=... SUPER_ADMIN_PASSWORD=... npm run seed:admin`
+4. **Hash student passwords** — add bcrypt to student registration flow (mirrors admin implementation)
+5. **Thread childId from session** — ensure assignment APIs receive authenticated user ID
 
-### Next Sprint (2-3 Weeks)
-6. Email verification
-7. Password reset
-8. Parent portal UI
-9. Enhanced dashboard analytics
-10. API documentation
+### Next Sprint (2-4 Weeks)
+6. Email verification on signup
+7. Password reset with SendGrid/Nodemailer
+8. Connect assignment history page to real API data
+9. Connect parent reports page to real API data
+10. PDF export for assignments (jsPDF + html2canvas)
+11. Rate limiting on LLM generation endpoints
 
-### Future (After MVP)
-11. Mobile app (React Native)
-12. Video streaming
-13. Real-time notifications
-14. ML-based recommendations
-15. Advanced analytics
+### Future (After MVP Stabilization)
+12. Mobile app (React Native)
+13. Video streaming / live classes
+14. Real-time notifications (WebSocket)
+15. ML-based recommendations
+16. Podcast/video generation from AI responses (Phase 2 — see §17.B)
 
 ---
 
@@ -1592,7 +1805,7 @@ Generate audio podcasts and educational videos from search responses to help stu
 
 ---
 
-**Document Version:** 1.2  
-**Last Updated:** June 22, 2026  
-**Owner:** EduSpark Development Team  
-**Status:** Deployment Ready - Practice Feature Timeline Documented
+**Document Version:** 2.0  
+**Last Updated:** July 20, 2026  
+**Owner:** Student Assistant Development Team  
+**Status:** Phase 3 Complete — Teacher Portal, Admin Security, AI Assignment Workflow implemented

@@ -11,8 +11,8 @@ const SUBJECTS_BY_BOARD_GRADE: SubjectMap = {
   'CBSE-8': ['Mathematics', 'Science', 'Social Science', 'English', 'Hindi', 'Sanskrit'],
   'CBSE-9': ['Mathematics', 'Science', 'Social Science', 'English', 'Hindi', 'Sanskrit'],
   'CBSE-10': ['Mathematics', 'Science', 'Social Science', 'English', 'Hindi'],
-  'CBSE-11': ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'History', 'Geography', 'Economics'],
-  'CBSE-12': ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'History', 'Geography', 'Economics'],
+  'CBSE-11': ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'Hindi', 'English', 'History', 'Geography', 'Economics'],
+  'CBSE-12': ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'Hindi', 'English', 'History', 'Geography', 'Economics'],
 
   // ICSE Curriculum
   'ICSE-6': ['Mathematics', 'Science', 'Social Studies', 'English', 'Hindi', 'Sanskrit'],

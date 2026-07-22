@@ -1,6 +1,7 @@
 'use client';
 
 import { FormEvent, useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -117,6 +118,14 @@ export default function SignupPage() {
     <main className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8">
       <div className="mx-auto grid max-w-[1400px] gap-10 xl:grid-cols-[0.85fr_0.95fr]">
         <section className="rounded-[2rem] border border-slate-200/80 bg-white/95 p-10 shadow-xl shadow-slate-200/40">
+          <Image
+            src="/veda-ai-logo.png"
+            alt="Veda AI — Student Assistant"
+            width={56}
+            height={56}
+            className="mb-6 rounded-2xl border border-slate-100 p-1 object-contain"
+            priority
+          />
           <p className="text-sm font-medium uppercase tracking-[0.35em] text-cyan-600">Create or access your account</p>
           <h1 className="mt-6 text-4xl font-semibold text-slate-900">Welcome to School Assistant</h1>
           <p className="mt-4 max-w-2xl text-slate-600">Choose whether you’re a student, parent, or teacher so we can personalize your learning pathways and classroom tools.</p>

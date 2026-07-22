@@ -21,7 +21,7 @@ export default function DashboardPage() {
                 Your Learning<br /><span className="text-[#0058be]">Superpower!</span>
               </h1>
               <p className="text-[#3d4a3d] text-lg leading-relaxed mb-8 max-w-md">
-                Unleash your potential with EduSpark's tactile learning experience. Master new subjects through high-energy challenges and interactive quests designed just for you.
+                Unleash your potential with Student Assistant's tactile learning experience. Master new subjects through high-energy challenges and interactive quests designed just for you.
               </p>
               <div className="flex items-center gap-3">
                 <a href="/practice">

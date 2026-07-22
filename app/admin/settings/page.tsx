@@ -24,7 +24,7 @@ export default function AdminSettingsPage() {
             <div className="space-y-4 mt-6">
               <div>
                 <Label htmlFor="platform-name">Platform Name</Label>
-                <Input id="platform-name" placeholder="EduSpark" defaultValue="EduSpark" className="mt-2" />
+                <Input id="platform-name" placeholder="Student Assistant" defaultValue="Student Assistant" className="mt-2" />
               </div>
               <div>
                 <Label htmlFor="tagline">Tagline</Label>

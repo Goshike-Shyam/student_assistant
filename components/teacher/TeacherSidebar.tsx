@@ -12,6 +12,7 @@
  */
 'use client'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard, Users, BookOpen, BarChart3,
@@ -118,9 +119,13 @@ export function TeacherSidebar({ teacherName, schoolName }: TeacherSidebarProps)
     >
       {/* Logo */}
       <div className="flex items-center gap-3 mb-8 px-2">
-        <div className="w-10 h-10 bg-[#006e2f] rounded-2xl flex items-center justify-center shadow-md" aria-hidden="true">
-          <GraduationCap className="w-6 h-6 text-white" aria-hidden="true" />
-        </div>
+        <Image
+          src="/veda-ai-logo.png"
+          alt="Veda AI logo"
+          width={40}
+          height={40}
+          className="rounded-xl bg-white p-1 object-contain flex-shrink-0"
+        />
         <div>
           <p className="font-bold text-[17px] text-[#006e2f] leading-none">Teacher Portal</p>
           <p className="text-gray-500 text-[11px] mt-0.5 truncate max-w-[120px]" title={schoolName}>
