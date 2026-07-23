@@ -1,0 +1,402 @@
+Fix the broken integration between student registration subjects and the Assignments page.
+This is a data-flow fix — not a new feature build.
+
+## ROOT CAUSE TO DIAGNOSE FIRST
+Before writing any code, read and confirm:
+1. Does `child_subjects` table exist in DB? Check `prisma/schema.prisma` for `ChildSubject` model
+2. Does the registration form have a subjects step? Search for the child profile form component
+3. Does the Assignments page fetch subjects from DB or use hardcoded values?
+4. Do subject links on Assignments page route to `/assignments/[subject]`?
+Report findings as inline comments before proceeding. Fix gaps found.
+
+---
+
+## TASK 1 — PRISMA SCHEMA
+
+Ensure `schema.prisma` contains exactly this model. Add if missing, correct if wrong:
+
+```prisma
+model ChildSubject {
+  id           BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  childId      BigInt   @map("child_id") @db.UnsignedBigInt
+  subjectName  String   @map("subject_name") @db.VarChar(100)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  child        Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
+
+  @@unique([childId, subjectName], name: "uq_child_subject")
+  @@map("child_subjects")
+}
+
+// Also add to existing Child model if missing:
+// childSubjects  ChildSubject[]
+```
+
+Run: `npx prisma migrate dev --name add_child_subjects`
+If migration conflicts exist, resolve them before proceeding — do not skip.
+
+---
+
+## TASK 2 — SUBJECTS SEED DATA
+
+Create `/lib/subjects-seed.ts` if it does not exist.
+If it exists, do not overwrite — only add missing board+grade combinations.
+
+Structure:
+```ts
+// /lib/subjects-seed.ts
+export type BoardKey = 'CBSE' | 'ICSE' | 'STATE_BOARD' | 'COMMON_CORE' | 'OTHER'
+
+export const SUBJECTS_SEED: Record<string, string[]> = {
+  // Key format: `${board}-${grade}`
+  'CBSE-1':  ['English', 'Mathematics', 'Environmental Studies', 'Hindi'],
+  'CBSE-2':  ['English', 'Mathematics', 'Environmental Studies', 'Hindi'],
+  'CBSE-3':  ['English', 'Mathematics', 'Environmental Studies', 'Hindi'],
+  'CBSE-4':  ['English', 'Mathematics', 'Environmental Studies', 'Hindi'],
+  'CBSE-5':  ['English', 'Mathematics', 'Environmental Studies', 'Hindi'],
+  'CBSE-6':  ['English', 'Mathematics', 'Science', 'Social Science', 'Hindi', 'Sanskrit'],
+  'CBSE-7':  ['English', 'Mathematics', 'Science', 'Social Science', 'Hindi', 'Sanskrit'],
+  'CBSE-8':  ['English', 'Mathematics', 'Science', 'Social Science', 'Hindi', 'Sanskrit'],
+  'CBSE-9':  ['English', 'Mathematics', 'Science', 'Social Science', 'Hindi', 'Sanskrit', 'IT'],
+  'CBSE-10': ['English', 'Mathematics', 'Science', 'Social Science', 'Hindi', 'Sanskrit', 'IT'],
+  'CBSE-11': ['English', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'Computer Science', 'Economics', 'Accountancy', 'Business Studies', 'History', 'Political Science', 'Geography'],
+  'CBSE-12': ['English', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'Computer Science', 'Economics', 'Accountancy', 'Business Studies', 'History', 'Political Science', 'Geography'],
+  'ICSE-1':  ['English', 'Mathematics', 'Environmental Studies'],
+  'ICSE-2':  ['English', 'Mathematics', 'Environmental Studies'],
+  'ICSE-3':  ['English', 'Mathematics', 'Science', 'Social Studies'],
+  'ICSE-4':  ['English', 'Mathematics', 'Science', 'Social Studies', 'Hindi'],
+  'ICSE-5':  ['English', 'Mathematics', 'Science', 'Social Studies', 'Hindi'],
+  'ICSE-6':  ['English', 'Mathematics', 'Science', 'History & Civics', 'Geography', 'Hindi'],
+  'ICSE-7':  ['English', 'Mathematics', 'Science', 'History & Civics', 'Geography', 'Hindi'],
+  'ICSE-8':  ['English', 'Mathematics', 'Science', 'History & Civics', 'Geography', 'Hindi'],
+  'ICSE-9':  ['English', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'History & Civics', 'Geography', 'Hindi', 'Computer Applications'],
+  'ICSE-10': ['English', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'History & Civics', 'Geography', 'Hindi', 'Computer Applications'],
+  'ICSE-11': ['English', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'Commerce', 'Economics', 'Computer Science'],
+  'ICSE-12': ['English', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'Commerce', 'Economics', 'Computer Science'],
+  'STATE_BOARD-1':  ['English', 'Mathematics', 'Environmental Studies', 'Regional Language'],
+  'STATE_BOARD-2':  ['English', 'Mathematics', 'Environmental Studies', 'Regional Language'],
+  'STATE_BOARD-3':  ['English', 'Mathematics', 'Science', 'Social Science', 'Regional Language'],
+  'STATE_BOARD-4':  ['English', 'Mathematics', 'Science', 'Social Science', 'Regional Language'],
+  'STATE_BOARD-5':  ['English', 'Mathematics', 'Science', 'Social Science', 'Regional Language'],
+  'STATE_BOARD-6':  ['English', 'Mathematics', 'Science', 'Social Science', 'Regional Language', 'Hindi'],
+  'STATE_BOARD-7':  ['English', 'Mathematics', 'Science', 'Social Science', 'Regional Language', 'Hindi'],
+  'STATE_BOARD-8':  ['English', 'Mathematics', 'Science', 'Social Science', 'Regional Language', 'Hindi'],
+  'STATE_BOARD-9':  ['English', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'Social Science', 'Regional Language'],
+  'STATE_BOARD-10': ['English', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'Social Science', 'Regional Language'],
+  'STATE_BOARD-11': ['English', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'Economics', 'Commerce', 'Computer Science'],
+  'STATE_BOARD-12': ['English', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'Economics', 'Commerce', 'Computer Science'],
+  'COMMON_CORE-1':  ['English Language Arts', 'Mathematics'],
+  'COMMON_CORE-2':  ['English Language Arts', 'Mathematics'],
+  'COMMON_CORE-3':  ['English Language Arts', 'Mathematics', 'Science', 'Social Studies'],
+  'COMMON_CORE-4':  ['English Language Arts', 'Mathematics', 'Science', 'Social Studies'],
+  'COMMON_CORE-5':  ['English Language Arts', 'Mathematics', 'Science', 'Social Studies'],
+  'COMMON_CORE-6':  ['English Language Arts', 'Mathematics', 'Science', 'Social Studies', 'History'],
+  'COMMON_CORE-7':  ['English Language Arts', 'Pre-Algebra', 'Science', 'Social Studies', 'History'],
+  'COMMON_CORE-8':  ['English Language Arts', 'Algebra I', 'Science', 'Social Studies', 'History'],
+  'COMMON_CORE-9':  ['English Language Arts', 'Algebra II', 'Biology', 'World History', 'Physics'],
+  'COMMON_CORE-10': ['English Language Arts', 'Geometry', 'Chemistry', 'US History', 'Biology'],
+  'COMMON_CORE-11': ['English Language Arts', 'Pre-Calculus', 'Physics', 'Government', 'Chemistry'],
+  'COMMON_CORE-12': ['English Language Arts', 'Calculus', 'Environmental Science', 'Economics', 'Computer Science'],
+  // OTHER board: fallback to CBSE-grade
+}
+
+export function getSubjectsForBoardGrade(board: string, grade: string | number): string[] {
+  const key = `${board}-${grade}`
+  return SUBJECTS_SEED[key] ?? SUBJECTS_SEED[`CBSE-${grade}`] ?? ['English', 'Mathematics']
+}
+```
+
+---
+
+## TASK 3 — API: GET /api/subjects
+
+Find existing route at `app/api/subjects/route.ts`.
+If it exists, verify it works correctly. If missing or broken, create/fix it:
+
+```ts
+// app/api/subjects/route.ts
+import { NextRequest, NextResponse } from 'next/server'
+import { getSubjectsForBoardGrade } from '@/lib/subjects-seed'
+
+export async function GET(req: NextRequest) {
+  const board = req.nextUrl.searchParams.get('board')
+  const grade = req.nextUrl.searchParams.get('grade')
+
+  if (!board || !grade) {
+    return NextResponse.json({ error: 'board and grade are required' }, { status: 400 })
+  }
+
+  const subjects = getSubjectsForBoardGrade(board, grade)
+  return NextResponse.json({ subjects })
+}
+```
+
+---
+
+## TASK 4 — REGISTRATION FORM: ADD SUBJECTS STEP
+
+Locate the child profile registration/creation form. It may be in:
+- `app/register/page.tsx`
+- `app/onboarding/page.tsx`
+- `components/registration/ChildProfileForm.tsx`
+- or a multi-step form component — search for where `grade` and `board` fields exist together
+
+Do NOT rewrite the entire form. Only add the subjects step as follows:
+
+### 4a. After the board + grade fields, add a subjects selector
+
+Trigger a fetch to `GET /api/subjects?board={board}&grade={grade}` 
+whenever board OR grade changes (use `useEffect` watching both values).
+
+Show a loading skeleton while fetching.
+
+Render a multi-select dropdown using the existing UI library already in the project 
+(shadcn/ui `<Popover>` + `<Command>` pattern, or whatever multi-select component 
+already exists — do not install new packages):
+
+Label: "Subjects *"
+Helper text: "Select the subjects you study. You can update these later."
+Behaviour:
+
+Options populate from API response
+Student can select 1–10 subjects (enforce min 1, max 10 with validation message)
+Selected subjects shown as removable badge chips below the dropdown
+If board or grade changes after subjects are selected, clear selected subjects
+and re-fetch options (show confirmation: "Changing grade/board will reset your
+subject selection. Continue?" before clearing)
+Required field — form cannot submit without at least 1 subject selected
+
+### 4b. On form submission
+
+After the child record is created (INSERT into `children`), immediately save subjects:
+
+```ts
+// After child creation succeeds:
+await prisma.$transaction(
+  selectedSubjects.map(subject =>
+    prisma.childSubject.upsert({
+      where: {
+        uq_child_subject: { childId: child.id, subjectName: subject }
+      },
+      create: { childId: child.id, subjectName: subject },
+      update: {} // no-op if already exists
+    })
+  )
+)
+```
+
+Use upsert (not createMany) to make it idempotent — safe for re-submissions.
+
+### 4c. Edit profile — subjects must be editable
+
+Find the child profile edit page/component.
+Load existing subjects from DB and pre-populate the multi-select.
+On save, delete all existing subjects for that child then re-insert selected ones:
+
+```ts
+await prisma.$transaction([
+  prisma.childSubject.deleteMany({ where: { childId: child.id } }),
+  ...selectedSubjects.map(subject =>
+    prisma.childSubject.create({ data: { childId: child.id, subjectName: subject } })
+  )
+])
+```
+
+---
+
+## TASK 5 — API: GET /api/children/[childId]/subjects
+
+Create this endpoint. Used by Assignments page to fetch the child's registered subjects:
+
+```ts
+// app/api/children/[childId]/subjects/route.ts
+import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { getServerSession } from 'next-auth' // or existing auth util
+import { authOptions } from '@/lib/auth'
+
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { childId: string } }
+) {
+  const session = await getServerSession(authOptions)
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const childId = BigInt(params.childId)
+
+  // Security: verify this child belongs to the logged-in parent
+  const child = await prisma.child.findFirst({
+    where: { id: childId, parentId: BigInt(session.user.parentId) }
+  })
+  if (!child) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
+  const subjects = await prisma.childSubject.findMany({
+    where: { childId },
+    select: { subjectName: true },
+    orderBy: { subjectName: 'asc' }
+  })
+
+  return NextResponse.json({
+    subjects: subjects.map(s => s.subjectName),
+    childName: child.name,
+    grade: child.grade,
+    board: child.board
+  })
+}
+```
+
+---
+
+## TASK 6 — ASSIGNMENTS PAGE: FETCH SUBJECTS FROM DB
+
+Locate the Assignments page (likely `app/assignments/page.tsx` or 
+`app/(student)/assignments/page.tsx`).
+
+### 6a. Replace hardcoded subjects with DB fetch
+
+Remove any hardcoded subject arrays.
+Fetch the logged-in child's subjects on page load:
+
+```ts
+// Server Component version:
+const { subjects, grade, board } = await fetch(
+  `/api/children/${childId}/subjects`
+).then(r => r.json())
+
+// Or if Client Component, use SWR/React Query:
+const { data } = useSWR(`/api/children/${childId}/subjects`, fetcher)
+```
+
+### 6b. Render subject list in sidebar
+
+Map over `subjects` array from DB — not from seed file.
+Each subject renders as a clickable link:
+```ts
+href={`/assignments/${encodeURIComponent(subject)}`}
+```
+
+### 6c. Empty state
+
+If `subjects` array is empty (student registered without subjects, or 
+`child_subjects` table was empty for this child):
+
+Show a friendly empty state card:
+📚 No subjects found.
+It looks like you haven't added your subjects yet.
+[Update Your Profile →]   ← links to child profile edit page
+Do NOT show 404. Do NOT show a broken list. Always show empty state or subjects.
+
+---
+
+## TASK 7 — GENERATE ASSIGNMENT PAGE: VALIDATION
+
+In `app/assignments/[subject]/page.tsx`:
+
+On page load, validate that `params.subject` (decoded) exists in the child's 
+registered subjects by checking DB:
+
+```ts
+const { subjects } = await fetch(`/api/children/${childId}/subjects`).then(r => r.json())
+const decodedSubject = decodeURIComponent(params.subject)
+
+if (!subjects.includes(decodedSubject)) {
+  // Render a friendly error — not a 404 system page
+  return <SubjectNotRegisteredError subject={decodedSubject} />
+  // This component shows: "You haven't registered {subject} as one of your subjects.
+  // [Update Profile] to add it."
+}
+```
+
+Pass `decodedSubject`, `grade`, and `board` into the assignment generation form 
+so the LLM receives correct context. These values must come from the DB child 
+record — never trust URL params alone for grade/board.
+
+---
+
+## TASK 8 — END-TO-END INTEGRATION CHECKLIST
+
+After all code changes, verify the following flow works without manual intervention:
+Parent registers child → selects board=CBSE, grade=7
+→ Subject dropdown populates with CBSE Grade 7 subjects
+→ Selects: Mathematics, Science, Social Science
+→ Submits form
+→ child_subjects table contains 3 rows for this child_id
+Child logs in → navigates to /assignments
+→ Sidebar shows exactly: Mathematics, Science, Social Science
+→ No hardcoded subjects visible
+Child clicks "Mathematics"
+→ Routes to /assignments/Mathematics (no 404)
+→ Page loads with subject=Mathematics, grade=7, board=CBSE pre-filled
+→ Topic input and complexity selector visible
+Child enters topic "Fractions", selects complexity "Medium"
+→ Clicks Generate Assignment
+→ Assignment appears with 8 questions appropriate for CBSE Grade 7 Maths
+Parent edits child profile → changes subjects to: Mathematics, Science, English
+→ /assignments sidebar now shows 3 updated subjects
+→ Old subject "Social Science" link no longer appears
+Child navigates to /assignments/Social%20Science directly (after removal)
+→ Sees "Subject not registered" friendly message — not 404
+
+If any step fails, fix it before moving on to the next task.
+
+---
+
+## TASK 9 — TYPES
+
+Ensure `types/assignments.ts` (or equivalent) exports these interfaces.
+Add if missing; do not duplicate if exists:
+
+```ts
+export interface ChildSubjectsResponse {
+  subjects: string[]
+  childName: string
+  grade: string
+  board: string
+}
+
+export interface SubjectsApiResponse {
+  subjects: string[]
+}
+
+export interface ChildSubjectRecord {
+  id: bigint
+  childId: bigint
+  subjectName: string
+  createdAt: Date
+}
+```
+
+---
+
+## CONSTRAINTS
+
+- Do NOT install any new npm packages — use only what is already in package.json
+- Do NOT rewrite entire page/form components — make surgical additions only
+- Do NOT use raw SQL in route handlers — use Prisma throughout
+- Grade and board values passed to LLM must always come from DB child record, 
+  never from URL params or client-supplied values
+- child_subjects rows must use upsert not insert to prevent duplicate key errors 
+  on re-registration or retry
+- All DB operations that involve multiple writes must be wrapped in 
+  prisma.$transaction()
+- Subjects list on Assignments page must always reflect DB state — never cache 
+  in localStorage or component state beyond the current session
+- TypeScript strict mode — no `any` types
+- Follow existing code patterns, hooks, and import aliases already in the project
+- After completing all tasks, output a summary of every file modified or created
+
+
+Once a student logs out from the application and when the url is hit next, it is directly logging in the student without going to sign in page. Should clear the cache and ask for relogin.
+For a logged in teacher, breadcrums help to easily track which page they are and where to go. Think and confirm breadcrums help in this situation.  
+For a logged in teacher, Research, Practice and Assignments buttons are only visible, UI should be different with various other menu items or left side bars with relevant menu items to a teacher.
+When a teacher creates a class and selects a subject, the academic year is showing as 2024-25, which is wrong. It should consider local or based on curriculum selected, it should understand if the academic year in that country is already started or not and pick the academic year accordingly.
+After a teacher enrolls a student in a calss, there is no way to go out to class for assigning an assignment, or providing a feedback, etc,. The page is not built appropriately and possible page flow or returning back to class should have been provided on the enrollment page.
+
+
+22nd July
+After successful login of a student or teacher, going to Home page, when clicked on subject names appearing on the left side bar menu, getting 404 error. Remove the subject links. Not useful for student login. 
+After teach reviews the assignment submitted and click on Release Feedback button, it should disappear or update to diabled with "Released" label on it. Also, save to drafts should not appear after releasing the feedback.
+Breadcrumbs on teacher assignments review page should have hyperlinks to go back by clicking on them. 
+Top bar menu items - Home, Practice, Research and Assignment taking teacher to student account from the cache. These top bar menu items should be changed to relevant Teacher menu items. Ask questions which menu bar buttons should be specified for Student/Teacher and Admin.
+Top bar menu items bar is overlapping the Teacher/Assignments page. Menu bar should not overlap on any other page in the application.
+Notificaion Bell and Settings buttons on the top menu bar are invisible. 

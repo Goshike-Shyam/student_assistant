@@ -27,6 +27,9 @@ export function middleware(req: NextRequest) {
     res.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
     res.headers.set('Pragma', 'no-cache');
     res.headers.set('Expires', '0');
+    // Required: teacher layout reads x-pathname to detect public pages.
+    // Without this, it sees '' and treats login as a protected route → redirect loop.
+    res.headers.set('x-pathname', pathname);
     return res;
   }
 
