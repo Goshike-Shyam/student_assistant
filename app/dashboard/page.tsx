@@ -1,4 +1,8 @@
+import Image from 'next/image'
 import { Sidebar } from '@/components/ui/sidebar';
+import HomeworkHelpIcon from '@/components/icons/homework_help.png'
+import ResearchTopicIcon from '@/components/icons/research_topic.png'
+import StudentProgressIcon from '@/components/icons/student_progress.png'
 
 export default function DashboardPage() {
   return (
@@ -75,10 +79,10 @@ export default function DashboardPage() {
             {/* Homework Help */}
             <div className="col-span-6 md:col-span-3 card p-6 flex flex-col justify-between min-h-[280px]" style={{ background: 'linear-gradient(135deg,rgba(34,197,94,.08),rgba(34,197,94,.02))' }}>
               <div>
-                <div className="w-12 h-12 bg-[#22c55e]/20 rounded-xl flex items-center justify-center mb-4">
-                  <span className="mat text-[#006e2f] text-2xl">help_outline</span>
+                <div className="flex items-center gap-4 mb-4">
+                  <Image src={HomeworkHelpIcon} alt="Homework Help" width={72} height={72} className="drop-shadow-md flex-shrink-0" />
+                  <h3 className="qs font-bold text-lg text-[#0b1c30]">Homework Help</h3>
                 </div>
-                <h3 className="qs font-bold text-lg text-[#0b1c30] mb-2">Homework Help</h3>
                 <p className="text-[#6d7b6c] text-sm">Get instant solutions with step-by-step explanations.</p>
               </div>
               <button className="mt-4 text-[#006e2f] font-semibold text-sm flex items-center gap-1 hover:gap-2 transition-all">
@@ -89,10 +93,10 @@ export default function DashboardPage() {
             {/* Topic Research */}
             <div className="col-span-6 md:col-span-3 card p-6 flex flex-col justify-between min-h-[280px]" style={{ background: 'linear-gradient(135deg,rgba(0,88,190,.08),rgba(0,88,190,.02))' }}>
               <div>
-                <div className="w-12 h-12 bg-[#0058be]/20 rounded-xl flex items-center justify-center mb-4">
-                  <span className="mat text-[#0058be] text-2xl">search</span>
+                <div className="flex items-center gap-4 mb-4">
+                  <Image src={ResearchTopicIcon} alt="Topic Research" width={72} height={72} className="drop-shadow-md flex-shrink-0" />
+                  <h3 className="qs font-bold text-lg text-[#0b1c30]">Topic Research</h3>
                 </div>
-                <h3 className="qs font-bold text-lg text-[#0b1c30] mb-2">Topic Research</h3>
                 <p className="text-[#6d7b6c] text-sm">Curriculum-aligned content for your grade level.</p>
               </div>
               <button className="mt-4 text-[#0058be] font-semibold text-sm flex items-center gap-1 hover:gap-2 transition-all">
@@ -103,10 +107,10 @@ export default function DashboardPage() {
             {/* Progress Tracking */}
             <div className="col-span-12 md:col-span-6 card p-6 flex flex-col justify-between min-h-[280px]" style={{ background: 'linear-gradient(135deg,rgba(255,142,77,.08),rgba(255,142,77,.02))' }}>
               <div>
-                <div className="w-12 h-12 bg-[#ff8e4d]/20 rounded-xl flex items-center justify-center mb-4">
-                  <span className="mat text-[#ff8e4d] text-2xl">trending_up</span>
+                <div className="flex items-center gap-4 mb-4">
+                  <Image src={StudentProgressIcon} alt="Student's Progress" width={72} height={72} className="drop-shadow-md flex-shrink-0" />
+                  <h3 className="qs font-bold text-lg text-[#0b1c30]">Progress Tracking</h3>
                 </div>
-                <h3 className="qs font-bold text-lg text-[#0b1c30] mb-2">Progress Tracking</h3>
               </div>
             </div>
           </div>
