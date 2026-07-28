@@ -20,21 +20,27 @@ export async function GET() {
 
   // Get submission counts by status
   const assignmentIds = assignments.map((a) => a.id)
-  const submittedCounts =
+  const statusCounts =
     assignmentIds.length > 0
       ? await prisma.teacherAssignmentSubmission.groupBy({
-          by: ['teacherAssignmentId'],
+          by: ['teacherAssignmentId', 'status'],
           where: {
             teacherAssignmentId: { in: assignmentIds },
-            status: { in: ['SUBMITTED', 'REVIEWED', 'RELEASED'] },
           },
           _count: { id: true },
         })
       : []
 
-  const submittedMap = new Map(
-    submittedCounts.map((s) => [s.teacherAssignmentId.toString(), s._count.id]),
-  )
+  // Build per-assignment maps: submittedCount, reviewedCount, releasedCount
+  const submittedMap = new Map<string, number>()
+  const reviewedMap  = new Map<string, number>()
+  const releasedMap  = new Map<string, number>()
+  for (const s of statusCounts) {
+    const key = s.teacherAssignmentId.toString()
+    if (s.status === 'SUBMITTED')  submittedMap.set(key, (submittedMap.get(key) ?? 0) + s._count.id)
+    if (s.status === 'REVIEWED')   reviewedMap.set(key,  (reviewedMap.get(key)  ?? 0) + s._count.id)
+    if (s.status === 'RELEASED')   releasedMap.set(key,  (releasedMap.get(key)  ?? 0) + s._count.id)
+  }
 
   const now = new Date()
   return NextResponse.json(
@@ -50,6 +56,8 @@ export async function GET() {
       grade: a.class.grade,
       totalStudents: a._count.submissions,
       submittedCount: submittedMap.get(a.id.toString()) ?? 0,
+      reviewedCount:  reviewedMap.get(a.id.toString())  ?? 0,
+      releasedCount:  releasedMap.get(a.id.toString())  ?? 0,
       createdAt: a.createdAt,
     })),
   )

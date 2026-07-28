@@ -104,6 +104,17 @@ function parseFeedback(raw: string): any | null {
   }
 }
 
+function toSafeFloat(value: unknown): number | null {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+function toSafeInt(value: unknown): number | null {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return null;
+  return Math.round(n);
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -213,15 +224,19 @@ export async function POST(request: NextRequest) {
     }
 
     // STEP 6 — Save attempt to DB
+    const normalizedScore = toSafeFloat(feedback.percentage);
+    const normalizedMarksAwarded = toSafeInt(feedback.total_marks_awarded);
+    const normalizedMarksPossible = toSafeInt(feedback.total_marks_possible);
+
     await prisma.practiceAttempt.create({
       data: {
         practiceTestId,
         childId: practiceTest.childId,
         answersJson: JSON.stringify(answers),
         feedbackJson: JSON.stringify(feedback),
-        score: feedback.percentage,
-        marksAwarded: feedback.total_marks_awarded,
-        marksPossible: feedback.total_marks_possible,
+        score: normalizedScore,
+        marksAwarded: normalizedMarksAwarded,
+        marksPossible: normalizedMarksPossible,
         timeTakenSecs: timeTakenSecs ?? null,
         completedAt: new Date(),
       },

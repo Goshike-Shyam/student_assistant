@@ -51,6 +51,8 @@ function normaliseQuestionType(raw: string): string {
     'TRUE_FALSE':        'TRUE_FALSE',
     'truefalse':         'TRUE_FALSE',
     'true or false':     'TRUE_FALSE',
+    't/f':               'TRUE_FALSE',
+    'True/False':        'TRUE_FALSE',
   };
   if (!raw) return 'SHORT_ANSWER';
   // Try exact match first, then case-insensitive

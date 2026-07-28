@@ -7,7 +7,6 @@ import {
   Users, ClipboardList, BarChart3, UserPlus,
   BookOpen, Bell, ChevronLeft,
 } from 'lucide-react'
-import { TeacherBreadcrumbs } from '@/components/teacher/TeacherBreadcrumbs'
 
 interface ClassInfo {
   id:           string
@@ -98,8 +97,6 @@ export default function ClassDashboardPage() {
 
   return (
     <main className="p-8 max-w-6xl mx-auto">
-      <TeacherBreadcrumbs dynamicLabels={{ [classId]: className }} />
-
       {/* Back link */}
       <Link
         href="/teacher/classes"

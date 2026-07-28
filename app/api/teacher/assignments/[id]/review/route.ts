@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prismaClient'
 import { getTeacherSession } from '@/lib/teacher-auth'
+import { createNotification } from '@/lib/notifications'
 
 export const dynamic = 'force-dynamic'
 
@@ -96,7 +97,7 @@ export async function POST(
     if (!assignment) return NextResponse.json({ error: 'Assignment not found' }, { status: 404 })
 
     const now = new Date()
-    await prisma.teacherAssignmentSubmission.update({
+    const updated = await prisma.teacherAssignmentSubmission.update({
       where: { id: BigInt(submissionId) },
       data: {
         teacherFeedbackJson: teacherFeedbackJson ?? undefined,
@@ -105,7 +106,41 @@ export async function POST(
         teacherReleasedAt: releaseNow ? now : null,
         status: releaseNow ? 'RELEASED' : 'REVIEWED',
       },
+      include: {
+        child: { select: { id: true, name: true, parentEmail: true } },
+      },
     })
+
+    if (releaseNow) {
+      await createNotification({
+        userId: updated.childId,
+        userRole: 'STUDENT',
+        title: 'Feedback ready to view',
+        body: `Your teacher released feedback for "${assignment.topic}" in ${assignment.subject}.`,
+        href: '/assignments?tab=class',
+        priority: 'high',
+        category: 'feedback',
+      })
+
+      if (updated.child.parentEmail) {
+        const parent = await prisma.user.findFirst({
+          where: { email: updated.child.parentEmail },
+          select: { id: true },
+        })
+
+        if (parent) {
+          await createNotification({
+            userId: parent.id,
+            userRole: 'PARENT',
+            title: `Feedback ready for ${updated.child.name}`,
+            body: `Teacher released feedback for "${assignment.topic}" (${assignment.subject}).`,
+            href: `/parent/children/${updated.child.id}/assignments`,
+            priority: 'medium',
+            category: 'feedback',
+          })
+        }
+      }
+    }
 
     return NextResponse.json({ ok: true })
   } catch (err: any) {

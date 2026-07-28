@@ -1,29 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prismaClient'
-import { generateInviteToken, hashToken } from '@/lib/admin-auth'
+import { generateInviteToken, hashToken, getAdminSession } from '@/lib/admin-auth'
 import { AdminRole } from '@prisma/client'
 
 /**
- * Get admin from session cookie
+ * ADMIN AUTH CONTRACT
+ * ONLY getAdminSession() - reads sa-admin-session
+ * NEVER getServerSession() - reads student cookie
+ * Cross-tab student login must NOT affect admin
  */
-function getAdminFromCookie(request: NextRequest) {
-  const sessionCookie = request.cookies.get('sa-admin-session')
-  if (!sessionCookie?.value) {
-    return null
-  }
-
-  try {
-    return JSON.parse(sessionCookie.value)
-  } catch {
-    return null
-  }
-}
 
 export async function POST(request: NextRequest) {
   try {
-    // Check admin session
-    const admin = getAdminFromCookie(request)
-    if (!admin) {
+    const adminSession = await getAdminSession()
+    if (!adminSession) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -31,7 +21,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Only SUPER_ADMIN can invite
-    if (admin.role !== 'SUPER_ADMIN') {
+    if (adminSession.role !== 'SUPER_ADMIN') {
       return NextResponse.json(
         { error: 'Only Super Admin can invite new admins' },
         { status: 403 }
@@ -81,12 +71,12 @@ export async function POST(request: NextRequest) {
         email: email.toLowerCase(),
         role: role as AdminRole,
         tokenHash,
-        invitedBy: BigInt(admin.adminId),
+        invitedBy: BigInt(adminSession.adminId),
         expiresAt,
       },
     })
 
-    console.log(`[Admin Invite] Created invite for ${email} by ${admin.email}`)
+    console.log(`[Admin Invite] Created invite for ${email} by ${adminSession.email}`)
 
     // In production, send email here
     // For now, we'll return the raw token (in production, send via email only)

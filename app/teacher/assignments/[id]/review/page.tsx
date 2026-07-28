@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, ChevronDown, ChevronUp, Send, Save } from 'lucide-react'
+import { ArrowLeft, ChevronDown, ChevronUp, Save, CheckCircle } from 'lucide-react'
 
 interface Submission {
   submissionId: string
@@ -36,6 +36,8 @@ export default function ReviewSubmissionsPage() {
   const [error, setError] = useState('')
   const [expanded, setExpanded] = useState<string | null>(null)
   const [saving, setSaving] = useState<string | null>(null)
+  // Per-submission released state — initialised from DB status on load
+  const [releasedIds, setReleasedIds] = useState<Set<string>>(new Set())
   const [feedbackEdits, setFeedbackEdits] = useState<Record<string, { overallFeedback: string; score: string }>>({})
   const [successMsg, setSuccessMsg] = useState('')
 
@@ -46,6 +48,12 @@ export default function ReviewSubmissionsPage() {
         if (data.error) throw new Error(data.error)
         setAssignment(data.assignment)
         setSubmissions(data.submissions)
+
+        // Initialise released state from DB status
+        const released = new Set<string>(
+          (data.submissions as Submission[]).filter(s => s.status === 'RELEASED').map(s => s.submissionId)
+        )
+        setReleasedIds(released)
 
         // Pre-populate editable fields from existing teacher feedback or AI feedback
         const edits: Record<string, { overallFeedback: string; score: string }> = {}
@@ -90,8 +98,14 @@ export default function ReviewSubmissionsPage() {
 
     const data = await res.json()
     if (res.ok) {
-      setSuccessMsg(releaseNow ? '✓ Feedback released to student' : '✓ Draft saved')
-      // Refresh submissions
+      if (releaseNow) {
+        // Mark this submission as released in local state — UI transforms to badge
+        setReleasedIds(prev => new Set(prev).add(submissionId))
+        setSuccessMsg('')
+      } else {
+        setSuccessMsg('\u2713 Draft saved')
+      }
+      // Refresh submissions list
       const refreshed = await fetch(`/api/teacher/assignments/${assignmentId}/review`).then((r) => r.json())
       if (!refreshed.error) setSubmissions(refreshed.submissions)
     } else {
@@ -241,22 +255,37 @@ export default function ReviewSubmissionsPage() {
                       </div>
 
                       <div className="flex gap-3 pt-2">
-                        <button
-                          onClick={() => saveReview(sub.submissionId, false)}
-                          disabled={saving === sub.submissionId}
-                          className="flex items-center gap-2 min-h-[44px] px-5 py-2.5 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:outline-none disabled:opacity-60"
-                        >
-                          <Save className="w-4 h-4" aria-hidden="true" />
-                          Save Draft
-                        </button>
-                        <button
-                          onClick={() => saveReview(sub.submissionId, true)}
-                          disabled={saving === sub.submissionId}
-                          className="flex items-center gap-2 min-h-[44px] px-5 py-2.5 bg-[#006e2f] text-white font-semibold rounded-xl hover:bg-[#005828] transition-colors focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none disabled:opacity-60"
-                        >
-                          <Send className="w-4 h-4" aria-hidden="true" />
-                          {saving === sub.submissionId ? 'Saving…' : 'Release to Student'}
-                        </button>
+                        {/* Save Draft — hidden once released */}
+                        {!releasedIds.has(sub.submissionId) && (
+                          <button
+                            onClick={() => saveReview(sub.submissionId, false)}
+                            disabled={saving === sub.submissionId}
+                            className="flex items-center gap-2 min-h-[44px] px-5 py-2.5 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:outline-none disabled:opacity-60"
+                          >
+                            <Save className="w-4 h-4" aria-hidden="true" />
+                            Save Draft
+                          </button>
+                        )}
+
+                        {/* Release button transforms to badge on release */}
+                        {releasedIds.has(sub.submissionId) ? (
+                          <div
+                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-green-50 border border-green-200 min-h-[44px]"
+                            role="status"
+                            aria-live="polite"
+                          >
+                            <CheckCircle className="w-4 h-4 text-green-600" aria-hidden="true" />
+                            <span className="text-green-700 text-sm font-medium">Released to Student</span>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => saveReview(sub.submissionId, true)}
+                            disabled={saving === sub.submissionId}
+                            className="flex items-center gap-2 min-h-[44px] px-5 py-2.5 bg-[#006e2f] text-white font-semibold rounded-xl hover:bg-[#005828] transition-colors focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none disabled:opacity-60"
+                          >
+                            {saving === sub.submissionId ? 'Releasing…' : 'Release Feedback to Student'}
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import { AppLogo } from '@/components/ui/app-logo';
 
 interface User {
   id?: string;
@@ -70,12 +70,9 @@ export default function SignInForm() {
     <div className="w-full max-w-[420px]">
       {/* Mobile logo */}
       <div className="flex lg:hidden items-center gap-2 mb-8">
-        <Image
-          src="/veda-ai-logo.png"
-          alt="Veda AI — Student Assistant"
-          width={32}
-          height={32}
-          className="rounded-xl object-contain"
+        <AppLogo
+          size={32}
+          className="rounded-xl"
           priority
         />
         <span className="qs font-bold text-xl text-[#006e2f]">Student Assistant</span>

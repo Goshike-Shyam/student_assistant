@@ -10,17 +10,14 @@
  */
 "use client";
 import Link from 'next/link';
-import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import type { Route } from 'next';
+import { NotificationPanel } from '@/components/shared/NotificationPanel';
+import { AppLogo } from '@/components/ui/app-logo';
 
-const navItems: Array<{ label: string; href: Route }> = [
-  { label: 'Home', href: '/dashboard' as Route },
-  { label: 'Research', href: '/resources' as Route },
-  { label: 'Practice', href: '/practice' as Route },
-  { label: 'Assignments', href: '/assignments' as Route }
-];
+const navItems: Array<{ label: string; href: Route }> = [];
+// Nav links have moved to the sidebar — top bar shows logo + user menu only
 
 export function SiteHeader() {
   const pathname = usePathname();
@@ -63,48 +60,45 @@ export function SiteHeader() {
   };
 
   const userInitials = getUserInitials(userName);
+  const normalizedRole = userRole.toLowerCase();
+  const isParentRole = normalizedRole === 'parent' || pathname.startsWith('/parent');
+  const headerRole: 'student' | 'parent' = isParentRole ? 'parent' : 'student';
 
-  // Admin pages have their own navigation — never show the student header there
-  if (pathname.startsWith('/admin')) return null;
+  // Admin and teacher pages have their own navigation — never show the student header there
+  if (pathname.startsWith('/admin') || pathname.startsWith('/teacher')) return null;
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 h-16 bg-white border-b border-[#e5eeff] flex items-center justify-between px-10 shadow-sm"
+    <nav className="sticky top-0 z-40 w-full h-16 bg-white border-b border-[#e5eeff] flex items-center justify-between px-10"
       style={{ boxShadow: '0 2px 12px rgba(0,88,190,.06)' }}
     >
-      <div className="flex items-center gap-10">
+      <div className="flex items-center">
         <Link
-          href="/"
+          href="/dashboard"
           className="qs font-bold text-[22px] text-[#006e2f] no-underline flex items-center gap-2"
-          aria-label="Student Assistant home"
+          aria-label="Student Assistant — go to home"
         >
-          <Image
-            src="/veda-ai-logo.png"
-            alt="Veda AI — Student Assistant"
-            width={32}
-            height={32}
-            className="rounded-xl object-contain"
+          <AppLogo
+            size={32}
+            alt=""
+            className="rounded-xl"
             priority
+            ariaHidden
           />
           Student Assistant
         </Link>
-
-        <div className="flex items-center gap-0.5">
-          {navItems.map((item) => (
-            <Link key={item.href} href={item.href} className="nav-link">
-              {item.label}
-            </Link>
-          ))}
-        </div>
       </div>
 
       <div className="flex items-center gap-3">
-        <button aria-label="Notifications" className="w-10 h-10 rounded-full hover:bg-[#eff4ff] flex items-center justify-center transition-colors">
-          <span className="mat-fill text-[22px] text-[#0058be]" aria-hidden="true">notifications</span>
-        </button>
-
-        <button aria-label="Settings" className="w-10 h-10 rounded-full hover:bg-[#eff4ff] flex items-center justify-center transition-colors">
-          <span className="mat-fill text-[22px] text-[#0058be]" aria-hidden="true">settings</span>
-        </button>
+        <NotificationPanel
+          fetchUrl={headerRole === 'parent' ? '/api/parent/notifications' : '/api/student/notifications'}
+          markReadUrl={headerRole === 'parent' ? '/api/parent/notifications/read' : '/api/student/notifications/read'}
+          emptyMessage={
+            headerRole === 'parent'
+              ? 'No new updates for your children'
+              : 'No pending assignments or updates'
+          }
+          role={headerRole}
+        />
 
         {/* Show skeleton during hydration to prevent Sign In flash */}
         {!isHydrated ? (
@@ -158,18 +152,25 @@ export function SiteHeader() {
               <div className="border-t border-[#f8f9ff] mt-1 pt-1">
                 <button
                   onClick={async () => {
-                    // 1. Clear server-side Supabase auth cookies
+                    // 1. Clear ALL auth cookies server-side
                     try {
                       await fetch('/api/auth/logout', { method: 'POST' });
                     } catch {
                       // Non-critical — continue logout
                     }
-                    // 2. Clear ALL client-side storage
-                    localStorage.clear();
-                    sessionStorage.clear();
-                    // 3. Hard redirect — forces full page reload so no
-                    //    cached React state remains
-                    window.location.href = '/login';
+                    if (typeof window !== 'undefined') {
+                      // 2. Clear ALL client-side storage
+                      localStorage.clear();
+                      sessionStorage.clear();
+                      // 3. Clear document cookies client-side too
+                      document.cookie.split(';').forEach(c => {
+                        document.cookie = c.trim().split('=')[0] +
+                          '=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/';
+                      });
+                    }
+                    // 4. Hard redirect — not router.push — forces complete
+                    //    page unload with no React state cache
+                    window.location.replace('/login');
                   }}
                   className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-[#ba1a1a] hover:bg-[#fff4f4] transition-colors text-left"
                 >

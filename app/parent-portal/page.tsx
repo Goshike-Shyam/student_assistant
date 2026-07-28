@@ -100,10 +100,9 @@ export default function ParentPortalPage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
-      <SiteHeader />
       
       {/* Main Content */}
-      <div className="pt-24 px-6 pb-12">
+      <div className="pt-4 px-6 pb-12">
         <div className="max-w-6xl mx-auto space-y-8">
           {/* Header */}
           <div className="space-y-2">

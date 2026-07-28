@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { ArrowLeft, UserPlus, Trash2, LayoutDashboard, ClipboardList, Users, ChevronLeft } from 'lucide-react'
 import Link from 'next/link'
-import { TeacherBreadcrumbs } from '@/components/teacher/TeacherBreadcrumbs'
 
 interface Student {
   childId: string
@@ -122,8 +121,6 @@ export default function ClassStudentsPage() {
 
   return (
     <main className="p-8 max-w-7xl mx-auto">
-      <TeacherBreadcrumbs dynamicLabels={{ [classId]: className }} />
-
       {/* Back to class dashboard */}
       <Link
         href={`/teacher/classes/${classId}`}

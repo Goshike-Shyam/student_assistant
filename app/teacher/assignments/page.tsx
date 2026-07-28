@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Plus, Clock, CheckCircle, BookOpen } from 'lucide-react'
+import { Plus, Clock, CheckCircle, BookOpen, Eye } from 'lucide-react'
 
 interface AssignmentData {
   id: string
@@ -16,6 +16,8 @@ interface AssignmentData {
   grade: string
   totalStudents: number
   submittedCount: number
+  reviewedCount: number
+  releasedCount: number
 }
 
 type Tab = 'active' | 'past' | 'drafts'
@@ -152,12 +154,28 @@ export default function TeacherAssignmentsPage() {
                   >
                     View Status
                   </Link>
-                  <Link
-                    href={`/teacher/assignments/${a.id}/review`}
-                    className="flex-1 min-h-[36px] text-center py-2 text-sm font-medium bg-[#eff4ff] text-[#0058be] rounded-lg hover:bg-[#e0eaff] transition-colors focus-visible:ring-2 focus-visible:ring-[#0058be] focus-visible:outline-none"
-                  >
-                    Review
-                  </Link>
+                  {/* Review button: only shown when there are submissions to action */}
+                  {a.releasedCount > 0 && a.submittedCount === 0 && a.reviewedCount === 0 ? (
+                    <span className="flex-1 min-h-[36px] flex items-center justify-center gap-1.5 text-sm font-medium bg-green-50 text-green-700 rounded-lg">
+                      <CheckCircle className="w-4 h-4" aria-hidden="true" />
+                      Released
+                    </span>
+                  ) : a.submittedCount > 0 ? (
+                    <Link
+                      href={`/teacher/assignments/${a.id}/review`}
+                      className="flex-1 min-h-[36px] text-center py-2 text-sm font-medium bg-[#eff4ff] text-[#0058be] rounded-lg hover:bg-[#e0eaff] transition-colors focus-visible:ring-2 focus-visible:ring-[#0058be] focus-visible:outline-none flex items-center justify-center gap-1.5"
+                    >
+                      <Eye className="w-4 h-4" aria-hidden="true" />
+                      Review ({a.submittedCount})
+                    </Link>
+                  ) : a.reviewedCount > 0 ? (
+                    <Link
+                      href={`/teacher/assignments/${a.id}/review`}
+                      className="flex-1 min-h-[36px] text-center py-2 text-sm font-medium bg-amber-50 text-amber-700 rounded-lg hover:bg-amber-100 transition-colors focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none"
+                    >
+                      Release ({a.reviewedCount})
+                    </Link>
+                  ) : null}
                 </div>
               </article>
             )

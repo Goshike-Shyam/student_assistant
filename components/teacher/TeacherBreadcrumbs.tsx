@@ -20,7 +20,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   assignments: 'Assignments',
   analytics:   'Analytics',
   create:      'Create',
-  review:      'Review',
+  review:      'Review Submissions',
   status:      'Status',
   enroll:      'Enroll Students',
   settings:    'Settings',

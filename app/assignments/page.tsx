@@ -15,8 +15,6 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, Send, CheckCircle } from 'lucide-react';
-import { Sidebar } from '@/components/ui/sidebar';
-import { SiteHeader } from '@/components/ui/site-header';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -121,24 +119,36 @@ export default function AssignmentsPage() {
     setTaLoading(true);
     setTaError('');
 
-    fetch(`/api/student/teacher-assignments?userId=${userId}`)
-      .then((r) => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.json();
-      })
-      .then((data) => {
-        if (cancelled) return;
-        if (data.error) throw new Error(data.error);
-        setTeacherAssignments(Array.isArray(data) ? data : []);
-      })
-      .catch((e) => {
-        if (cancelled) return;
-        console.error('[ClassTab] fetch error:', e);
-        setTaError(e.message ?? 'Failed to load class assignments');
-      })
-      .finally(() => {
-        if (!cancelled) setTaLoading(false);
-      });
+    const loadClassAssignments = async () => {
+      // Cold dev compilations can intermittently return 404 once; retry once before surfacing an error.
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const r = await fetch(`/api/student/teacher-assignments?userId=${userId}`);
+          if (r.status === 404 && attempt === 0) {
+            await new Promise((resolve) => setTimeout(resolve, 400));
+            continue;
+          }
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
+          const data = await r.json();
+          if (cancelled) return;
+          if (data.error) throw new Error(data.error);
+          setTeacherAssignments(Array.isArray(data) ? data : []);
+          return;
+        } catch (e: any) {
+          if (attempt === 1) {
+            if (cancelled) return;
+            console.error('[ClassTab] fetch error:', e);
+            // Keep UI usable by showing empty list on repeated 404s and transient failures.
+            setTeacherAssignments([]);
+            setTaError(e?.message ?? 'Failed to load class assignments');
+          }
+        }
+      }
+    };
+
+    loadClassAssignments().finally(() => {
+      if (!cancelled) setTaLoading(false);
+    });
 
     return () => { cancelled = true; };
   }, [userId]);
@@ -213,12 +223,8 @@ export default function AssignmentsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
-      <SiteHeader />
-
-      <div className="flex pt-24">
-        {/* MAIN */}
-        <main className="flex-1 px-6 py-10">
-          <div className="max-w-6xl mx-auto space-y-8">
+      <main className="px-6 py-10">
+        <div className="max-w-6xl mx-auto space-y-8">
             {/* Header */}
             <div>
               <h1 className="text-4xl font-bold text-slate-900 mb-2">Assignments</h1>
@@ -391,7 +397,7 @@ export default function AssignmentsPage() {
                                 <fieldset>
                                   <legend className="sr-only">Select your answer for Question {i + 1}</legend>
                                   <div className="space-y-2">
-                                    {(q.options ?? []).map((opt: string, oi: number) => (
+                                    {(q.type === 'TRUE_FALSE' ? ['True', 'False'] : (q.options ?? [])).map((opt: string, oi: number) => (
                                       <label
                                         key={oi}
                                         className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 cursor-pointer hover:bg-slate-50 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 transition-colors"
@@ -537,7 +543,6 @@ export default function AssignmentsPage() {
             )}
           </div>
         </main>
-      </div>
     </div>
   );
 }

@@ -12,15 +12,15 @@
  */
 'use client'
 import Link from 'next/link'
-import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import {
-  LayoutDashboard, Users, BookOpen, BarChart3,
+  Users, BarChart3,
   GraduationCap, LogOut, Settings, ClipboardList,
   ChevronDown, ChevronRight as ChevronR,
 } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
+import { AppLogo } from '@/components/ui/app-logo'
 
 interface ChildNavItem {
   label: string
@@ -37,26 +37,14 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   {
-    id:    'dashboard',
-    label: 'Dashboard',
-    href:  '/teacher/dashboard',
-    icon:  <LayoutDashboard className="w-5 h-5 shrink-0" aria-hidden="true" />,
-  },
-  {
     id:    'classes',
     label: 'My Classes',
     href:  '/teacher/classes',
     icon:  <GraduationCap className="w-5 h-5 shrink-0" aria-hidden="true" />,
     children: [
-      { label: 'All Classes',     href: '/teacher/classes' },
-      { label: 'Create New Class', href: '/teacher/classes?new=1' },
+      { label: 'All Classes',   href: '/teacher/classes' },
+      { label: 'Create Class',  href: '/teacher/classes/create' },
     ],
-  },
-  {
-    id:    'students',
-    label: 'Students',
-    href:  '/teacher/students',
-    icon:  <Users className="w-5 h-5 shrink-0" aria-hidden="true" />,
   },
   {
     id:    'assignments',
@@ -64,15 +52,19 @@ const NAV_ITEMS: NavItem[] = [
     href:  '/teacher/assignments',
     icon:  <ClipboardList className="w-5 h-5 shrink-0" aria-hidden="true" />,
     children: [
-      { label: 'All Assignments',    href: '/teacher/assignments' },
-      { label: 'Create Assignment',  href: '/teacher/assignments/create' },
+      { label: 'All Assignments',   href: '/teacher/assignments' },
+      { label: 'Create Assignment', href: '/teacher/assignments/create' },
     ],
   },
   {
-    id:    'question-bank',
-    label: 'Question Bank',
-    href:  '/teacher/question-bank',
-    icon:  <BookOpen className="w-5 h-5 shrink-0" aria-hidden="true" />,
+    id:    'students',
+    label: 'Manage Students',
+    href:  '/teacher/students',
+    icon:  <Users className="w-5 h-5 shrink-0" aria-hidden="true" />,
+    children: [
+      { label: 'All Students',   href: '/teacher/students' },
+      { label: 'Enroll Student', href: '/teacher/students/enroll' },
+    ],
   },
   {
     id:    'analytics',
@@ -108,8 +100,25 @@ export function TeacherSidebar({ teacherName, schoolName }: TeacherSidebarProps)
     (href !== '/teacher/dashboard' && pathname.startsWith(href))
 
   async function handleLogout() {
-    await fetch('/api/teacher/auth/logout', { method: 'POST' })
-    window.location.href = '/teacher/login'
+    // 1. Clear ALL auth cookies server-side
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' })
+    } catch {
+      // Non-critical — continue logout
+    }
+    if (typeof window !== 'undefined') {
+      // 2. Clear ALL client-side storage
+      localStorage.clear()
+      sessionStorage.clear()
+      // 3. Clear document cookies client-side too
+      document.cookie.split(';').forEach(c => {
+        document.cookie = c.trim().split('=')[0] +
+          '=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/'
+      })
+    }
+    // 4. Hard redirect — not router.push — forces complete
+    //    page unload with no React state cache
+    window.location.replace('/teacher/login')
   }
 
   return (
@@ -119,12 +128,10 @@ export function TeacherSidebar({ teacherName, schoolName }: TeacherSidebarProps)
     >
       {/* Logo */}
       <div className="flex items-center gap-3 mb-8 px-2">
-        <Image
-          src="/veda-ai-logo.png"
+        <AppLogo
+          size={40}
           alt="Veda AI logo"
-          width={40}
-          height={40}
-          className="rounded-xl bg-white p-1 object-contain flex-shrink-0"
+          className="rounded-xl bg-white p-1 flex-shrink-0"
         />
         <div>
           <p className="font-bold text-[17px] text-[#006e2f] leading-none">Teacher Portal</p>

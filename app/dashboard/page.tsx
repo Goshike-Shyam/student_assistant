@@ -1,17 +1,12 @@
 import Image from 'next/image'
-import { Sidebar } from '@/components/ui/sidebar';
+import Link from 'next/link'
 import HomeworkHelpIcon from '@/components/icons/homework_help.png'
 import ResearchTopicIcon from '@/components/icons/research_topic.png'
 import StudentProgressIcon from '@/components/icons/student_progress.png'
 
 export default function DashboardPage() {
   return (
-    <div className="flex pt-16 min-h-screen">
-      {/* SIDEBAR */}
-      <Sidebar activeSubject="Mathematics" />
-
-      {/* MAIN */}
-      <main className="flex-1 overflow-x-hidden">
+    <main className="flex-1 overflow-x-hidden">
         {/* HERO */}
         <section className="px-10 py-12 relative overflow-hidden" style={{ background: 'linear-gradient(135deg,#f8f9ff 0%,#eff4ff 100%)' }}>
           <div className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-40" style={{ background: 'radial-gradient(circle,#e5eeff,transparent)', transform: 'translate(30%,-30%)' }}></div>
@@ -80,43 +75,55 @@ export default function DashboardPage() {
             <div className="col-span-6 md:col-span-3 card p-6 flex flex-col justify-between min-h-[280px]" style={{ background: 'linear-gradient(135deg,rgba(34,197,94,.08),rgba(34,197,94,.02))' }}>
               <div>
                 <div className="flex items-center gap-4 mb-4">
-                  <Image src={HomeworkHelpIcon} alt="Homework Help" width={72} height={72} className="drop-shadow-md flex-shrink-0" />
+                  <Image src={HomeworkHelpIcon} alt="Homework Help" width={72} height={72} className="drop-shadow-md flex-shrink-0 h-auto w-auto" />
                   <h3 className="qs font-bold text-lg text-[#0b1c30]">Homework Help</h3>
                 </div>
                 <p className="text-[#6d7b6c] text-sm">Get instant solutions with step-by-step explanations.</p>
               </div>
-              <button className="mt-4 text-[#006e2f] font-semibold text-sm flex items-center gap-1 hover:gap-2 transition-all">
+              <Link
+                href="/assignments"
+                className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[#006e2f] transition-all hover:gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:ring-offset-2 rounded-md"
+              >
                 Get Started <span className="mat">arrow_forward</span>
-              </button>
+              </Link>
             </div>
 
             {/* Topic Research */}
             <div className="col-span-6 md:col-span-3 card p-6 flex flex-col justify-between min-h-[280px]" style={{ background: 'linear-gradient(135deg,rgba(0,88,190,.08),rgba(0,88,190,.02))' }}>
               <div>
                 <div className="flex items-center gap-4 mb-4">
-                  <Image src={ResearchTopicIcon} alt="Topic Research" width={72} height={72} className="drop-shadow-md flex-shrink-0" />
+                  <Image src={ResearchTopicIcon} alt="Topic Research" width={72} height={72} className="drop-shadow-md flex-shrink-0 h-auto w-auto" />
                   <h3 className="qs font-bold text-lg text-[#0b1c30]">Topic Research</h3>
                 </div>
                 <p className="text-[#6d7b6c] text-sm">Curriculum-aligned content for your grade level.</p>
               </div>
-              <button className="mt-4 text-[#0058be] font-semibold text-sm flex items-center gap-1 hover:gap-2 transition-all">
+              <Link
+                href="/resources"
+                className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[#0058be] transition-all hover:gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0058be] focus-visible:ring-offset-2 rounded-md"
+              >
                 Explore <span className="mat">arrow_forward</span>
-              </button>
+              </Link>
             </div>
 
             {/* Progress Tracking */}
             <div className="col-span-12 md:col-span-6 card p-6 flex flex-col justify-between min-h-[280px]" style={{ background: 'linear-gradient(135deg,rgba(255,142,77,.08),rgba(255,142,77,.02))' }}>
               <div>
                 <div className="flex items-center gap-4 mb-4">
-                  <Image src={StudentProgressIcon} alt="Student's Progress" width={72} height={72} className="drop-shadow-md flex-shrink-0" />
+                  <Image src={StudentProgressIcon} alt="Student's Progress" width={72} height={72} className="drop-shadow-md flex-shrink-0 h-auto w-auto" />
                   <h3 className="qs font-bold text-lg text-[#0b1c30]">Progress Tracking</h3>
                 </div>
+                <p className="text-[#6d7b6c] text-sm">Track your growth across subjects and assignments.</p>
               </div>
+              <Link
+                href="/progress"
+                className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[#9d4300] transition-all hover:gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9d4300] focus-visible:ring-offset-2 rounded-md"
+              >
+                View Progress <span className="mat">arrow_forward</span>
+              </Link>
             </div>
           </div>
         </section>
       </main>
-    </div>
   );
 }
        

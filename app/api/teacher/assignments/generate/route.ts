@@ -21,6 +21,7 @@ function normaliseQuestionType(raw: string): string {
     'long answer': 'LONG_ANSWER', long_answer: 'LONG_ANSWER', LONG_ANSWER: 'LONG_ANSWER', long: 'LONG_ANSWER', essay: 'LONG_ANSWER',
     'fill in the blank': 'FILL_BLANK', fill_in_the_blank: 'FILL_BLANK', fill_blank: 'FILL_BLANK', FILL_BLANK: 'FILL_BLANK',
     'true/false': 'TRUE_FALSE', true_false: 'TRUE_FALSE', TRUE_FALSE: 'TRUE_FALSE', truefalse: 'TRUE_FALSE',
+    'true or false': 'TRUE_FALSE', 't/f': 'TRUE_FALSE', 'True/False': 'TRUE_FALSE',
   }
   if (!raw) return 'SHORT_ANSWER'
   return map[raw.trim()] ?? map[raw.trim().toLowerCase()] ?? 'SHORT_ANSWER'

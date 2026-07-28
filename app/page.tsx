@@ -1,10 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Image from 'next/image';
-import { SiteHeader } from '@/components/ui/site-header';
 import Link from 'next/link';
 import { BookOpen, Users, TrendingUp, MessageSquare } from 'lucide-react';
+import { AppLogo } from '@/components/ui/app-logo';
 
 export default function HomePage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -39,12 +38,9 @@ export default function HomePage() {
 
             {/* Logo */}
             <div className="relative z-10 flex items-center gap-3 mb-10">
-              <Image
-                src="/veda-ai-logo.png"
-                alt="Veda AI — Student Assistant"
-                width={44}
-                height={44}
-                className="rounded-2xl bg-white p-1 object-contain flex-shrink-0 shadow-xl"
+              <AppLogo
+                size={44}
+                className="rounded-2xl bg-white p-1 flex-shrink-0 shadow-xl"
                 priority
               />
               <div>
@@ -94,12 +90,9 @@ export default function HomePage() {
             <div className="w-full max-w-[420px]">
               {/* Mobile logo */}
               <div className="flex lg:hidden items-center gap-2 mb-8">
-                <Image
-                  src="/veda-ai-logo.png"
-                  alt="Veda AI — Student Assistant"
-                  width={32}
-                  height={32}
-                  className="rounded-xl object-contain"
+                <AppLogo
+                  size={32}
+                  className="rounded-xl"
                   priority
                 />
                 <span className="qs font-bold text-xl text-[#006e2f]">Student Assistant</span>
@@ -141,10 +134,9 @@ export default function HomePage() {
   // Show dashboard for logged-in users
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
-      <SiteHeader />
       
       {/* Main Content */}
-      <div className="pt-24 px-6 pb-12">
+      <div className="pt-6 px-6 pb-12">
         <div className="max-w-6xl mx-auto space-y-8">
           {/* Welcome Section */}
           <div className="space-y-3">

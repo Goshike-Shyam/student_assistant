@@ -75,9 +75,20 @@ export default function QuestionCard({
     }
 
     // TRUE_FALSE — radio group with True / False
+    /**
+     * TRUE_FALSE CONTRACT
+     * ALWAYS renders as RadioGroup with 'True'/'False'
+     * NEVER use Checkbox, Input, or Textarea
+     * normaliseQuestionType() catches all variants
+     * Label text is gray-900 — never muted/light
+     */
     if (qType === 'TRUE_FALSE') {
       return (
-        <div className="flex gap-6 mt-4">
+        <div
+          className="flex gap-6 mt-3"
+          role="radiogroup"
+          aria-label={`Answer for question ${question.id}`}
+        >
           <RadioGroup
             value={answer}
             onValueChange={onAnswerChange}
@@ -85,8 +96,14 @@ export default function QuestionCard({
           >
             {['True', 'False'].map((option) => (
               <div key={option} className="flex items-center gap-2">
-                <RadioGroupItem value={option} id={`q${question.id}_${option}`} />
-                <Label htmlFor={`q${question.id}_${option}`} className="text-gray-900 font-normal cursor-pointer select-none">
+                <RadioGroupItem
+                  value={option}
+                  id={`q${question.id}_${option}`}
+                />
+                <Label
+                  htmlFor={`q${question.id}_${option}`}
+                  className="text-gray-900 font-normal cursor-pointer select-none min-h-[44px] flex items-center"
+                >
                   {option}
                 </Label>
               </div>

@@ -2,7 +2,17 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { getPasswordStrengthLevel } from '@/lib/admin-auth'
+
+function getPasswordStrengthLevel(password: string): 'weak' | 'medium' | 'strong' {
+  const hasUpper = /[A-Z]/.test(password)
+  const hasNumber = /[0-9]/.test(password)
+  const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+  const isStrong = password.length >= 12 && hasUpper && hasNumber && hasSymbol
+
+  if (isStrong) return 'strong'
+  if (password.length >= 8) return 'medium'
+  return 'weak'
+}
 
 interface InviteInfo {
   email: string

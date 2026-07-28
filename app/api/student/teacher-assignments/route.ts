@@ -19,6 +19,14 @@ export async function GET(request: NextRequest) {
     request.nextUrl.searchParams.get('userId') ||
     request.headers.get('x-user-id')
   if (!childId) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
+  if (process.env.NODE_ENV !== 'production') {
+    console.info('[student/teacher-assignments GET] hit', {
+      pathname: request.nextUrl.pathname,
+      search: request.nextUrl.search,
+      hasUserIdQuery: Boolean(request.nextUrl.searchParams.get('userId')),
+      hasUserIdHeader: Boolean(request.headers.get('x-user-id')),
+    })
+  }
 
   try {
     const submissions = await prisma.teacherAssignmentSubmission.findMany({
@@ -78,6 +86,11 @@ export async function GET(request: NextRequest) {
       { status: 200, headers: { 'Content-Type': 'application/json' } },
     )
   } catch (err: any) {
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('[student/teacher-assignments GET] failed', {
+        message: err instanceof Error ? err.message : String(err),
+      })
+    }
     console.error('[student/teacher-assignments GET]', err)
     return NextResponse.json({ error: 'Failed to fetch assignments' }, { status: 500 })
   }

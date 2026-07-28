@@ -1,5 +1,61 @@
 import crypto from 'crypto'
 import bcryptjs from 'bcryptjs'
+import { cookies } from 'next/headers'
+import { prisma } from '@/lib/prismaClient'
+
+const ADMIN_COOKIE_NAME = 'sa-admin-session'
+
+export interface AdminSessionPayload {
+  adminId: string
+  role: string
+  name: string
+  email: string
+}
+
+/**
+ * Read admin session strictly from sa-admin-session cookie.
+ * Never reads any student/parent cookie and never uses next-auth.
+ */
+export async function getAdminSession(): Promise<AdminSessionPayload | null> {
+  const jar = await cookies()
+  const token = jar.get(ADMIN_COOKIE_NAME)?.value
+  if (!token) return null
+
+  try {
+    const parsed = JSON.parse(token) as Partial<AdminSessionPayload>
+    if (!parsed.adminId || !parsed.role || !parsed.name || !parsed.email) return null
+    let adminIdBigInt: bigint
+    try {
+      adminIdBigInt = BigInt(parsed.adminId)
+    } catch {
+      return null
+    }
+
+    const admin = await prisma.admin.findUnique({
+      where: { id: adminIdBigInt },
+      select: {
+        id: true,
+        role: true,
+        name: true,
+        email: true,
+        isActive: true,
+      },
+    })
+
+    if (!admin || !admin.isActive) return null
+
+    if (admin.role !== parsed.role || admin.email !== parsed.email) return null
+
+    return {
+      adminId: admin.id.toString(),
+      role: admin.role,
+      name: admin.name,
+      email: admin.email,
+    }
+  } catch {
+    return null
+  }
+}
 
 /**
  * Validate password strength

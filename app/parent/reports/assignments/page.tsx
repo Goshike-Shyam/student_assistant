@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { SiteHeader } from '@/components/ui/site-header';
 import { Button } from '@/components/ui/button';
 
 // Placeholder quotes for inspirational messages
@@ -118,9 +117,8 @@ export default function AssignmentReportsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
-      <SiteHeader />
 
-      <div className="pt-24 px-6 pb-12">
+      <div className="pt-4 px-6 pb-12">
         <div className="max-w-7xl mx-auto space-y-8">
           {/* Header */}
           <div className="space-y-3">

@@ -539,6 +539,47 @@ model ParentCommunicationLog {
   @@map("parent_communication_logs")
 }
 
+enum NotificationUserRole {
+  STUDENT
+  TEACHER
+  PARENT
+  ADMIN
+}
+
+enum NotificationPriority {
+  high
+  medium
+  low
+}
+
+enum NotificationCategory {
+  assignment
+  feedback
+  reminder
+  submission
+  payment
+  report
+  system
+  progress
+}
+
+model Notification {
+  id        BigInt               @id @default(autoincrement()) @db.BigInt
+  userId    String               @map("user_id") @db.VarChar(64)
+  userRole  NotificationUserRole @map("user_role")
+  title     String               @db.VarChar(255)
+  body      String               @db.Text
+  href      String?              @db.VarChar(500)
+  priority  NotificationPriority @default(medium)
+  category  NotificationCategory @default(system)
+  isRead    Boolean              @default(false) @map("is_read")
+  createdAt DateTime             @default(now()) @map("created_at")
+
+  @@index([userId, userRole, isRead], name: "idx_notif_user")
+  @@index([createdAt], name: "idx_notif_created")
+  @@map("notifications")
+}
+
 model TeacherVerificationToken {
   id         BigInt   @id @default(autoincrement()) @db.BigInt
   teacherId  BigInt   @map("teacher_id") @db.BigInt
@@ -548,4 +589,14 @@ model TeacherVerificationToken {
 
   @@index([tokenHash], name: "idx_tvt_token")
   @@map("teacher_verification_tokens")
+}
+
+ model StudentSession {
+  id           BigInt    @id @default(autoincrement()) @db.BigInt
+  childId      String    @map("child_id") @db.VarChar(36)
+  startedAt    DateTime  @default(now()) @map("started_at")
+  endedAt      DateTime? @map("ended_at")
+  durationSecs Int?      @map("duration_secs")
+  pageViews    Int       @default(0) @map("page_views")
+  @@map("student_sessions")
 }

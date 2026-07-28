@@ -1,21 +1,34 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
+import { NextResponse } from 'next/server'
+import { getAdminSession } from '@/lib/admin-auth'
+
+/**
+ * ADMIN AUTH CONTRACT
+ * ONLY getAdminSession() - reads sa-admin-session
+ * NEVER getServerSession() - reads student cookie
+ * Cross-tab student login must NOT affect admin
+ */
 
 export async function GET() {
   try {
-    const cookieStore = await cookies()
-    const sessionCookie = cookieStore.get('sa-admin-session')
+    const adminSession = await getAdminSession()
 
-    if (!sessionCookie || !sessionCookie.value) {
+    if (!adminSession) {
       return NextResponse.json(
         { authenticated: false },
         { status: 401 }
       )
     }
 
-    // Session cookie exists and is valid
     return NextResponse.json(
-      { authenticated: true },
+      {
+        authenticated: true,
+        admin: {
+          id: adminSession.adminId,
+          role: adminSession.role,
+          name: adminSession.name,
+          email: adminSession.email,
+        },
+      },
       { status: 200 }
     )
   } catch (error) {

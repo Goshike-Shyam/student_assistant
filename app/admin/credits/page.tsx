@@ -64,6 +64,7 @@ interface CreditsData {
 
 export default function AdminCreditsPage() {
   const [mounted, setMounted] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [adminName, setAdminName] = useState<string>('Admin');
   const [adminInitials, setAdminInitials] = useState<string>('AD');
   const [data, setData] = useState<CreditsData | null>(null);
@@ -76,20 +77,47 @@ export default function AdminCreditsPage() {
   const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
   const [featureFilter, setFeatureFilter] = useState('');
 
+  const toInitials = (name: string) =>
+    name
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((p) => p[0])
+      .join('')
+      .toUpperCase() || 'AD';
+
   useEffect(() => {
-    const userName = localStorage.getItem('userName');
-    if (userName) {
-      setAdminName(userName);
-      const parts = userName.split(' ');
-      const initials = parts.map(p => p[0]).join('').toUpperCase().slice(0, 2);
-      setAdminInitials(initials);
-    }
-    setMounted(true);
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const response = await fetch('/api/admin/verify-session', { cache: 'no-store' });
+        if (!response.ok) {
+          window.location.replace('/admin/login');
+          return;
+        }
+        const session = await response.json();
+        const name = session?.admin?.name || 'Admin';
+        if (cancelled) return;
+        setAdminName(name);
+        setAdminInitials(toInitials(name));
+        setIsAuthenticated(true);
+      } catch {
+        window.location.replace('/admin/login');
+      } finally {
+        if (!cancelled) setMounted(true);
+      }
+    };
+
+    void load();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
+    if (!isAuthenticated) return;
     fetchCredits();
-  }, [startDate, endDate, featureFilter]);
+  }, [startDate, endDate, featureFilter, isAuthenticated]);
 
   const fetchCredits = async () => {
     setLoading(true);
@@ -138,7 +166,7 @@ export default function AdminCreditsPage() {
     }
   };
 
-  if (!mounted || !data) {
+  if (!mounted || !isAuthenticated || !data) {
     return null;
   }
 
@@ -219,22 +247,26 @@ export default function AdminCreditsPage() {
           </div>
 
           {/* KPI Cards */}
-          <div className="grid grid-cols-4 gap-5 mb-6">
-            <div className="bg-white border border-[#e5eeff] rounded-2xl p-5 shadow-sm">
-              <p className="text-xs text-[#374151] font-medium mb-2">Total Calls</p>
-              <p className="qs font-bold text-2xl text-[#0b1c30]">{data.summary.totalCalls.toLocaleString()}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-6">
+            <div className="rounded-xl p-5 bg-blue-600 text-white shadow-sm">
+              <p className="text-sm font-medium text-blue-100 mb-1">Total AI Calls</p>
+              <p className="text-3xl font-bold text-white">{data.summary.totalCalls.toLocaleString()}</p>
+              <p className="text-xs text-blue-200 mt-1">All features combined</p>
             </div>
-            <div className="bg-white border border-[#e5eeff] rounded-2xl p-5 shadow-sm">
-              <p className="text-xs text-[#374151] font-medium mb-2">Total Tokens</p>
-              <p className="qs font-bold text-2xl text-[#0b1c30]">{(data.summary.totalTokens / 1000).toLocaleString('en-US', { maximumFractionDigits: 1 })}K</p>
+            <div className="rounded-xl p-5 bg-indigo-600 text-white shadow-sm">
+              <p className="text-sm font-medium text-indigo-100 mb-1">Total Tokens</p>
+              <p className="text-3xl font-bold text-white">{data.summary.totalTokens.toLocaleString()}</p>
+              <p className="text-xs text-indigo-200 mt-1">Input + output tokens</p>
             </div>
-            <div className="bg-white border border-[#e5eeff] rounded-2xl p-5 shadow-sm">
-              <p className="text-xs text-[#374151] font-medium mb-2">Total Cost (USD)</p>
-              <p className="qs font-bold text-2xl text-[#0b1c30]">${data.summary.totalCostUsd.toLocaleString('en-US', { maximumFractionDigits: 2 })}</p>
+            <div className="rounded-xl p-5 bg-emerald-600 text-white shadow-sm">
+              <p className="text-sm font-medium text-emerald-100 mb-1">Total Cost</p>
+              <p className="text-3xl font-bold text-white">${Number(data.summary.totalCostUsd).toFixed(4)}</p>
+              <p className="text-xs text-emerald-200 mt-1">USD - Gemini 2.5 Flash</p>
             </div>
-            <div className="bg-white border border-[#e5eeff] rounded-2xl p-5 shadow-sm">
-              <p className="text-xs text-[#374151] font-medium mb-2">Avg Cost/Call</p>
-              <p className="qs font-bold text-2xl text-[#0b1c30]">${data.summary.avgCostPerCall.toLocaleString('en-US', { maximumFractionDigits: 4 })}</p>
+            <div className="rounded-xl p-5 bg-amber-500 text-white shadow-sm">
+              <p className="text-sm font-medium text-amber-100 mb-1">Avg Cost / Call</p>
+              <p className="text-3xl font-bold text-white">${Number(data.summary.avgCostPerCall).toFixed(6)}</p>
+              <p className="text-xs text-amber-100 mt-1">Per AI request</p>
             </div>
           </div>
 
@@ -307,36 +339,32 @@ export default function AdminCreditsPage() {
               <h2 className="qs font-bold text-lg text-[#0b1c30]">Usage by User</h2>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-[#e5eeff] bg-[#f8f9ff]">
-                    <th scope="col" className="text-left p-4 text-[#374151] font-semibold text-sm">User</th>
-                    <th scope="col" className="text-left p-4 text-[#374151] font-semibold text-sm">Role</th>
-                    <th scope="col" className="text-left p-4 text-[#374151] font-semibold text-sm">Calls</th>
-                    <th scope="col" className="text-left p-4 text-[#374151] font-semibold text-sm">Tokens</th>
-                    <th scope="col" className="text-left p-4 text-[#374151] font-semibold text-sm">Cost (USD)</th>
+                  <tr className="bg-slate-800">
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">User</th>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Role</th>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Calls</th>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Tokens</th>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Cost (USD)</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-gray-200 bg-white">
                   {data.byUser
                     .sort((a, b) => b.costUsd - a.costUsd)
                     .slice(0, 10)
-                    .map((user) => (
-                      <tr key={user.userId} className="border-b border-[#e5eeff] hover:bg-[#f8f9ff]">
-                        <td className="p-4">
+                    .map((user, i) => (
+                      <tr key={user.userId} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                        <td className="px-4 py-3">
                           <div>
-                            <p className="font-semibold text-[#0b1c30] text-sm">{user.userName}</p>
-                            <p className="text-[#374151] text-xs">{user.userEmail}</p>
+                            <p className="font-medium text-gray-900">{user.userName}</p>
+                            <p className="text-gray-500 text-xs">{user.userEmail}</p>
                           </div>
                         </td>
-                        <td className="p-4">
-                          <span className="text-xs font-bold text-[#0058be] bg-[#eff4ff] px-2.5 py-1 rounded-full">
-                            {user.userRole}
-                          </span>
-                        </td>
-                        <td className="p-4 text-[#0b1c30] font-semibold text-sm">{user.calls}</td>
-                        <td className="p-4 text-[#374151] text-sm">{user.tokens.toLocaleString()}</td>
-                        <td className="p-4 text-[#0b1c30] font-semibold text-sm">
+                        <td className="px-4 py-3 text-gray-700">{user.userRole}</td>
+                        <td className="px-4 py-3 text-gray-900 font-medium">{user.calls}</td>
+                        <td className="px-4 py-3 text-gray-700">{user.tokens.toLocaleString()}</td>
+                        <td className="px-4 py-3 text-gray-900 font-medium">
                           ${user.costUsd.toLocaleString('en-US', { maximumFractionDigits: 4 })}
                         </td>
                       </tr>

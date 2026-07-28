@@ -1,5 +1,9 @@
-import Image from 'next/image';
+// Force dynamic — never cache the login page
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 import SignInForm from '@/components/auth/sign-in-form';
+import { AppLogo } from '@/components/ui/app-logo';
 
 export default function LoginPage() {
   return (
@@ -12,12 +16,9 @@ export default function LoginPage() {
 
         {/* Logo */}
         <div className="relative z-10 flex items-center gap-3 mb-10">
-          <Image
-            src="/veda-ai-logo.png"
-            alt="Veda AI — Student Assistant"
-            width={44}
-            height={44}
-            className="rounded-2xl bg-white p-1 object-contain flex-shrink-0 shadow-xl"
+          <AppLogo
+            size={44}
+            className="rounded-2xl bg-white p-1 flex-shrink-0 shadow-xl"
             priority
           />
           <div>

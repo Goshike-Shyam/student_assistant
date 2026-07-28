@@ -3,7 +3,6 @@
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { SiteHeader } from '@/components/ui/site-header';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -164,8 +163,7 @@ export default function SubjectAssignmentPage() {
   if (!isSubjectValid) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
-        <SiteHeader />
-        <div className="pt-24 px-6 pb-12">
+        <div className="pt-4 px-6 pb-12">
           <div className="max-w-4xl mx-auto">
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-8 text-center space-y-4">
               <h2 className="text-2xl font-bold text-amber-900">Subject Not Registered</h2>
@@ -187,9 +185,7 @@ export default function SubjectAssignmentPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
-      <SiteHeader />
-
-      <div className="pt-24 px-6 pb-12">
+      <div className="pt-4 px-6 pb-12">
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Header */}
           <div className="space-y-2">

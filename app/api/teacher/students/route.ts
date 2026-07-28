@@ -22,19 +22,62 @@ export async function GET() {
     },
   })
 
-  const results = classes.flatMap((cls) =>
-    cls.enrollments.map((e) => ({
-      id: e.child.id,
-      name: e.child.name,
-      email: e.child.email,
-      parentEmail: e.child.parentEmail,
-      grade: e.child.grade,
-      curriculum: e.child.curriculum,
-      className: cls.className,
-      classId: cls.id.toString(),
-      enrolledAt: e.enrolledAt,
-    })),
-  )
+  const byStudent = new Map<string, {
+    id: string
+    name: string
+    email: string
+    parentEmail: string
+    grade: number | null
+    curriculum: string | null
+    classNames: string[]
+    classIds: string[]
+    enrolledAt: Date
+  }>()
+
+  for (const cls of classes) {
+    for (const e of cls.enrollments) {
+      const key = e.child.id
+      const existing = byStudent.get(key)
+
+      if (!existing) {
+        byStudent.set(key, {
+          id: e.child.id,
+          name: e.child.name,
+          email: e.child.email,
+          // Schema currently stores parent contact on User.parentEmail.
+          parentEmail: e.child.parentEmail ?? e.child.email,
+          grade: e.child.grade,
+          curriculum: e.child.curriculum,
+          classNames: [cls.className],
+          classIds: [cls.id.toString()],
+          enrolledAt: e.enrolledAt,
+        })
+        continue
+      }
+
+      if (!existing.classIds.includes(cls.id.toString())) {
+        existing.classIds.push(cls.id.toString())
+        existing.classNames.push(cls.className)
+      }
+      if (e.enrolledAt < existing.enrolledAt) {
+        existing.enrolledAt = e.enrolledAt
+      }
+    }
+  }
+
+  const results = Array.from(byStudent.values())
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((s) => ({
+      id: s.id,
+      name: s.name,
+      email: s.email,
+      parentEmail: s.parentEmail,
+      grade: s.grade,
+      curriculum: s.curriculum,
+      className: s.classNames.join(', '),
+      classId: s.classIds.join(','),
+      enrolledAt: s.enrolledAt,
+    }))
 
   return NextResponse.json(results)
 }

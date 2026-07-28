@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { usePathname } from 'next/navigation';
+import { LogOut } from 'lucide-react';
 import type { Route } from "next";
+import { AppLogo } from '@/components/ui/app-logo';
 
 export function AdminSidebar() {
   const pathname = usePathname();
@@ -23,42 +24,74 @@ export function AdminSidebar() {
     { id: 'settings', label: 'Settings', icon: 'settings', href: '/admin/settings' as Route },
   ];
 
+  const handleSignOut = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch {
+      // Non-critical - continue logout
+    }
+    if (typeof window !== 'undefined') {
+      localStorage.clear();
+      sessionStorage.clear();
+      document.cookie.split(';').forEach((c) => {
+        document.cookie =
+          c.trim().split('=')[0] +
+          '=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/';
+      });
+      window.location.replace('/admin/login');
+    }
+  };
+
   return (
-    <aside className="w-60 shrink-0 bg-white border-r border-[#e5eeff] min-h-screen sticky top-0 flex flex-col py-6 px-4" style={{ boxShadow: '2px 0 8px rgba(0,88,190,.04)' }}>
-      {/* Logo */}
-      <div className="flex items-center gap-3 mb-8 px-2">
-        <Image
-          src="/veda-ai-logo.png"
-          alt="Veda AI logo"
-          width={40}
-          height={40}
-          className="rounded-xl bg-white p-1 object-contain flex-shrink-0"
-        />
+    <aside
+      className="w-64 bg-slate-900 flex flex-col h-full overflow-hidden flex-shrink-0"
+      aria-label="Admin navigation"
+    >
+      {/* Brand */}
+      <div className="px-4 py-5 border-b border-slate-700 flex-shrink-0">
+        <div className="flex items-center gap-3">
+          <AppLogo
+            size={40}
+            alt="Veda AI logo"
+            className="rounded-xl bg-white p-1 flex-shrink-0"
+          />
         <div>
-          <p className="qs font-bold text-[17px] text-[#006e2f] leading-none">Admin Portal</p>
-          <p className="text-[#6d7b6c] text-[11px] mt-0.5">System Management</p>
+            <p className="qs font-bold text-[17px] text-white leading-none">Admin Portal</p>
+            <p className="text-slate-300 text-[11px] mt-0.5">System Management</p>
+          </div>
         </div>
       </div>
 
-      {/* Nav */}
-      <nav className="flex flex-col gap-0.5 flex-1">
+      {/* Nav items */}
+      <nav className="flex-1 px-3 py-4 overflow-y-auto min-h-0" aria-label="Main admin navigation">
+        <div className="flex flex-col gap-1">
         {navItems.map((item) => (
-          <Link key={item.id} href={item.href}
-            className={`adm-link${pathname === item.href || (item.href !== '/admin' && pathname.startsWith(item.href)) ? ' active bg-[#eff4ff] text-[#0058be] font-semibold' : ''}`}>
-            <span className="mat text-[#6d7b6c]">{item.icon}</span>
+            <Link
+              key={item.id}
+              href={item.href}
+              className={`min-h-[44px] rounded-lg px-3 py-2.5 text-sm font-medium transition-colors flex items-center gap-3 ${pathname === item.href || (item.href !== '/admin' && pathname.startsWith(item.href))
+                ? 'bg-slate-800 text-white'
+                : 'text-gray-300 hover:bg-slate-800 hover:text-white'
+              }`}
+            >
+              <span className="mat text-[18px]">{item.icon}</span>
             {item.label}
           </Link>
         ))}
+        </div>
       </nav>
 
-      <div className="mt-6 flex flex-col gap-2">
-        <button className="btn-3d-green w-full py-3 bg-[#006e2f] text-white qs font-bold rounded-xl text-sm hover:bg-[#005828] transition-colors flex items-center justify-center gap-2">
-          <span className="mat text-lg">add_chart</span>Generate Report
-        </button>
-        <Link href="/login" className="adm-link text-[#ba1a1a] hover:bg-[#fff4f4]">
-          <span className="mat text-[#ba1a1a]">logout</span>
+      {/* Sign out fixed at bottom */}
+      <div className="px-3 py-4 border-t border-slate-700 flex-shrink-0">
+        <button
+          type="button"
+          onClick={handleSignOut}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-300 hover:bg-slate-800 hover:text-white transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+          aria-label="Sign out of admin portal"
+        >
+          <LogOut size={18} aria-hidden="true" />
           Sign Out
-        </Link>
+        </button>
       </div>
     </aside>
   );

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { SiteHeader } from '@/components/ui/site-header';
 import { Button } from '@/components/ui/button';
 
 interface AssignmentHistory {
@@ -75,9 +74,7 @@ export default function AssignmentHistoryPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
-      <SiteHeader />
-
-      <div className="pt-24 px-6 pb-12">
+      <div className="pt-4 px-6 pb-12">
         <div className="max-w-6xl mx-auto space-y-6">
           {/* Header */}
           <div>

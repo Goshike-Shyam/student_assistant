@@ -1,5 +1,10 @@
 /**
- * STABILITY CONTRACT — read before editing this file
+ * AUTH CACHE CONTRACT — DO NOT MODIFY MATCHER
+ *
+ * Login pages (/login, /teacher/login, /admin/login) are INTENTIONALLY
+ * excluded from the matcher. Adding them = redirect loop guaranteed.
+ * Logout must use window.location.replace() ONLY.
+ * router.push() does not clear React/Next.js cache.
  *
  * [middleware.ts]
  * - Admin routes (/admin/*) use sa-admin-session cookie
@@ -14,23 +19,22 @@ import { NextRequest, NextResponse } from 'next/server';
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // ── Auth page cache prevention ─────────────────────────────────────────────
-  // Prevent browsers from caching login pages so returning after logout always
-  // shows the login form instead of a cached authenticated state.
-  if (
-    pathname === '/login' ||
-    pathname === '/sign-in' ||
-    pathname === '/teacher/login' ||
-    pathname === '/admin/login'
-  ) {
-    const res = NextResponse.next();
-    res.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
-    res.headers.set('Pragma', 'no-cache');
-    res.headers.set('Expires', '0');
-    // Required: teacher layout reads x-pathname to detect public pages.
-    // Without this, it sees '' and treats login as a protected route → redirect loop.
-    res.headers.set('x-pathname', pathname);
-    return res;
+  // ── Layer C: Auth page cache prevention ────────────────────────────────────
+  // Safety net in case any auth page reaches middleware via a future matcher change.
+  // Login pages are NOT in the matcher (see config below), so this block is a
+  // guard against accidental regressions only.
+  const authPages = [
+    '/login', '/sign-in', '/register',
+    '/teacher/login', '/teacher/register',
+    '/admin/login',
+  ]
+  if (authPages.some(p => pathname.startsWith(p))) {
+    const res = NextResponse.next()
+    res.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+    res.headers.set('Pragma', 'no-cache')
+    res.headers.set('Expires', '0')
+    res.headers.set('x-pathname', pathname)
+    return res
   }
 
   // ── Admin route guard ──────────────────────────────────────────────────────
@@ -78,6 +82,36 @@ export function middleware(req: NextRequest) {
   return NextResponse.next();
 }
 
+/**
+ * AUTH CACHE CONTRACT — DO NOT MODIFY MATCHER
+ * Login pages (/login, /teacher/login, /admin/login) are INTENTIONALLY
+ * excluded. Adding them causes guaranteed redirect loops.
+ * Only explicitly protected paths belong here.
+ */
 export const config = {
-  matcher: ['/admin/:path*', '/teacher/:path*', '/login', '/sign-in'],
+  matcher: [
+    '/dashboard/:path*',
+    '/assignments/:path*',
+    '/resources/:path*',
+    '/practice/:path*',
+    '/profile/:path*',
+    '/chat/:path*',
+    '/ai-tutor/:path*',
+    '/parent/:path*',
+    '/parent-portal/:path*',
+    '/teacher/dashboard/:path*',
+    '/teacher/classes/:path*',
+    '/teacher/assignments/:path*',
+    '/teacher/students/:path*',
+    '/teacher/analytics/:path*',
+    '/teacher/settings/:path*',
+    '/teacher/question-bank/:path*',
+    '/admin/dashboard/:path*',
+    '/admin/users/:path*',
+    '/admin/credits/:path*',
+    '/admin/progress/:path*',
+    '/admin/financials/:path*',
+    '/admin/content/:path*',
+    '/admin/settings/:path*',
+  ],
 };

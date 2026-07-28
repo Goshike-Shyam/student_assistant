@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prismaClient'
 import { hashPassword, validatePasswordStrength, generateInviteToken, hashToken } from '@/lib/admin-auth'
 import { sendTeacherVerificationEmail } from '@/lib/email'
+import { createNotification } from '@/lib/notifications'
 
 export async function POST(request: NextRequest) {
   try {
@@ -64,6 +65,23 @@ export async function POST(request: NextRequest) {
 
       return t
     })
+
+    const superAdmin = await prisma.admin.findFirst({
+      where: { role: 'SUPER_ADMIN', isActive: true },
+      select: { id: true },
+      orderBy: { createdAt: 'asc' },
+    })
+    if (superAdmin) {
+      await createNotification({
+        userId: superAdmin.id.toString(),
+        userRole: 'ADMIN',
+        title: 'New user registered',
+        body: `${name.trim()} signed up as a teacher account.`,
+        href: '/admin/users',
+        priority: 'low',
+        category: 'system',
+      })
+    }
 
     // Send verification email — isolated so account creation is never rolled back on email failure
     let emailSent = false

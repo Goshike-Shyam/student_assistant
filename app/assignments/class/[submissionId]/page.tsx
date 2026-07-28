@@ -48,35 +48,42 @@ export default function ClassAssignmentPage() {
     }
     setUserId(uid)
 
-    fetch(`/api/student/teacher-assignments?userId=${uid}`)
-      .then((r) => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`)
-        return r.json()
-      })
-      .then((data: any) => {
-        // API returns an array; guard against error objects
-        if (!Array.isArray(data)) {
-          throw new Error(data?.error ?? 'Unexpected response')
+    const loadAssignment = async () => {
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const r = await fetch(`/api/student/teacher-assignments?userId=${uid}`)
+          if (r.status === 404 && attempt === 0) {
+            await new Promise((resolve) => setTimeout(resolve, 400))
+            continue
+          }
+          if (!r.ok) throw new Error(`HTTP ${r.status}`)
+          const data = await r.json()
+          if (!Array.isArray(data)) {
+            throw new Error(data?.error ?? 'Unexpected response')
+          }
+          const found = data.find((a: any) => a.submissionId === submissionId)
+          if (found) {
+            setAssignment(found)
+          } else {
+            console.error(
+              '[ClassAssignPage] submissionId not found:',
+              submissionId,
+              'available:',
+              data.map((a: any) => a.submissionId),
+            )
+            setError('Assignment not found. Please select it from your class assignments list.')
+          }
+          return
+        } catch (err) {
+          if (attempt === 1) {
+            console.error('[ClassAssignPage] fetch error:', err)
+            setError('Failed to load assignment')
+          }
         }
-        const found = data.find((a: any) => a.submissionId === submissionId)
-        if (found) {
-          setAssignment(found)
-        } else {
-          // submissionId not in response — redirect to list so student can retry
-          console.error(
-            '[ClassAssignPage] submissionId not found:',
-            submissionId,
-            'available:',
-            data.map((a: any) => a.submissionId),
-          )
-          setError('Assignment not found. Please select it from your class assignments list.')
-        }
-      })
-      .catch((err) => {
-        console.error('[ClassAssignPage] fetch error:', err)
-        setError('Failed to load assignment')
-      })
-      .finally(() => setLoading(false))
+      }
+    }
+
+    loadAssignment().finally(() => setLoading(false))
   }, [submissionId, router])
 
   async function handleSubmit(e: React.FormEvent) {
@@ -211,7 +218,7 @@ export default function ClassAssignmentPage() {
                   <fieldset>
                     <legend className="sr-only">Select your answer for Question {i + 1}</legend>
                     <div className="space-y-2">
-                      {(q.options ?? []).map((opt, oi) => (
+                      {(q.type === 'TRUE_FALSE' ? ['True', 'False'] : (q.options ?? [])).map((opt, oi) => (
                         <label
                           key={oi}
                           className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 cursor-pointer hover:bg-slate-50 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 transition-colors"

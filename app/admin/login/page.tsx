@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { AppLogo } from '@/components/ui/app-logo'
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('')
@@ -46,12 +46,9 @@ export default function AdminLogin() {
         <div className="bg-white rounded-2xl shadow-lg p-8 border border-[#e5eeff]">
           {/* Header */}
           <div className="mb-8 text-center">
-            <Image
-              src="/veda-ai-logo.png"
-              alt="Veda AI — Student Assistant"
-              width={64}
-              height={64}
-              className="mx-auto mb-4 rounded-2xl border border-slate-100 p-1 object-contain"
+            <AppLogo
+              size={64}
+              className="mx-auto mb-4 rounded-2xl border border-slate-100 p-1"
               priority
             />
             <h1 className="qs font-bold text-2xl text-[#0b1c30] mb-2">Admin Portal</h1>

@@ -1,5 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prismaClient';
+import { getAdminSession } from '@/lib/admin-auth';
+
+/**
+ * ADMIN AUTH CONTRACT
+ * ONLY getAdminSession() - reads sa-admin-session
+ * NEVER getServerSession() - reads student cookie
+ * Cross-tab student login must NOT affect admin
+ */
 
 interface AdminUsersResponse {
   users: Array<{
@@ -19,13 +27,10 @@ interface AdminUsersResponse {
 
 export async function GET(request: NextRequest) {
   try {
-    // Check admin role from session - simplified for now since we use localStorage
-    const userRole = request.headers.get('x-user-role');
-    const sessionRole = request.headers.get('x-session-role');
-    
-    // For API protection, check auth token or session
-    // For now, we'll rely on client-side enforcement since the app uses localStorage
-    // In production, implement proper session/JWT validation
+    const adminSession = await getAdminSession();
+    if (!adminSession) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     
     const page = parseInt(request.nextUrl.searchParams.get('page') || '1');
     const search = request.nextUrl.searchParams.get('search') || '';
@@ -34,10 +39,13 @@ export async function GET(request: NextRequest) {
 
     // Build query to get users with their child info
     // For now, fetch users and augment with related data
-    let whereClause: any = {};
+    let whereClause: any = {
+      role: { not: 'ADMIN' },
+    };
     
     if (search) {
       whereClause = {
+        role: { not: 'ADMIN' },
         OR: [
           { name: { contains: search, mode: 'insensitive' } },
           { email: { contains: search, mode: 'insensitive' } }

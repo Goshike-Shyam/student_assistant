@@ -10,6 +10,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { SiteHeader } from '@/components/ui/site-header';
+import { StudentShell } from '@/components/ui/student-shell';
 import { IconEmojiReplacer } from '@/components/icon-emoji-replacer';
 import { Analytics } from "@vercel/analytics/next"
 import { Toaster } from 'sonner';
@@ -29,7 +30,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Student Assistant | Veda AI',
     description: 'AI-powered learning companion for students — Empowered with AI',
-    images: [{ url: '/veda-ai-logo.png', width: 1200, height: 630, alt: 'Veda AI — Student Assistant logo' }],
+    images: [{ url: '/veda-ai-logo.png', width: 1200, height: 'auto', alt: 'Veda AI — Student Assistant logo' }],
   },
 };
 
@@ -39,7 +40,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" data-scroll-behavior="smooth">
       <body className="min-h-screen bg-slate-50 text-slate-900 antialiased">
         {/* Skip-to-content link — appears on first Tab press */}
         <a
@@ -51,7 +52,9 @@ export default function RootLayout({
         <IconEmojiReplacer />
         <SiteHeader />
         <Toaster richColors position="top-right" />
-        <div id="main-content">{children}</div>
+        <div id="main-content">
+          <StudentShell>{children}</StudentShell>
+        </div>
       </body>
     </html>
   );

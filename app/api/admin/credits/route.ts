@@ -7,10 +7,22 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prismaClient';
+import { getAdminSession } from '@/lib/admin-auth';
+
+/**
+ * ADMIN AUTH CONTRACT
+ * ONLY getAdminSession() - reads sa-admin-session
+ * NEVER getServerSession() - reads student cookie
+ * Cross-tab student login must NOT affect admin
+ */
 
 export async function GET(request: NextRequest) {
   try {
-    // Admin role should be validated by layout middleware
+    const adminSession = await getAdminSession();
+    if (!adminSession) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const startDateStr = request.nextUrl.searchParams.get('startDate');
     const endDateStr = request.nextUrl.searchParams.get('endDate');
     const userId = request.nextUrl.searchParams.get('userId');

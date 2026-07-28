@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prismaClient'
 import { callGeminiWithRetry } from '@/lib/ai-with-retry'
 import { logAiCredit } from '@/lib/ai-credit-logger'
+import { createNotification } from '@/lib/notifications'
 
 export async function POST(
   request: NextRequest,
@@ -34,6 +35,7 @@ export async function POST(
       where: { id: submissionId, childId },
       include: {
         assignment: true,
+        child: { select: { name: true } },
       },
     })
 
@@ -55,6 +57,16 @@ export async function POST(
         submittedAt: now,
         status: 'SUBMITTED',
       },
+    })
+
+    await createNotification({
+      userId: submission.assignment.teacherId.toString(),
+      userRole: 'TEACHER',
+      title: `${submission.child.name} submitted`,
+      body: `"${submission.assignment.topic}" (${submission.assignment.subject}) is ready for review.`,
+      href: `/teacher/assignments/${submission.assignment.id.toString()}/review`,
+      priority: 'high',
+      category: 'submission',
     })
 
     // Run AI evaluation in background (non-blocking to avoid timeout)

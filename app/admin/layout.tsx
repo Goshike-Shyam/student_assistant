@@ -38,7 +38,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-screen overflow-hidden">
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:bg-white focus:px-4 focus:py-2 focus:rounded focus:shadow-lg focus:text-[#0058be] focus:underline"
@@ -46,9 +46,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         Skip to main content
       </a>
       <AdminSidebar />
-      <div className="flex-1 overflow-auto" id="main-content">
+      <main className="flex-1 overflow-y-auto" id="main-content">
         {children}
-      </div>
+      </main>
     </div>
   );
 }

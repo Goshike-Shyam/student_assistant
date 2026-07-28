@@ -12,8 +12,7 @@ import { getTeacherSession } from '@/lib/teacher-auth'
 import { prisma } from '@/lib/prismaClient'
 import { TeacherSidebar } from '@/components/teacher/TeacherSidebar'
 import { TeacherBreadcrumbs } from '@/components/teacher/TeacherBreadcrumbs'
-import { NotificationBell } from '@/components/teacher/NotificationBell'
-import { ClassSwitcher } from '@/components/teacher/ClassSwitcher'
+import { TeacherTopBar } from '@/components/teacher/TeacherTopBar'
 import { ReactNode } from 'react'
 
 const PUBLIC_TEACHER_PATHS = [
@@ -31,7 +30,7 @@ export default async function TeacherLayout({ children }: TeacherLayoutProps) {
   const headersList = await headers()
   const pathname = headersList.get('x-pathname') ?? ''
 
-  const isPublic = PUBLIC_TEACHER_PATHS.some((p) => pathname.startsWith(p))
+  const isPublic = !pathname || PUBLIC_TEACHER_PATHS.some((p) => pathname.startsWith(p))
 
   // Public pages render without sidebar
   if (isPublic) {
@@ -51,10 +50,45 @@ export default async function TeacherLayout({ children }: TeacherLayoutProps) {
   const session = await getTeacherSession()
   if (!session) redirect('/teacher/login')
 
+  console.log(
+    '[TeacherLayout] session:',
+    JSON.stringify({
+      teacherId: session.teacherId,
+      name: session.name,
+      email: session.email,
+    }),
+  )
+
   const teacher = await prisma.teacher.findUnique({
     where: { id: BigInt(session.teacherId) },
     select: { schoolName: true },
   })
+
+  const dynamicLabels: Record<string, string> = {
+    create: 'Create Class',
+    enroll: 'Enroll Student',
+    students: 'Students',
+    assignments: 'Assignments',
+  }
+
+  const segments = pathname.split('/').filter(Boolean)
+  const classIdSegment =
+    segments[0] === 'teacher' && segments[1] === 'classes' ? segments[2] : null
+
+  if (classIdSegment && /^\d+$/.test(classIdSegment)) {
+    try {
+      const cls = await prisma.teacherClass.findFirst({
+        where: {
+          id: BigInt(classIdSegment),
+          teacherId: BigInt(session.teacherId),
+        },
+        select: { className: true },
+      })
+      dynamicLabels[classIdSegment] = cls?.className ?? 'Class'
+    } catch {
+      dynamicLabels[classIdSegment] = 'Class'
+    }
+  }
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -65,23 +99,18 @@ export default async function TeacherLayout({ children }: TeacherLayoutProps) {
         Skip to main content
       </a>
       <TeacherSidebar
-        teacherName={session.name}
+        teacherName={session.name ?? 'Teacher'}
         schoolName={teacher?.schoolName ?? ''}
       />
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top header bar with class switcher and notification bell */}
-        <header className="h-14 border-b border-gray-200 bg-white flex items-center justify-between px-6 flex-shrink-0">
-          <div className="flex items-center gap-3">
-            <ClassSwitcher />
-          </div>
-          <div className="flex items-center gap-2">
-            <NotificationBell />
-          </div>
-        </header>
+        <TeacherTopBar
+          teacherName={session.name ?? 'Teacher'}
+          teacherEmail={session.email ?? ''}
+        />
         {/* Page content */}
         <main className="flex-1 overflow-auto" id="main-content">
           <div className="p-6 pb-0">
-            <TeacherBreadcrumbs />
+            <TeacherBreadcrumbs dynamicLabels={dynamicLabels} />
           </div>
           {children}
         </main>

@@ -1,13 +1,13 @@
-﻿/**
+/**
  * PRACTICE PAGE CONTRACT
- * Subjects: GET /api/practice/subjects → child_subjects table
- * Metrics:  GET /api/practice/metrics  → practice_attempts table
- * Generate: POST /api/practice/generate → Gemini + practice_tests
- * Submit:   POST /api/practice/submit  → DB lookup FIRST,
+ * Subjects: GET /api/practice/subjects ? child_subjects table
+ * Metrics:  GET /api/practice/metrics  ? practice_attempts table
+ * Generate: POST /api/practice/generate ? Gemini + practice_tests
+ * Submit:   POST /api/practice/submit  ? DB lookup FIRST,
  *           then Gemini, then save to practice_attempts
  * NEVER hardcode subjects, metrics, or test data
- * REUSE QuestionCard.tsx — do not create new renderer
- * REUSE callGeminiWithRetry() — do not call Gemini directly
+ * REUSE QuestionCard.tsx � do not create new renderer
+ * REUSE callGeminiWithRetry() � do not call Gemini directly
  * All buttons must be wired to real handlers
  * Option text: text-gray-900 always (WCAG AA)
  */
@@ -15,6 +15,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   LineChart,
   Line,
@@ -34,7 +35,7 @@ import { Label } from '@/components/ui/label';
 import QuestionCard from '@/components/assignments/QuestionCard';
 import { Question } from '@/types/assignments';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// --- Types --------------------------------------------------------------------
 
 interface PracticeQuestion extends Question {
   hint?: string;
@@ -123,7 +124,7 @@ interface SearchResult {
 type ViewState = 'generate' | 'taking' | 'feedback' | 'history';
 type ComplexityLevel = 'Easy' | 'Medium' | 'Hard' | 'Mixed';
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// --- Helpers ------------------------------------------------------------------
 
 function formatTime(secs: number): string {
   const m = Math.floor(secs / 60).toString().padStart(2, '0');
@@ -147,7 +148,7 @@ function scoreBannerClass(pct: number) {
   return 'bg-red-50 border-red-300 text-red-900';
 }
 
-// ─── Page Component ───────────────────────────────────────────────────────────
+// --- Page Component -----------------------------------------------------------
 
 export default function PracticePage() {
   // Auth
@@ -197,7 +198,7 @@ export default function PracticePage() {
   const [isSearching, setIsSearching]         = useState(false);
   const [showSearch, setShowSearch]           = useState(false);
 
-  // ── Auth init ──
+  // -- Auth init --
   useEffect(() => {
     const childId = localStorage.getItem('userId');
     const grade   = localStorage.getItem('userGrade');
@@ -206,7 +207,7 @@ export default function PracticePage() {
     setChildData({ childId, grade: parseInt(grade ?? '10', 10), board: board ?? 'CBSE' });
   }, []);
 
-  // ── Load subjects and metrics once child is known ──
+  // -- Load subjects and metrics once child is known --
   useEffect(() => {
     if (!childData) return;
 
@@ -239,14 +240,14 @@ export default function PracticePage() {
     fetchMetrics();
   }, [childData]);
 
-  // ── Timer ──
+  // -- Timer --
   useEffect(() => {
     if (view !== 'taking') return;
     const t = setInterval(() => setElapsed((s) => s + 1), 1000);
     return () => clearInterval(t);
   }, [view]);
 
-  // ── Load history ──
+  // -- Load history --
   const loadHistory = useCallback(async () => {
     if (!childData) return;
     setIsLoadingHistory(true);
@@ -261,7 +262,7 @@ export default function PracticePage() {
     }
   }, [childData]);
 
-  // ── Generate ──
+  // -- Generate --
   const handleGenerate = async () => {
     if (!childData || !topic.trim() || !activeSubject) {
       setGenerateError(!activeSubject ? 'Please select a subject first.' : 'Please enter a topic.');
@@ -299,7 +300,7 @@ export default function PracticePage() {
     }
   };
 
-  // ── Submit ──
+  // -- Submit --
   const handleSubmit = async () => {
     if (!practiceTest || !childData) return;
     setSubmitError(null);
@@ -333,7 +334,7 @@ export default function PracticePage() {
     }
   };
 
-  // ── Search ──
+  // -- Search --
   const handleSearch = async () => {
     if (!childData) return;
     setIsSearching(true);
@@ -353,7 +354,7 @@ export default function PracticePage() {
     setSearchQuery(''); setFilterSubject('all'); setFilterComplexity('all'); setSearchResults(null);
   };
 
-  // ── Reset ──
+  // -- Reset --
   const handleTryAnother = () => {
     setPracticeTest(null); setAnswers({}); setElapsed(0);
     setFeedback(null); setSubmitError(null); setView('generate');
@@ -361,7 +362,7 @@ export default function PracticePage() {
 
   const handleViewHistory = () => { setView('history'); loadHistory(); };
 
-  // ── Review ──
+  // -- Review --
   const handleReview = (item: HistoryItem) => {
     if (!item.feedbackJson) return;
     try { setReviewFeedback(JSON.parse(item.feedbackJson)); setReviewTest(item); } catch { /* silent */ }
@@ -377,19 +378,19 @@ export default function PracticePage() {
 
   if (!childData) return null;
 
-  // ════════════════════════════════════════════════════════════════
+  // ----------------------------------------------------------------
   // REVIEW OVERLAY
-  // ════════════════════════════════════════════════════════════════
+  // ----------------------------------------------------------------
   if (reviewFeedback && reviewTest) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 pt-16">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
         <div className="max-w-4xl mx-auto px-6 py-10">
           <button
             onClick={() => { setReviewFeedback(null); setReviewTest(null); }}
             className="mb-6 flex items-center gap-2 text-blue-700 hover:text-blue-900 font-medium focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded min-h-[44px] px-2"
             aria-label="Back to history"
           >
-            ← Back to History
+            ? Back to History
           </button>
           <FeedbackView
             feedback={reviewFeedback}
@@ -404,22 +405,22 @@ export default function PracticePage() {
     );
   }
 
-  // ════════════════════════════════════════════════════════════════
+  // ----------------------------------------------------------------
   // TEST-TAKING VIEW
-  // ════════════════════════════════════════════════════════════════
+  // ----------------------------------------------------------------
   if (view === 'taking' && practiceTest) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 pt-16">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
         <div className="max-w-4xl mx-auto px-6 py-10 space-y-6">
           {/* Header */}
           <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex flex-wrap items-start justify-between gap-4">
             <div>
               <p className="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-1">
-                {activeSubject} · {complexity}
+                {activeSubject} � {complexity}
               </p>
               <h1 className="text-2xl font-bold text-slate-900">{practiceTest.title}</h1>
               <p className="text-sm text-slate-700 mt-1">
-                {practiceTest.questions.length} questions · {practiceTest.totalMarks} marks
+                {practiceTest.questions.length} questions � {practiceTest.totalMarks} marks
               </p>
             </div>
             <div className="text-right">
@@ -455,7 +456,7 @@ export default function PracticePage() {
           {/* Submit */}
           {submitError && (
             <div className="rounded-lg border border-red-200 bg-red-50 p-4 flex items-start gap-3" role="alert" aria-live="assertive">
-              <span aria-hidden="true">❌</span>
+              <span aria-hidden="true">?</span>
               <p className="text-sm text-red-700 font-medium">{submitError}</p>
             </div>
           )}
@@ -466,15 +467,15 @@ export default function PracticePage() {
               className="min-h-[44px] px-8 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
               aria-label={
                 !allAnswered
-                  ? `Submit — ${practiceTest.questions.length - Object.values(answers).filter((a) => a?.trim()).length} questions unanswered`
+                  ? `Submit � ${practiceTest.questions.length - Object.values(answers).filter((a) => a?.trim()).length} questions unanswered`
                   : 'Submit test'
               }
             >
-              {isSubmitting ? 'Submitting…' : 'Submit Test'}
+              {isSubmitting ? 'Submitting�' : 'Submit Test'}
             </Button>
             {!allAnswered && (
               <p className="text-sm text-amber-900 font-medium" role="status" aria-live="polite">
-                ⚠️ Answer all questions before submitting
+                ?? Answer all questions before submitting
               </p>
             )}
           </div>
@@ -483,12 +484,12 @@ export default function PracticePage() {
     );
   }
 
-  // ════════════════════════════════════════════════════════════════
+  // ----------------------------------------------------------------
   // FEEDBACK VIEW
-  // ════════════════════════════════════════════════════════════════
+  // ----------------------------------------------------------------
   if (view === 'feedback' && feedback && practiceTest) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 pt-16">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
         <div className="max-w-4xl mx-auto px-6 py-10">
           <FeedbackView
             feedback={feedback}
@@ -502,12 +503,12 @@ export default function PracticePage() {
     );
   }
 
-  // ════════════════════════════════════════════════════════════════
+  // ----------------------------------------------------------------
   // HISTORY VIEW
-  // ════════════════════════════════════════════════════════════════
+  // ----------------------------------------------------------------
   if (view === 'history') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 pt-16">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
         <div className="max-w-6xl mx-auto px-6 py-10 space-y-6">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <h1 className="text-3xl font-bold text-slate-900">Practice History</h1>
@@ -522,7 +523,7 @@ export default function PracticePage() {
           </div>
 
           {isLoadingHistory ? (
-            <div className="space-y-3" aria-busy="true" aria-label="Loading history…">
+            <div className="space-y-3" aria-busy="true" aria-label="Loading history�">
               {[1, 2, 3].map((i) => <div key={i} className="h-16 bg-slate-200 animate-pulse rounded-lg" />)}
             </div>
           ) : history.length === 0 ? (
@@ -553,18 +554,18 @@ export default function PracticePage() {
                         </span>
                       </td>
                       <td className="px-4 py-3 font-semibold text-slate-900">
-                        {item.score !== null ? `${Number(item.score).toFixed(1)}%` : '—'}
+                        {item.score !== null ? `${Number(item.score).toFixed(1)}%` : '�'}
                       </td>
                       <td className="px-4 py-3">
                         {item.gradeEmoji && item.gradeLabel
                           ? <span className="font-semibold text-slate-900">{item.gradeEmoji} {item.gradeLabel}</span>
-                          : '—'}
+                          : '�'}
                       </td>
                       <td className="px-4 py-3 text-slate-700">
-                        {item.timeTakenSecs ? formatTime(item.timeTakenSecs) : '—'}
+                        {item.timeTakenSecs ? formatTime(item.timeTakenSecs) : '�'}
                       </td>
                       <td className="px-4 py-3 text-slate-600">
-                        {item.completedAt ? new Date(item.completedAt).toLocaleDateString() : '—'}
+                        {item.completedAt ? new Date(item.completedAt).toLocaleDateString() : '�'}
                       </td>
                       <td className="px-4 py-3">
                         <Button
@@ -588,11 +589,11 @@ export default function PracticePage() {
     );
   }
 
-  // ════════════════════════════════════════════════════════════════
+  // ----------------------------------------------------------------
   // GENERATE / DASHBOARD VIEW (default)
-  // ════════════════════════════════════════════════════════════════
+  // ----------------------------------------------------------------
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 pt-16">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
       <div className="max-w-7xl mx-auto px-6 py-10 space-y-8">
 
         {/* Header */}
@@ -614,21 +615,45 @@ export default function PracticePage() {
         {/* Metrics */}
         <section aria-label="Practice performance metrics">
           {isLoadingMetrics ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" aria-busy="true" aria-label="Loading metrics…">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" aria-busy="true" aria-label="Loading metrics�">
               {[1, 2, 3, 4].map((i) => <div key={i} className="h-28 bg-slate-200 animate-pulse rounded-xl" />)}
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               {([
-                { label: 'Tests Taken',    value: metrics?.totalTests ?? 0,              icon: '📝' },
-                { label: 'Avg Score',      value: `${metrics?.averageScore ?? '0.0'}%`,  icon: '📊' },
-                { label: 'Total Attempts', value: metrics?.totalAttempts ?? 0,           icon: '🎯' },
-                { label: 'Current Streak', value: `${metrics?.streak ?? 0} days`,        icon: '🔥' },
-              ] as const).map(({ label, value, icon }) => (
+                {
+                  label: 'Tests Taken',
+                  value: metrics?.totalTests ?? 0,
+                  iconSrc: '/icons/practice-metrics/tests-taken.png',
+                },
+                {
+                  label: 'Avg Score',
+                  value: `${metrics?.averageScore ?? '0.0'}%`,
+                  iconSrc: '/icons/practice-metrics/avg-score.png',
+                },
+                {
+                  label: 'Total Attempts',
+                  value: metrics?.totalAttempts ?? 0,
+                  iconSrc: '/icons/practice-metrics/total-attempts.png',
+                },
+                {
+                  label: 'Current Streak',
+                  value: `${metrics?.streak ?? 0} days`,
+                  iconSrc: '/icons/practice-metrics/current-streak.png',
+                },
+              ] as const).map(({ label, value, iconSrc }) => (
                 <div key={label} className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-                  <p className="text-sm font-medium text-gray-600 mb-1">
-                    <span aria-hidden="true">{icon} </span>{label}
-                  </p>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Image
+                      src={iconSrc}
+                      alt=""
+                      width={20}
+                      height={20}
+                      aria-hidden="true"
+                      className="h-5 w-5 object-contain"
+                    />
+                    <p className="text-sm font-medium text-gray-600">{label}</p>
+                  </div>
                   <p className="text-3xl font-bold text-gray-900">{value}</p>
                 </div>
               ))}
@@ -640,7 +665,7 @@ export default function PracticePage() {
             <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
               <h2 className="text-sm font-semibold text-gray-700 mb-3">Score Trend</h2>
               {metrics && metrics.recentAttempts.length > 0 ? (
-                <div role="img" aria-label="Score trend chart — your recent practice test scores over time">
+                <div role="img" aria-label="Score trend chart � your recent practice test scores over time">
                   <ResponsiveContainer width="100%" height={160}>
                     <LineChart data={metrics.recentAttempts}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -669,7 +694,7 @@ export default function PracticePage() {
             <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
               <h2 className="text-sm font-semibold text-gray-700 mb-3">Performance by Subject</h2>
               {metrics && metrics.subjectBreakdown.length > 0 ? (
-                <div role="img" aria-label="Performance by subject bar chart — average scores per subject">
+                <div role="img" aria-label="Performance by subject bar chart � average scores per subject">
                   <ResponsiveContainer width="100%" height={160}>
                     <BarChart data={metrics.subjectBreakdown}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -698,7 +723,7 @@ export default function PracticePage() {
                 <h2 className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Your Subjects</h2>
               </div>
               {isLoadingSubjects ? (
-                <div className="p-4 space-y-2" aria-busy="true" aria-label="Loading subjects…">
+                <div className="p-4 space-y-2" aria-busy="true" aria-label="Loading subjects�">
                   {[1, 2, 3].map((i) => <div key={i} className="h-9 bg-slate-100 animate-pulse rounded" />)}
                 </div>
               ) : subjects.length === 0 ? (
@@ -738,7 +763,7 @@ export default function PracticePage() {
               <h2 className="text-lg font-semibold text-slate-900">
                 Generate New Practice Test
                 {activeSubject && (
-                  <span className="ml-2 text-blue-700 font-medium text-base">— {activeSubject}</span>
+                  <span className="ml-2 text-blue-700 font-medium text-base">� {activeSubject}</span>
                 )}
               </h2>
 
@@ -749,7 +774,7 @@ export default function PracticePage() {
                   </Label>
                   <Input
                     id="topic-input"
-                    placeholder={activeSubject ? 'e.g. Photosynthesis, Fractions…' : 'Select a subject first'}
+                    placeholder={activeSubject ? 'e.g. Photosynthesis, Fractions�' : 'Select a subject first'}
                     value={topic}
                     onChange={(e) => setTopic(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && !isGenerating && handleGenerate()}
@@ -782,9 +807,9 @@ export default function PracticePage() {
                 onClick={handleGenerate}
                 disabled={isGenerating || !topic.trim() || !activeSubject}
                 className="min-h-[44px] px-6 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                aria-label={isGenerating ? 'Generating test…' : 'Generate practice test'}
+                aria-label={isGenerating ? 'Generating test�' : 'Generate practice test'}
               >
-                {isGenerating ? 'Generating…' : 'Generate Test'}
+                {isGenerating ? 'Generating�' : 'Generate Test'}
               </Button>
 
               {generateError && (() => {
@@ -796,10 +821,10 @@ export default function PracticePage() {
                     role="alert"
                     aria-live="assertive"
                   >
-                    <span aria-hidden="true">{isBusy ? '⚠️' : '❌'}</span>
+                    <span aria-hidden="true">{isBusy ? '??' : '?'}</span>
                     <div className="flex-1">
                       <p className={`text-sm font-medium mb-1 ${isBusy ? 'text-amber-900' : 'text-red-700'}`}>
-                        {isBusy ? 'AI is temporarily busy. Click "Try Again" — it usually resolves in seconds.' : generateError}
+                        {isBusy ? 'AI is temporarily busy. Click "Try Again" � it usually resolves in seconds.' : generateError}
                       </p>
                       {isBusy && (
                         <button
@@ -808,7 +833,7 @@ export default function PracticePage() {
                           className="text-sm font-medium text-amber-800 underline hover:text-amber-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 disabled:opacity-50"
                           aria-label="Try generating test again"
                         >
-                          {isGenerating ? 'Retrying…' : 'Try Again →'}
+                          {isGenerating ? 'Retrying�' : 'Try Again ?'}
                         </button>
                       )}
                     </div>
@@ -842,7 +867,7 @@ export default function PracticePage() {
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                        placeholder="Search by topic…"
+                        placeholder="Search by topic�"
                         aria-label="Search by topic name"
                         className="focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                       />
@@ -888,7 +913,7 @@ export default function PracticePage() {
                         aria-label="Search practice tests"
                       >
                         <Search className="h-4 w-4" aria-hidden="true" />
-                        <span>{isSearching ? 'Searching…' : 'Search'}</span>
+                        <span>{isSearching ? 'Searching�' : 'Search'}</span>
                       </Button>
                       <Button
                         variant="outline"
@@ -917,10 +942,10 @@ export default function PracticePage() {
                                 {r.complexity}
                               </span>
                             </div>
-                            <p className="text-sm text-slate-700">{r.totalMarks} marks · {r.durationMins} min</p>
+                            <p className="text-sm text-slate-700">{r.totalMarks} marks � {r.durationMins} min</p>
                             {r.attemptCount > 0 && (
                               <p className="text-xs text-slate-600 mt-1">
-                                {r.attemptCount} attempt{r.attemptCount !== 1 ? 's' : ''} · Best: {r.bestScore !== null ? `${r.bestScore.toFixed(1)}%` : '—'}
+                                {r.attemptCount} attempt{r.attemptCount !== 1 ? 's' : ''} � Best: {r.bestScore !== null ? `${r.bestScore.toFixed(1)}%` : '�'}
                               </p>
                             )}
                           </div>
@@ -938,7 +963,7 @@ export default function PracticePage() {
   );
 }
 
-// ─── FeedbackView sub-component ───────────────────────────────────────────────
+// --- FeedbackView sub-component -----------------------------------------------
 
 interface FeedbackViewProps {
   feedback: PracticeFeedback;
@@ -956,7 +981,7 @@ function FeedbackView({ feedback, testQuestions, answers, onTryAnother, onViewHi
     <div className="space-y-6">
       {/* Score banner */}
       <div className={`rounded-xl p-6 border-2 text-center ${scoreBannerClass(pct)}`}>
-        <div className="text-5xl mb-2">{feedback.grade_emoji ?? '🎓'}</div>
+        <div className="text-5xl mb-2">{feedback.grade_emoji ?? '??'}</div>
         <div className="text-3xl font-bold mb-1">{feedback.grade_label}</div>
         <div className="text-xl font-medium mb-3">
           {feedback.total_marks_awarded} / {feedback.total_marks_possible} marks
@@ -964,7 +989,7 @@ function FeedbackView({ feedback, testQuestions, answers, onTryAnother, onViewHi
         </div>
         {feedback.encouragement_badge && (
           <div className="inline-flex items-center gap-2 bg-white rounded-full px-4 py-1 border text-sm font-semibold mb-4 text-gray-700">
-            🏅 {feedback.encouragement_badge}
+            ?? {feedback.encouragement_badge}
           </div>
         )}
         <p className="text-base leading-relaxed max-w-2xl mx-auto">{feedback.overall_feedback}</p>
@@ -973,16 +998,16 @@ function FeedbackView({ feedback, testQuestions, answers, onTryAnother, onViewHi
       {/* Strengths + Topics to revise */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="rounded-lg p-4 bg-green-50 border border-green-200">
-          <h3 className="font-semibold text-green-900 mb-2">💪 Your Strengths</h3>
+          <h3 className="font-semibold text-green-900 mb-2">?? Your Strengths</h3>
           <p className="text-sm text-green-800 leading-relaxed">{feedback.strengths}</p>
         </div>
         <div className="rounded-lg p-4 bg-blue-50 border border-blue-200">
-          <h3 className="font-semibold text-blue-900 mb-2">📖 Topics to Revise</h3>
+          <h3 className="font-semibold text-blue-900 mb-2">?? Topics to Revise</h3>
           {feedback.topics_to_revise && feedback.topics_to_revise.length > 0 ? (
             <ul className="text-sm text-blue-800 space-y-1">
               {feedback.topics_to_revise.map((t, i) => (
                 <li key={i} className="flex items-start gap-2">
-                  <span className="text-blue-600 mt-0.5">•</span>{t}
+                  <span className="text-blue-600 mt-0.5">�</span>{t}
                 </li>
               ))}
             </ul>
@@ -995,7 +1020,7 @@ function FeedbackView({ feedback, testQuestions, answers, onTryAnother, onViewHi
       {/* Encouragement */}
       {feedback.encouragement && (
         <div className="rounded-lg p-4 bg-amber-50 border border-amber-200">
-          <p className="text-sm text-amber-900 font-medium">✨ {feedback.encouragement}</p>
+          <p className="text-sm text-amber-900 font-medium">? {feedback.encouragement}</p>
         </div>
       )}
 
@@ -1020,7 +1045,7 @@ function FeedbackView({ feedback, testQuestions, answers, onTryAnother, onViewHi
                 {/* Reveal correct answer for wrong answers */}
                 {qf && !qf.is_correct && qf.correct_answer && (
                   <div className="mt-1 ml-0 px-4 py-2 rounded-b-lg border-x border-b border-red-200 bg-red-50 text-sm text-red-900">
-                    <span className="font-semibold">✓ Correct answer: </span>
+                    <span className="font-semibold">? Correct answer: </span>
                     {qf.correct_answer}
                   </div>
                 )}

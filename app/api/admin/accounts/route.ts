@@ -7,38 +7,24 @@
  * - invitedByName defaults to 'Seed Script' if inviter is null
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import { prisma } from '@/lib/prismaClient';
+import { getAdminSession } from '@/lib/admin-auth';
 
-interface AdminSessionPayload {
-  adminId: string;
-  role: string;
-  name: string;
-  email: string;
-}
+/**
+ * ADMIN AUTH CONTRACT
+ * ONLY getAdminSession() - reads sa-admin-session
+ * NEVER getServerSession() - reads student cookie
+ * Cross-tab student login must NOT affect admin
+ */
 
 export async function GET(_req: NextRequest) {
   try {
-    // Verify admin session cookie
-    const cookieStore = await cookies();
-    const sessionCookie = cookieStore.get('sa-admin-session');
-
-    if (!sessionCookie?.value) {
+    const adminSession = await getAdminSession();
+    if (!adminSession) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    let session: AdminSessionPayload;
-    try {
-      session = JSON.parse(sessionCookie.value) as AdminSessionPayload;
-    } catch {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    if (!session?.adminId || !session?.role) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    if (session.role !== 'SUPER_ADMIN') {
+    if (adminSession.role !== 'SUPER_ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

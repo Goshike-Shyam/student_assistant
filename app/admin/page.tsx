@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Settings } from 'lucide-react';
+import { NotificationPanel } from '@/components/shared/NotificationPanel';
 
 export default function AdminDashboard() {
   const [mounted, setMounted] = useState(false);
@@ -8,29 +10,43 @@ export default function AdminDashboard() {
   const [adminName, setAdminName] = useState<string>('Admin');
   const [adminInitials, setAdminInitials] = useState<string>('AD');
 
+  const toInitials = (name: string) =>
+    name
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((p) => p[0])
+      .join('')
+      .toUpperCase() || 'AD';
+
   useEffect(() => {
-    // Check if user is authenticated
-    const userId = localStorage.getItem('userId');
-    const userName = localStorage.getItem('userName');
-    if (!userId) {
-      // Not authenticated, redirect to login
-      window.location.href = '/login';
-      return;
-    }
-    
-    // Extract initials from name
-    if (userName) {
-      setAdminName(userName);
-      const parts = userName.split(' ');
-      const initials = parts.map(p => p[0]).join('').toUpperCase().slice(0, 2);
-      setAdminInitials(initials);
-    }
-    
-    setIsAuthenticated(true);
-    setMounted(true);
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const response = await fetch('/api/admin/verify-session', { cache: 'no-store' });
+        if (!response.ok) {
+          window.location.replace('/admin/login');
+          return;
+        }
+        const data = await response.json();
+        const name = data?.admin?.name || 'Admin';
+        if (cancelled) return;
+        setAdminName(name);
+        setAdminInitials(toInitials(name));
+        setIsAuthenticated(true);
+      } catch {
+        window.location.replace('/admin/login');
+      } finally {
+        if (!cancelled) setMounted(true);
+      }
+    };
+    void load();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  if (!isAuthenticated) {
+  if (!mounted || !isAuthenticated) {
     return null; // Don't render anything while redirecting
   }
 
@@ -57,13 +73,19 @@ export default function AdminDashboard() {
                 style={{ fontFamily: 'inherit' }}
               />
             </div>
-            <button aria-label="View notifications (3 unread)" className="relative w-9 h-9 rounded-full hover:bg-[#eff4ff] flex items-center justify-center text-[#3d4a3d]">
-              <span className="mat" aria-hidden="true">Notifications</span>
-              <span className="absolute top-1 right-1 w-4 h-4 bg-[#ba1a1a] rounded-full text-[9px] text-white font-bold flex items-center justify-center" aria-hidden="true">3</span>
-            </button>
-            <button aria-label="Settings" className="w-9 h-9 rounded-full hover:bg-[#eff4ff] flex items-center justify-center text-[#3d4a3d]">
-              <span className="mat" aria-hidden="true">Settings</span>
-            </button>
+            <NotificationPanel
+              fetchUrl="/api/admin/notifications"
+              markReadUrl="/api/admin/notifications/read"
+              emptyMessage="No pending admin notifications"
+              role="admin"
+            />
+            <a
+              href="/admin/settings"
+              className="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 hover:text-gray-900 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              aria-label="Settings"
+            >
+              <Settings size={20} aria-hidden="true" />
+            </a>
             <div className="flex items-center gap-2 ml-1">
               <div className="w-9 h-9 rounded-full bg-[#213145] border-2 border-[#adc6ff] flex items-center justify-center font-bold text-white text-xs qs">{adminInitials}</div>
               <div>
