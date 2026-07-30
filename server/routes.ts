@@ -2,30 +2,22 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { Router, Request, Response } from 'express';
-import { GoogleGenAI } from '@google/genai';
+import { Prisma } from '@prisma/client';
 import prisma from './prisma.js';
 import { asyncHandler, AppError } from './middleware.js';
 import { isValidSubjectForBoardAndGrade } from '../lib/subjects-seed.js';
-import { generateContentWithRetry, GenerateContentResult } from './utils.js';
+import { generateContentWithRetry } from './utils.js';
 import { logAiCredit } from '../lib/ai-credit-logger.js';
+import { callGeminiWithRetry } from '../lib/ai-with-retry.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.join(__dirname, '../.env') });
 
-// Initialize Gemini AI
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 const router = Router();
 
 // Helper function to force a pause (delay) in execution
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-// ========== CONSTANTS ==========
-const DEFAULT_RESOURCE_LINKS = [
-  { title: 'Khan Academy', url: 'https://www.khanacademy.org' },
-  { title: 'NCERT Textbooks', url: 'https://ncert.nic.in/' },
-  { title: 'Physics Wallah', url: 'https://www.pw.live/' }
-];
 
 // ========== HELPER FUNCTIONS ==========
 
@@ -65,6 +57,51 @@ Format: Provide educational, accurate responses with clear explanations.
 Important: Always include educational value and cite sources where applicable.`;
 };
 
+type ResearchSource = {
+  title: string;
+  url: string;
+  publisher?: string;
+  type?: string;
+};
+
+function cleanJsonResponse(text: string): string {
+  return text
+    .replace(/^```json\s*/i, '')
+    .replace(/^```\s*/i, '')
+    .replace(/```$/i, '')
+    .trim();
+}
+
+function normalizeSources(raw: unknown): ResearchSource[] {
+  if (!Array.isArray(raw)) return [];
+
+  return raw
+    .map((item: any) => ({
+      title: String(item?.title || 'Source'),
+      url: String(item?.url || ''),
+      publisher: item?.publisher ? String(item.publisher) : '',
+      type: item?.type ? String(item.type) : 'website',
+    }))
+    .filter((source) => source.url.startsWith('http'));
+}
+
+function parseSourceMeta(meta: string): Omit<ResearchSource, 'url'> {
+  try {
+    const parsed = JSON.parse(meta);
+    return {
+      title: String(parsed?.title || 'Source'),
+      publisher: parsed?.publisher ? String(parsed.publisher) : '',
+      type: parsed?.type ? String(parsed.type) : 'website',
+    };
+  } catch {
+    return {
+      title: meta || 'Source',
+      publisher: '',
+      type: 'website',
+    };
+  }
+}
+
 router.use((req, _res, next) => {
   if (!process.env.DATABASE_URL) {
     return next(
@@ -88,16 +125,33 @@ router.post(
       throw new AppError(400, 'Email, name, and password are required');
     }
 
-    const user = await prisma.user.create({
-      data: {
-        email,
-        name,
-        password, // In production, hash the password
-        role: role || 'STUDENT',
-        grade: grade ? parseInt(String(grade).match(/\d+/)?.[0] || '10') : 10,
-        curriculum: board || 'CBSE',
-      },
-    });
+    const normalizedEmail = String(email).trim().toLowerCase();
+    const existingUser = await prisma.user.findUnique({ where: { email: normalizedEmail } });
+    if (existingUser) {
+      throw new AppError(409, 'An account with this email already exists. Please sign in.');
+    }
+
+    let user;
+    try {
+      user = await prisma.user.create({
+        data: {
+          email: normalizedEmail,
+          name,
+          password, // In production, hash the password
+          role: role || 'STUDENT',
+          grade: grade ? parseInt(String(grade).match(/\d+/)?.[0] || '10') : 10,
+          curriculum: board || 'CBSE',
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new AppError(409, 'An account with this email already exists. Please sign in.');
+      }
+      throw error;
+    }
 
     // If subjects are provided, create ChildSubject records
     if (Array.isArray(subjects) && subjects.length > 0) {
@@ -126,8 +180,10 @@ router.post(
       throw new AppError(400, 'Email and password are required');
     }
 
+    const normalizedEmail = String(email).trim().toLowerCase();
+
     const user = await prisma.user.findUnique({
-      where: { email },
+      where: { email: normalizedEmail },
       select: {
         id: true,
         email: true,
@@ -663,49 +719,126 @@ router.post(
     }
 
     let response = '';
+    let summary = '';
+    let keyConcepts: string[] = [];
+    let sources: ResearchSource[] = [];
+
+    let board = 'CBSE';
+    let grade = '9';
+
+    if (studentId) {
+      const user = await prisma.user.findUnique({
+        where: { id: String(studentId) },
+        select: { grade: true, curriculum: true },
+      });
+
+      if (user?.grade) grade = String(user.grade);
+      if (user?.curriculum) board = String(user.curriculum);
+    }
+
+    const prompt = `
+You are a ${board} Grade ${grade} ${subject || 'General'} teacher.
+Answer this student query: "${query}"
+
+Provide a clear, grade-appropriate explanation.
+
+Return ONLY valid JSON, no markdown:
+{
+  "response": "Your detailed explanation here",
+  "summary": "One sentence summary",
+  "sources": [
+    {
+      "title": "Source title",
+      "url": "https://actual-url.com",
+      "publisher": "Publisher name",
+      "type": "article|textbook|video|website"
+    }
+  ],
+  "key_concepts": ["concept1", "concept2"],
+  "grade_note": "Why this is appropriate for Grade ${grade}"
+}
+
+Rules for sources:
+- Include 2-4 real, verifiable sources only
+- Sources must directly relate to "${query}"
+- Prefer: Khan Academy, NCERT, BBC Bitesize, National Geographic, Britannica, Wikipedia
+- For CBSE/ICSE: include ncert.nic.in when relevant
+- NEVER invent URLs — only use real domains
+- If unsure of exact URL, use the homepage domain e.g. https://www.khanacademy.org
+`;
 
     try {
-      // Build and execute AI prompt with retry logic
-      const curriculumContext = buildCurriculumContext(subject);
-      const fullPrompt = `${curriculumContext}\n\nStudent Question: ${query}\n\nPlease provide a comprehensive, age-appropriate educational response.`;
-      const result = await generateContentWithRetry(fullPrompt);
-      const textContent = result.text;
+      const result = await callGeminiWithRetry(prompt, 2048);
+      const parsed = JSON.parse(cleanJsonResponse(result.text));
+
+      response = String(parsed?.response || '').trim();
+      summary = String(parsed?.summary || '').trim();
+      keyConcepts = Array.isArray(parsed?.key_concepts)
+        ? parsed.key_concepts.map((concept: any) => String(concept))
+        : [];
+      sources = normalizeSources(parsed?.sources);
+
+      if (!response) {
+        throw new Error('Empty response in Gemini payload');
+      }
 
       // Log AI credit usage (fire-and-forget)
       if (studentId) {
+        const promptTokens = Math.ceil(prompt.length / 4);
+        const completionTokens = Math.ceil(result.text.length / 4);
         logAiCredit({
-          userId: studentId,
+          userId: String(studentId),
           userRole: 'STUDENT',
           feature: 'QUERY',
-          promptTokens: result.promptTokens,
-          completionTokens: result.completionTokens,
+          promptTokens,
+          completionTokens,
         }).catch(console.error);
       }
 
-      // Format response as HTML
-      response = formatAIResponse(textContent, subject);
-
     } catch (error) {
       console.error('Gemini API error:', error);
-      response = `<h3>Response about ${subject || 'your topic'}</h3>
-      <p>Apologies, there was an issue fetching AI response. Please try again later.</p>`;
+      response = `I could not fetch a complete research response right now for ${subject || 'this topic'}. Please try again in a moment.`;
+      summary = 'Research service temporarily unavailable.';
+      keyConcepts = [];
+      sources = [];
     }
 
-    // Save search query if student ID provided
+    let queryId: string | null = null;
+
+    // Save query and response if student ID is provided
     if (studentId) {
-      await prisma.searchQuery.create({
+      const savedQuery = await prisma.searchQuery.create({
         data: {
-          studentId,
+          studentId: String(studentId),
           query,
           subject: subject || null,
           voiceInput: voiceInput || false,
         },
       });
+
+      queryId = savedQuery.id;
+
+      await prisma.searchResponse.create({
+        data: {
+          queryId: savedQuery.id,
+          response,
+          // Persist metadata in existing string[] columns without schema changes.
+          resourceLinks: sources.map((source) => JSON.stringify({
+            title: source.title,
+            publisher: source.publisher || '',
+            type: source.type || 'website',
+          })),
+          sourceLinks: sources.map((source) => source.url),
+        },
+      });
     }
 
     res.status(201).json({
+      queryId,
       response,
-      resourceLinks: DEFAULT_RESOURCE_LINKS,
+      summary,
+      sources,
+      keyConcepts,
       message: 'Search completed successfully'
     });
   }),
@@ -739,18 +872,49 @@ router.get(
 
     const searches = await prisma.searchQuery.findMany({
       where: { studentId },
-      select: {
-        id: true,
-        query: true,
-        subject: true,
-        createdAt: true,
+      include: {
+        responses: {
+          select: {
+            response: true,
+            resourceLinks: true,
+            sourceLinks: true,
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
       },
       orderBy: { createdAt: 'desc' },
       take: parseInt(limit as string),
       skip: parseInt(offset as string),
     });
 
-    res.json(searches);
+    const payload = searches.map((search) => {
+      const latestResponse = search.responses[0];
+      const responseText = latestResponse?.response || '';
+      const sourceLinks = latestResponse?.sourceLinks || [];
+      const metaLinks = latestResponse?.resourceLinks || [];
+
+      const sources = sourceLinks.map((url, index) => {
+        const meta = parseSourceMeta(metaLinks[index] || '');
+        return {
+          title: meta.title,
+          url,
+          publisher: meta.publisher,
+          type: meta.type,
+        };
+      });
+
+      return {
+        id: search.id,
+        query: search.query,
+        subject: search.subject,
+        response: responseText,
+        sources,
+        createdAt: search.createdAt,
+      };
+    });
+
+    res.json(payload);
   }),
 );
 

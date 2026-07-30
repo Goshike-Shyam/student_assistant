@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen, Search, TrendingUp, Calendar } from 'lucide-react';
-import { SiteHeader } from '@/components/ui/site-header';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -20,7 +19,7 @@ export default function ParentPortalPage() {
   const [studentId, setStudentId] = useState<string | null>(null);
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [totalSearches, setTotalSearches] = useState(0);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   const subjects = [
     'Mathematics',
@@ -36,17 +35,41 @@ export default function ParentPortalPage() {
     'General Knowledge'
   ];
 
-  // Get student ID from localStorage and check authentication
+  // Parent portal requires parent role in localStorage session.
   useEffect(() => {
     const storedStudentId = localStorage.getItem('userId');
-    if (!storedStudentId) {
-      // Not authenticated, redirect to login
-      window.location.href = '/login';
+    const storedUserRole = localStorage.getItem('userRole');
+
+    if (!storedStudentId || storedUserRole?.toLowerCase() !== 'parent') {
+      setIsAuthenticated(false);
       return;
     }
+
     setIsAuthenticated(true);
     setStudentId(storedStudentId);
   }, []);
+
+  if (isAuthenticated === null) {
+    return null;
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+        <div className="w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-lg">
+          <span className="mb-4 block text-4xl" aria-hidden="true">👨‍👩‍👧</span>
+          <h1 className="mb-2 text-xl font-bold text-gray-900">Parent Portal</h1>
+          <p className="mb-6 text-sm text-gray-600">Please log in with your parent account to access this portal.</p>
+          <a
+            href="/login?role=parent"
+            className="inline-flex min-h-[44px] items-center justify-center rounded-lg bg-blue-600 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+          >
+            Parent Login
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   // Fetch search history
   useEffect(() => {

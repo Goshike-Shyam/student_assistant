@@ -126,15 +126,17 @@ export function SiteHeader() {
                 <p className="text-xs text-[#374151]">{userGrade} · {userRole}</p>
               </div>
 
-              <Link
-                href={'/parent-portal' as Route}
-                className="flex items-center gap-2 px-4 py-2.5 text-sm text-[#0b1c30] hover:bg-[#eff4ff] transition-colors"
+              <a
+                href="/parent-portal"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-[#0b1c30] hover:bg-[#eff4ff] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500"
+                onClick={() => setMenuOpen(false)}
               >
-                <span className="mat text-[#006e2f] text-lg">
-                  family_restroom
-                </span>
-                Parent View
-              </Link>
+                <span className="text-lg" aria-hidden="true">👨‍👩‍👧</span>
+                Parent Portal
+                <span className="ml-auto" aria-label="Opens in new tab">↗</span>
+              </a>
 
               {/* Only show Admin Portal link for admin role */}
               {userRole === 'Admin' && (

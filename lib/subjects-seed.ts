@@ -6,6 +6,11 @@ type SubjectMap = {
 
 const SUBJECTS_BY_BOARD_GRADE: SubjectMap = {
   // CBSE Curriculum
+  'CBSE-1': ['English', 'Mathematics', 'Environmental Studies', 'Hindi'],
+  'CBSE-2': ['English', 'Mathematics', 'Environmental Studies', 'Hindi'],
+  'CBSE-3': ['English', 'Mathematics', 'Environmental Studies', 'Hindi', 'General Knowledge'],
+  'CBSE-4': ['English', 'Mathematics', 'Environmental Studies', 'Hindi', 'General Knowledge'],
+  'CBSE-5': ['English', 'Mathematics', 'Environmental Studies', 'Hindi', 'General Knowledge'],
   'CBSE-6': ['Mathematics', 'Science', 'Social Science', 'English', 'Hindi', 'Sanskrit'],
   'CBSE-7': ['Mathematics', 'Science', 'Social Science', 'English', 'Hindi', 'Sanskrit'],
   'CBSE-8': ['Mathematics', 'Science', 'Social Science', 'English', 'Hindi', 'Sanskrit'],
@@ -15,6 +20,11 @@ const SUBJECTS_BY_BOARD_GRADE: SubjectMap = {
   'CBSE-12': ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'Hindi', 'English', 'History', 'Geography', 'Economics'],
 
   // ICSE Curriculum
+  'ICSE-1': ['English', 'Mathematics', 'Environmental Studies', 'Second Language'],
+  'ICSE-2': ['English', 'Mathematics', 'Environmental Studies', 'Second Language'],
+  'ICSE-3': ['English', 'Mathematics', 'Environmental Studies', 'Second Language', 'General Knowledge'],
+  'ICSE-4': ['English', 'Mathematics', 'Environmental Studies', 'Second Language', 'General Knowledge'],
+  'ICSE-5': ['English', 'Mathematics', 'Environmental Studies', 'Second Language', 'General Knowledge'],
   'ICSE-6': ['Mathematics', 'Science', 'Social Studies', 'English', 'Hindi', 'Sanskrit'],
   'ICSE-7': ['Mathematics', 'Science', 'Social Studies', 'English', 'Hindi', 'Sanskrit'],
   'ICSE-8': ['Mathematics', 'Science', 'Social Studies', 'English', 'Hindi', 'Sanskrit'],
@@ -24,6 +34,11 @@ const SUBJECTS_BY_BOARD_GRADE: SubjectMap = {
   'ICSE-12': ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'History', 'Geography', 'Economics'],
 
   // STATE_BOARD Curriculum (Generic State)
+  'STATE_BOARD-1': ['English', 'Mathematics', 'Environmental Studies', 'Regional Language'],
+  'STATE_BOARD-2': ['English', 'Mathematics', 'Environmental Studies', 'Regional Language'],
+  'STATE_BOARD-3': ['English', 'Mathematics', 'Environmental Studies', 'Regional Language', 'General Knowledge'],
+  'STATE_BOARD-4': ['English', 'Mathematics', 'Environmental Studies', 'Regional Language', 'General Knowledge'],
+  'STATE_BOARD-5': ['English', 'Mathematics', 'Environmental Studies', 'Regional Language', 'General Knowledge'],
   'STATE_BOARD-6': ['Mathematics', 'Science', 'Social Science', 'English', 'Regional Language'],
   'STATE_BOARD-7': ['Mathematics', 'Science', 'Social Science', 'English', 'Regional Language'],
   'STATE_BOARD-8': ['Mathematics', 'Science', 'Social Science', 'English', 'Regional Language'],
@@ -33,6 +48,11 @@ const SUBJECTS_BY_BOARD_GRADE: SubjectMap = {
   'STATE_BOARD-12': ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'History', 'Geography'],
 
   // COMMON_CORE (US Standards)
+  'COMMON_CORE-1': ['Mathematics', 'English Language Arts', 'Science', 'Social Studies'],
+  'COMMON_CORE-2': ['Mathematics', 'English Language Arts', 'Science', 'Social Studies'],
+  'COMMON_CORE-3': ['Mathematics', 'English Language Arts', 'Science', 'Social Studies'],
+  'COMMON_CORE-4': ['Mathematics', 'English Language Arts', 'Science', 'Social Studies'],
+  'COMMON_CORE-5': ['Mathematics', 'English Language Arts', 'Science', 'Social Studies'],
   'COMMON_CORE-6': ['Mathematics', 'Science', 'English Language Arts', 'Social Studies'],
   'COMMON_CORE-7': ['Mathematics', 'Science', 'English Language Arts', 'Social Studies'],
   'COMMON_CORE-8': ['Mathematics', 'Science', 'English Language Arts', 'Social Studies'],

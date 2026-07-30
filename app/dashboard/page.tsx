@@ -1,3 +1,5 @@
+'use client'
+
 import Image from 'next/image'
 import Link from 'next/link'
 import HomeworkHelpIcon from '@/components/icons/homework_help.png'
@@ -103,6 +105,14 @@ export default function DashboardPage() {
               >
                 Explore <span className="mat">arrow_forward</span>
               </Link>
+              <Link
+                href="/research?view=history"
+                className="mt-3 inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2.5 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                aria-label="View your research history"
+              >
+                <span aria-hidden="true">🕐</span>
+                Research History
+              </Link>
             </div>
 
             {/* Progress Tracking */}
@@ -122,6 +132,7 @@ export default function DashboardPage() {
               </Link>
             </div>
           </div>
+
         </section>
       </main>
   );

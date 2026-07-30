@@ -17,12 +17,12 @@ export const errorHandler = (
   _next: NextFunction,
 ) => {
   if (err instanceof AppError) {
-    return res.status(err.statusCode).json({ error: err.message });
+    return res.status(err.statusCode).json({ error: err.message, message: err.message });
   }
 
   // eslint-disable-next-line no-console
   console.error(err);
-  res.status(500).json({ error: 'Internal server error' });
+  res.status(500).json({ error: 'Internal server error', message: 'Internal server error' });
 };
 
 export const asyncHandler =
