@@ -34,6 +34,7 @@ import { Select } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import QuestionCard from '@/components/assignments/QuestionCard';
 import { Question } from '@/types/assignments';
+import { useTheme } from '@/lib/theme';
 
 // --- Types --------------------------------------------------------------------
 
@@ -151,6 +152,8 @@ function scoreBannerClass(pct: number) {
 // --- Page Component -----------------------------------------------------------
 
 export default function PracticePage() {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   // Auth
   const [childData, setChildData] = useState<{
     childId: string;
@@ -383,7 +386,7 @@ export default function PracticePage() {
   // ----------------------------------------------------------------
   if (reviewFeedback && reviewTest) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
         <div className="max-w-4xl mx-auto px-6 py-10">
           <button
             onClick={() => { setReviewFeedback(null); setReviewTest(null); }}
@@ -410,16 +413,16 @@ export default function PracticePage() {
   // ----------------------------------------------------------------
   if (view === 'taking' && practiceTest) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
         <div className="max-w-4xl mx-auto px-6 py-10 space-y-6">
           {/* Header */}
-          <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex flex-wrap items-start justify-between gap-4">
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm flex flex-wrap items-start justify-between gap-4">
             <div>
               <p className="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-1">
                 {activeSubject} � {complexity}
               </p>
-              <h1 className="text-2xl font-bold text-slate-900">{practiceTest.title}</h1>
-              <p className="text-sm text-slate-700 mt-1">
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{practiceTest.title}</h1>
+              <p className="text-sm text-slate-700 dark:text-slate-300 mt-1">
                 {practiceTest.questions.length} questions � {practiceTest.totalMarks} marks
               </p>
             </div>
@@ -428,12 +431,12 @@ export default function PracticePage() {
                 role="timer"
                 aria-live="polite"
                 aria-label={`Time elapsed: ${formatTime(elapsed)}`}
-                className="text-2xl font-mono font-bold text-slate-900"
+                className="text-2xl font-mono font-bold text-slate-900 dark:text-slate-100"
               >
                 {formatTime(elapsed)}
               </div>
-              <p className="text-xs text-slate-600 mt-0.5">elapsed</p>
-              <p className="text-sm text-slate-700 mt-2">
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">elapsed</p>
+              <p className="text-sm text-slate-700 dark:text-slate-300 mt-2">
                 {Object.values(answers).filter((a) => a?.trim()).length} / {practiceTest.questions.length} answered
               </p>
             </div>
@@ -489,7 +492,7 @@ export default function PracticePage() {
   // ----------------------------------------------------------------
   if (view === 'feedback' && feedback && practiceTest) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
         <div className="max-w-4xl mx-auto px-6 py-10">
           <FeedbackView
             feedback={feedback}
@@ -508,10 +511,10 @@ export default function PracticePage() {
   // ----------------------------------------------------------------
   if (view === 'history') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
         <div className="max-w-6xl mx-auto px-6 py-10 space-y-6">
           <div className="flex items-center justify-between flex-wrap gap-4">
-            <h1 className="text-3xl font-bold text-slate-900">Practice History</h1>
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">Practice History</h1>
             <Button
               variant="outline"
               onClick={handleTryAnother}
@@ -527,44 +530,44 @@ export default function PracticePage() {
               {[1, 2, 3].map((i) => <div key={i} className="h-16 bg-slate-200 animate-pulse rounded-lg" />)}
             </div>
           ) : history.length === 0 ? (
-            <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
-              <p className="text-slate-600 text-lg mb-4">No practice attempts yet.</p>
+            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-12 text-center">
+              <p className="text-slate-600 dark:text-slate-300 text-lg mb-4">No practice attempts yet.</p>
               <Button onClick={handleTryAnother} className="min-h-[44px] focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
                 Start Your First Test
               </Button>
             </div>
           ) : (
-            <div className="bg-white rounded-xl border border-slate-200 overflow-x-auto shadow-sm">
+            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 overflow-x-auto shadow-sm">
               <table className="w-full text-sm" aria-label="Practice attempt history">
                 <thead>
-                  <tr className="border-b border-slate-200 bg-slate-50">
+                  <tr className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
                     {['Subject', 'Topic', 'Complexity', 'Score', 'Grade', 'Time', 'Date', 'Action'].map((h) => (
-                      <th key={h} scope="col" className="px-4 py-3 text-left font-semibold text-slate-700">{h}</th>
+                      <th key={h} scope="col" className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {history.map((item) => (
-                    <tr key={item.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                      <td className="px-4 py-3 text-slate-900 font-medium">{item.test.subject}</td>
-                      <td className="px-4 py-3 text-slate-700 max-w-[200px] truncate">{item.test.topic}</td>
+                    <tr key={item.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                      <td className="px-4 py-3 text-slate-900 dark:text-slate-100 font-medium">{item.test.subject}</td>
+                      <td className="px-4 py-3 text-slate-700 dark:text-slate-300 max-w-[200px] truncate">{item.test.topic}</td>
                       <td className="px-4 py-3">
                         <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${complexityBadge(item.test.complexity)}`}>
                           {item.test.complexity}
                         </span>
                       </td>
-                      <td className="px-4 py-3 font-semibold text-slate-900">
+                      <td className="px-4 py-3 font-semibold text-slate-900 dark:text-slate-100">
                         {item.score !== null ? `${Number(item.score).toFixed(1)}%` : '�'}
                       </td>
                       <td className="px-4 py-3">
                         {item.gradeEmoji && item.gradeLabel
-                          ? <span className="font-semibold text-slate-900">{item.gradeEmoji} {item.gradeLabel}</span>
+                          ? <span className="font-semibold text-slate-900 dark:text-slate-100">{item.gradeEmoji} {item.gradeLabel}</span>
                           : '�'}
                       </td>
-                      <td className="px-4 py-3 text-slate-700">
+                      <td className="px-4 py-3 text-slate-700 dark:text-slate-300">
                         {item.timeTakenSecs ? formatTime(item.timeTakenSecs) : '�'}
                       </td>
-                      <td className="px-4 py-3 text-slate-600">
+                      <td className="px-4 py-3 text-slate-600 dark:text-slate-400">
                         {item.completedAt ? new Date(item.completedAt).toLocaleDateString() : '�'}
                       </td>
                       <td className="px-4 py-3">
@@ -593,14 +596,14 @@ export default function PracticePage() {
   // GENERATE / DASHBOARD VIEW (default)
   // ----------------------------------------------------------------
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
       <div className="max-w-7xl mx-auto px-6 py-10 space-y-8">
 
         {/* Header */}
         <div className="flex items-start justify-between flex-wrap gap-4">
           <div>
-            <h1 className="text-4xl font-bold text-slate-900 mb-1">Practice Tests</h1>
-            <p className="text-slate-600">Generate AI-powered practice tests tailored to your curriculum.</p>
+            <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100 mb-1">Practice Tests</h1>
+            <p className="text-slate-600 dark:text-slate-300">Generate AI-powered practice tests tailored to your curriculum.</p>
           </div>
           <Button
             variant="outline"
@@ -642,7 +645,7 @@ export default function PracticePage() {
                   iconSrc: '/icons/practice-metrics/current-streak.png',
                 },
               ] as const).map(({ label, value, iconSrc }) => (
-                <div key={label} className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                <div key={label} className="rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 shadow-sm">
                   <div className="flex items-center gap-2 mb-1">
                     <Image
                       src={iconSrc}
@@ -652,9 +655,9 @@ export default function PracticePage() {
                       aria-hidden="true"
                       className="h-5 w-5 object-contain"
                     />
-                    <p className="text-sm font-medium text-gray-600">{label}</p>
+                    <p className="text-sm font-medium text-gray-600 dark:text-slate-400">{label}</p>
                   </div>
-                  <p className="text-3xl font-bold text-gray-900">{value}</p>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-slate-100">{value}</p>
                 </div>
               ))}
             </div>
@@ -662,51 +665,64 @@ export default function PracticePage() {
 
           {/* Charts */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-              <h2 className="text-sm font-semibold text-gray-700 mb-3">Score Trend</h2>
+            <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-700 p-5 shadow-sm">
+              <h2 className="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-3">Score Trend</h2>
               {metrics && metrics.recentAttempts.length > 0 ? (
                 <div role="img" aria-label="Score trend chart � your recent practice test scores over time">
                   <ResponsiveContainer width="100%" height={160}>
                     <LineChart data={metrics.recentAttempts}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                      <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#334155' : '#e5e7eb'} />
                       <XAxis
                         dataKey="completedAt"
                         tickFormatter={(v) => new Date(v).toLocaleDateString('en', { month: 'short', day: 'numeric' })}
-                        tick={{ fill: '#374151', fontSize: 11 }}
+                        tick={{ fill: isDark ? '#cbd5e1' : '#374151', fontSize: 11 }}
                       />
-                      <YAxis domain={[0, 100]} tick={{ fill: '#374151', fontSize: 11 }} />
+                      <YAxis domain={[0, 100]} tick={{ fill: isDark ? '#cbd5e1' : '#374151', fontSize: 11 }} />
                       <Tooltip
-                        contentStyle={{ color: '#111827', fontSize: 12 }}
+                        contentStyle={{
+                          color: isDark ? '#e2e8f0' : '#111827',
+                          backgroundColor: isDark ? '#0f172a' : '#ffffff',
+                          borderColor: isDark ? '#334155' : '#e5e7eb',
+                          fontSize: 12,
+                        }}
                         formatter={(v) => [`${Number(v).toFixed(1)}%`, 'Score']}
                         labelFormatter={(l) => new Date(l).toLocaleDateString()}
                       />
-                      <Line type="monotone" dataKey="score" stroke="#2563EB" strokeWidth={2} dot={{ r: 4, fill: '#2563EB' }} />
+                      <Line type="monotone" dataKey="score" stroke={isDark ? '#22d3ee' : '#2563EB'} strokeWidth={2} dot={{ r: 4, fill: isDark ? '#22d3ee' : '#2563EB' }} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
               ) : (
-                <p className="text-gray-600 text-sm py-10 text-center">
+                <p className="text-gray-600 dark:text-slate-400 text-sm py-10 text-center">
                   Complete your first test to see your progress chart.
                 </p>
               )}
             </div>
 
-            <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-              <h2 className="text-sm font-semibold text-gray-700 mb-3">Performance by Subject</h2>
+            <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-700 p-5 shadow-sm">
+              <h2 className="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-3">Performance by Subject</h2>
               {metrics && metrics.subjectBreakdown.length > 0 ? (
                 <div role="img" aria-label="Performance by subject bar chart � average scores per subject">
                   <ResponsiveContainer width="100%" height={160}>
                     <BarChart data={metrics.subjectBreakdown}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                      <XAxis dataKey="subject" tick={{ fill: '#374151', fontSize: 11 }} />
-                      <YAxis domain={[0, 100]} tick={{ fill: '#374151', fontSize: 11 }} />
-                      <Tooltip contentStyle={{ color: '#111827', fontSize: 12 }} formatter={(v) => [`${Number(v).toFixed(1)}%`, 'Avg Score']} />
-                      <Bar dataKey="avg_score" fill="#2563EB" radius={[4, 4, 0, 0]} />
+                      <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#334155' : '#e5e7eb'} />
+                      <XAxis dataKey="subject" tick={{ fill: isDark ? '#cbd5e1' : '#374151', fontSize: 11 }} />
+                      <YAxis domain={[0, 100]} tick={{ fill: isDark ? '#cbd5e1' : '#374151', fontSize: 11 }} />
+                      <Tooltip
+                        contentStyle={{
+                          color: isDark ? '#e2e8f0' : '#111827',
+                          backgroundColor: isDark ? '#0f172a' : '#ffffff',
+                          borderColor: isDark ? '#334155' : '#e5e7eb',
+                          fontSize: 12,
+                        }}
+                        formatter={(v) => [`${Number(v).toFixed(1)}%`, 'Avg Score']}
+                      />
+                      <Bar dataKey="avg_score" fill={isDark ? '#22d3ee' : '#2563EB'} radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
               ) : (
-                <p className="text-gray-600 text-sm py-10 text-center">
+                <p className="text-gray-600 dark:text-slate-400 text-sm py-10 text-center">
                   Complete tests in multiple subjects to see a comparison.
                 </p>
               )}
@@ -718,16 +734,16 @@ export default function PracticePage() {
         <div className="flex gap-6">
           {/* Subject sidebar */}
           <aside aria-label="Subject selection" className="w-52 shrink-0">
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden sticky top-20">
-              <div className="px-4 py-3 border-b border-gray-100">
-                <h2 className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Your Subjects</h2>
+            <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm overflow-hidden sticky top-20">
+              <div className="px-4 py-3 border-b border-gray-100 dark:border-slate-700">
+                <h2 className="text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wide">Your Subjects</h2>
               </div>
               {isLoadingSubjects ? (
                 <div className="p-4 space-y-2" aria-busy="true" aria-label="Loading subjects�">
                   {[1, 2, 3].map((i) => <div key={i} className="h-9 bg-slate-100 animate-pulse rounded" />)}
                 </div>
               ) : subjects.length === 0 ? (
-                <p className="text-sm text-gray-600 p-4">
+                <p className="text-sm text-gray-600 dark:text-slate-400 p-4">
                   No subjects found.{' '}
                   <Link href="/profile" className="underline text-blue-700 hover:text-blue-900 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded">
                     Update your profile
@@ -743,7 +759,7 @@ export default function PracticePage() {
                       className={`w-full text-left px-4 py-2.5 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:outline-none ${
                         activeSubject === s
                           ? 'bg-blue-50 text-blue-900 font-medium border-l-4 border-blue-600'
-                          : 'text-gray-700 hover:bg-gray-50 border-l-4 border-transparent'
+                            : 'text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 border-l-4 border-transparent'
                       }`}
                       aria-current={activeSubject === s ? 'true' : undefined}
                       aria-label={`Select ${s} as practice subject`}
@@ -759,8 +775,8 @@ export default function PracticePage() {
           {/* Generate + Search panel */}
           <div className="flex-1 space-y-6">
             {/* Generate form */}
-            <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-4">
-              <h2 className="text-lg font-semibold text-slate-900">
+            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm space-y-4">
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
                 Generate New Practice Test
                 {activeSubject && (
                   <span className="ml-2 text-blue-700 font-medium text-base">� {activeSubject}</span>
@@ -769,7 +785,7 @@ export default function PracticePage() {
 
               <div className="grid sm:grid-cols-3 gap-4">
                 <div className="sm:col-span-2">
-                  <Label htmlFor="topic-input" className="text-sm font-medium text-gray-700 mb-1 block">
+                  <Label htmlFor="topic-input" className="text-sm font-medium text-gray-700 dark:text-slate-300 mb-1 block">
                     Topic
                   </Label>
                   <Input
@@ -784,7 +800,7 @@ export default function PracticePage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="complexity-select" className="text-sm font-medium text-gray-700 mb-1 block">
+                  <Label htmlFor="complexity-select" className="text-sm font-medium text-gray-700 dark:text-slate-300 mb-1 block">
                     Complexity
                   </Label>
                   <Select
@@ -843,23 +859,23 @@ export default function PracticePage() {
             </div>
 
             {/* Search */}
-            <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-4">
+            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm space-y-4">
               <button
                 onClick={() => setShowSearch((s) => !s)}
-                className="flex items-center gap-2 text-slate-900 font-semibold text-base hover:text-blue-700 transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
+                className="flex items-center gap-2 text-slate-900 dark:text-slate-100 font-semibold text-base hover:text-blue-700 dark:hover:text-cyan-300 transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
                 aria-expanded={showSearch}
                 aria-controls="search-panel"
               >
                 <Search className="h-4 w-4" aria-hidden="true" />
                 Search Past Tests
-                <span className="text-slate-500 font-normal text-sm">({showSearch ? 'hide' : 'show'})</span>
+                <span className="text-slate-500 dark:text-slate-400 font-normal text-sm">({showSearch ? 'hide' : 'show'})</span>
               </button>
 
               {showSearch && (
                 <div id="search-panel">
                   <div className="flex flex-wrap gap-3 items-end mb-4" role="search" aria-label="Search practice tests">
                     <div className="flex-1 min-w-[180px]">
-                      <Label htmlFor="search-input" className="text-sm font-medium text-gray-700 mb-1 block">
+                      <Label htmlFor="search-input" className="text-sm font-medium text-gray-700 dark:text-slate-300 mb-1 block">
                         Topic Name
                       </Label>
                       <Input
@@ -873,7 +889,7 @@ export default function PracticePage() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="search-subject-filter" className="text-sm font-medium text-gray-700 mb-1 block">
+                      <Label htmlFor="search-subject-filter" className="text-sm font-medium text-gray-700 dark:text-slate-300 mb-1 block">
                         Subject
                       </Label>
                       <Select
@@ -888,7 +904,7 @@ export default function PracticePage() {
                       </Select>
                     </div>
                     <div>
-                      <Label htmlFor="search-complexity-filter" className="text-sm font-medium text-gray-700 mb-1 block">
+                      <Label htmlFor="search-complexity-filter" className="text-sm font-medium text-gray-700 dark:text-slate-300 mb-1 block">
                         Complexity
                       </Label>
                       <Select
@@ -928,23 +944,23 @@ export default function PracticePage() {
 
                   {searchResults !== null && (
                     searchResults.length === 0 ? (
-                      <p className="text-gray-600 text-sm">No matching tests found. Try different filters.</p>
+                      <p className="text-gray-600 dark:text-slate-400 text-sm">No matching tests found. Try different filters.</p>
                     ) : (
                       <div className="grid sm:grid-cols-2 gap-3">
                         {searchResults.map((r) => (
-                          <div key={r.id} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                          <div key={r.id} className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-4">
                             <div className="flex items-start justify-between mb-2">
                               <div>
                                 <p className="text-xs font-semibold text-blue-700 uppercase tracking-wide">{r.subject}</p>
-                                <p className="font-semibold text-slate-900 mt-0.5">{r.topic}</p>
+                                <p className="font-semibold text-slate-900 dark:text-slate-100 mt-0.5">{r.topic}</p>
                               </div>
                               <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${complexityBadge(r.complexity)}`}>
                                 {r.complexity}
                               </span>
                             </div>
-                            <p className="text-sm text-slate-700">{r.totalMarks} marks � {r.durationMins} min</p>
+                            <p className="text-sm text-slate-700 dark:text-slate-300">{r.totalMarks} marks � {r.durationMins} min</p>
                             {r.attemptCount > 0 && (
-                              <p className="text-xs text-slate-600 mt-1">
+                              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
                                 {r.attemptCount} attempt{r.attemptCount !== 1 ? 's' : ''} � Best: {r.bestScore !== null ? `${r.bestScore.toFixed(1)}%` : '�'}
                               </p>
                             )}
@@ -988,7 +1004,7 @@ function FeedbackView({ feedback, testQuestions, answers, onTryAnother, onViewHi
           &nbsp;({pct.toFixed(1)}%)
         </div>
         {feedback.encouragement_badge && (
-          <div className="inline-flex items-center gap-2 bg-white rounded-full px-4 py-1 border text-sm font-semibold mb-4 text-gray-700">
+          <div className="inline-flex items-center gap-2 bg-white dark:bg-slate-900 rounded-full px-4 py-1 border dark:border-slate-600 text-sm font-semibold mb-4 text-gray-700 dark:text-slate-200">
             ?? {feedback.encouragement_badge}
           </div>
         )}
@@ -1027,7 +1043,7 @@ function FeedbackView({ feedback, testQuestions, answers, onTryAnother, onViewHi
       {/* Per-question review */}
       {testQuestions.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-slate-900">Question-by-Question Review</h2>
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Question-by-Question Review</h2>
           {testQuestions.map((q, idx) => {
             const qf = feedback.per_question_feedback?.find(
               (f) => String(f.question_id) === String(q.id),

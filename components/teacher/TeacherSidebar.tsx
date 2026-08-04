@@ -123,7 +123,7 @@ export function TeacherSidebar({ teacherName, schoolName }: TeacherSidebarProps)
 
   return (
     <aside
-      className="w-60 shrink-0 bg-white border-r border-blue-100 min-h-screen sticky top-0 flex flex-col py-6 px-4"
+      className="w-60 shrink-0 bg-white dark:bg-slate-900 border-r border-blue-100 dark:border-slate-700 min-h-screen sticky top-0 flex flex-col py-6 px-4"
       aria-label="Teacher navigation"
     >
       {/* Logo */}
@@ -134,8 +134,8 @@ export function TeacherSidebar({ teacherName, schoolName }: TeacherSidebarProps)
           className="rounded-xl bg-white p-1 flex-shrink-0"
         />
         <div>
-          <p className="font-bold text-[17px] text-[#006e2f] leading-none">Teacher Portal</p>
-          <p className="text-gray-500 text-[11px] mt-0.5 truncate max-w-[120px]" title={schoolName}>
+          <p className="font-bold text-[17px] text-[#006e2f] dark:text-cyan-300 leading-none">Teacher Portal</p>
+          <p className="text-gray-500 dark:text-slate-400 text-[11px] mt-0.5 truncate max-w-[120px]" title={schoolName}>
             {schoolName}
           </p>
         </div>
@@ -158,7 +158,7 @@ export function TeacherSidebar({ teacherName, schoolName }: TeacherSidebarProps)
                     'focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none',
                     active
                       ? 'bg-[#eff4ff] text-[#0058be] font-semibold'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
+                      : 'text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-slate-100',
                   )}
                 >
                   {item.icon}
@@ -180,7 +180,7 @@ export function TeacherSidebar({ teacherName, schoolName }: TeacherSidebarProps)
                           'focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none',
                           pathname === child.href
                             ? 'bg-[#0058be] text-white font-semibold'
-                            : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50',
+                            : 'text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100 hover:bg-gray-50 dark:hover:bg-slate-800',
                         )}
                       >
                         {child.label}
@@ -202,7 +202,7 @@ export function TeacherSidebar({ teacherName, schoolName }: TeacherSidebarProps)
                 'focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none',
                 active
                   ? 'bg-[#eff4ff] text-[#0058be] font-semibold border-l-4 border-[#0058be] pl-2'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
+                  : 'text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-slate-100',
               )}
             >
               {item.icon}
@@ -213,8 +213,8 @@ export function TeacherSidebar({ teacherName, schoolName }: TeacherSidebarProps)
       </nav>
 
       {/* Footer */}
-      <div className="mt-6 border-t border-gray-100 pt-4">
-        <p className="px-3 text-xs font-semibold text-gray-700 truncate" aria-label={`Logged in as ${teacherName}`}>
+      <div className="mt-6 border-t border-gray-100 dark:border-slate-700 pt-4">
+        <p className="px-3 text-xs font-semibold text-gray-700 dark:text-slate-300 truncate" aria-label={`Logged in as ${teacherName}`}>
           {teacherName}
         </p>
         <button

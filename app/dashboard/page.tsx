@@ -10,7 +10,7 @@ export default function DashboardPage() {
   return (
     <main className="flex-1 overflow-x-hidden">
         {/* HERO */}
-        <section className="px-10 py-12 relative overflow-hidden" style={{ background: 'linear-gradient(135deg,#f8f9ff 0%,#eff4ff 100%)' }}>
+        <section className="px-10 py-12 relative overflow-hidden dark:bg-slate-950" style={{ background: 'linear-gradient(135deg,#f8f9ff 0%,#eff4ff 100%)' }}>
           <div className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-40" style={{ background: 'radial-gradient(circle,#e5eeff,transparent)', transform: 'translate(30%,-30%)' }}></div>
           <div className="flex gap-12 items-center">
             {/* Left content */}
@@ -30,7 +30,7 @@ export default function DashboardPage() {
                     Let's Start Learning <span className="mat text-xl">rocket_launch</span>
                   </button>
                 </a>
-                <button className="px-7 py-3.5 border-2 border-[#bccbb9] text-[#3d4a3d] qs font-bold rounded-xl hover:bg-[#e5eeff] hover:border-[#adc6ff] transition-all text-[15px]">
+                <button className="px-7 py-3.5 border-2 border-[#bccbb9] dark:border-slate-600 text-[#3d4a3d] dark:text-slate-200 qs font-bold rounded-xl hover:bg-[#e5eeff] dark:hover:bg-slate-800 hover:border-[#adc6ff] dark:hover:border-slate-500 transition-all text-[15px]">
                   View Curriculum
                 </button>
               </div>
@@ -43,22 +43,22 @@ export default function DashboardPage() {
                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#22c55e] to-[#4ae176]"></div>
               </div>
               {/* Floating streak card */}
-              <div className="float-fast absolute left-0 top-1/4 bg-white rounded-xl px-3.5 py-2.5 flex items-center gap-2.5" style={{ boxShadow: '0 8px 24px rgba(0,88,190,.16)' }}>
+              <div className="float-fast absolute left-0 top-1/4 bg-white dark:bg-slate-900 rounded-xl px-3.5 py-2.5 flex items-center gap-2.5" style={{ boxShadow: '0 8px 24px rgba(0,88,190,.16)' }}>
                 <div className="w-9 h-9 bg-[#006e2f] rounded-xl flex items-center justify-center">
                   <span className="mat-fill text-white text-lg">bolt</span>
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold text-[#3d4a3d] uppercase tracking-wide">Daily Streak</p>
+                  <p className="text-[10px] font-bold text-[#3d4a3d] dark:text-slate-300 uppercase tracking-wide">Daily Streak</p>
                   <p className="font-bold text-[#006e2f] text-sm qs">5 Days</p>
                 </div>
               </div>
               {/* Floating XP card */}
-              <div className="float-slow absolute right-0 bottom-1/4 bg-white rounded-xl px-3.5 py-2.5 flex items-center gap-2.5" style={{ boxShadow: '0 8px 24px rgba(0,88,190,.16)' }}>
+              <div className="float-slow absolute right-0 bottom-1/4 bg-white dark:bg-slate-900 rounded-xl px-3.5 py-2.5 flex items-center gap-2.5" style={{ boxShadow: '0 8px 24px rgba(0,88,190,.16)' }}>
                 <div className="w-9 h-9 bg-[#ff8e4d] rounded-xl flex items-center justify-center">
                   <span className="mat-fill text-white text-lg">star</span>
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold text-[#3d4a3d] uppercase tracking-wide">XP Earned</p>
+                  <p className="text-[10px] font-bold text-[#3d4a3d] dark:text-slate-300 uppercase tracking-wide">XP Earned</p>
                   <p className="font-bold text-[#9d4300] text-sm qs">2,450</p>
                 </div>
               </div>
@@ -69,8 +69,8 @@ export default function DashboardPage() {
         {/* TOOLS BENTO GRID */}
         <section className="px-10 py-12">
           <div className="text-center mb-10">
-            <h2 className="qs font-bold text-3xl text-[#0b1c30] mb-2">Unlock Your Tools</h2>
-            <p className="text-[#3d4a3d]">Everything you need to master your education in one place.</p>
+            <h2 className="qs font-bold text-3xl text-[#0b1c30] dark:text-slate-100 mb-2">Unlock Your Tools</h2>
+            <p className="text-[#3d4a3d] dark:text-slate-300">Everything you need to master your education in one place.</p>
           </div>
           <div className="grid grid-cols-12 gap-5">
             {/* Homework Help */}
@@ -78,9 +78,9 @@ export default function DashboardPage() {
               <div>
                 <div className="flex items-center gap-4 mb-4">
                   <Image src={HomeworkHelpIcon} alt="Homework Help" width={72} height={72} className="drop-shadow-md flex-shrink-0 h-auto w-auto" />
-                  <h3 className="qs font-bold text-lg text-[#0b1c30]">Homework Help</h3>
+                  <h3 className="qs font-bold text-lg text-[#0b1c30] dark:text-slate-100">Homework Help</h3>
                 </div>
-                <p className="text-[#6d7b6c] text-sm">Get instant solutions with step-by-step explanations.</p>
+                <p className="text-[#6d7b6c] dark:text-slate-300 text-sm">Get instant solutions with step-by-step explanations.</p>
               </div>
               <Link
                 href="/assignments"
@@ -95,9 +95,9 @@ export default function DashboardPage() {
               <div>
                 <div className="flex items-center gap-4 mb-4">
                   <Image src={ResearchTopicIcon} alt="Topic Research" width={72} height={72} className="drop-shadow-md flex-shrink-0 h-auto w-auto" />
-                  <h3 className="qs font-bold text-lg text-[#0b1c30]">Topic Research</h3>
+                  <h3 className="qs font-bold text-lg text-[#0b1c30] dark:text-slate-100">Topic Research</h3>
                 </div>
-                <p className="text-[#6d7b6c] text-sm">Curriculum-aligned content for your grade level.</p>
+                <p className="text-[#6d7b6c] dark:text-slate-300 text-sm">Curriculum-aligned content for your grade level.</p>
               </div>
               <Link
                 href="/resources"
@@ -107,7 +107,7 @@ export default function DashboardPage() {
               </Link>
               <Link
                 href="/research?view=history"
-                className="mt-3 inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2.5 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                className="mt-3 inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-blue-200 dark:border-slate-600 bg-blue-50 dark:bg-slate-800 px-4 py-2.5 text-sm font-medium text-blue-700 dark:text-cyan-200 transition-colors hover:bg-blue-100 dark:hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                 aria-label="View your research history"
               >
                 <span aria-hidden="true">🕐</span>
@@ -120,9 +120,9 @@ export default function DashboardPage() {
               <div>
                 <div className="flex items-center gap-4 mb-4">
                   <Image src={StudentProgressIcon} alt="Student's Progress" width={72} height={72} className="drop-shadow-md flex-shrink-0 h-auto w-auto" />
-                  <h3 className="qs font-bold text-lg text-[#0b1c30]">Progress Tracking</h3>
+                  <h3 className="qs font-bold text-lg text-[#0b1c30] dark:text-slate-100">Progress Tracking</h3>
                 </div>
-                <p className="text-[#6d7b6c] text-sm">Track your growth across subjects and assignments.</p>
+                <p className="text-[#6d7b6c] dark:text-slate-300 text-sm">Track your growth across subjects and assignments.</p>
               </div>
               <Link
                 href="/progress"

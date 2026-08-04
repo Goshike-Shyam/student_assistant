@@ -52,15 +52,15 @@ export default function TeacherAssignmentsPage() {
   }
 
   if (loading) {
-    return <div className="p-8 animate-pulse" aria-busy="true"><div className="h-8 bg-gray-200 rounded w-40 mb-4" /></div>
+    return <div className="p-8 animate-pulse" aria-busy="true"><div className="h-8 bg-gray-200 dark:bg-slate-700 rounded w-40 mb-4" /></div>
   }
 
   return (
     <main className="p-8 max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Assignments</h1>
-          <p className="text-gray-600 text-sm mt-1">{assignments.length} total</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Assignments</h1>
+          <p className="text-gray-600 dark:text-slate-400 text-sm mt-1">{assignments.length} total</p>
         </div>
         <Link
           href="/teacher/assignments/create"
@@ -74,7 +74,7 @@ export default function TeacherAssignmentsPage() {
       {error && <div role="alert" className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700">{error}</div>}
 
       {/* Tabs */}
-      <div role="tablist" aria-label="Assignment filters" className="flex gap-1 mb-6 border-b border-gray-200">
+      <div role="tablist" aria-label="Assignment filters" className="flex gap-1 mb-6 border-b border-gray-200 dark:border-slate-700">
         {(['active', 'past', 'drafts'] as Tab[]).map((t) => (
           <button
             key={t}
@@ -84,18 +84,18 @@ export default function TeacherAssignmentsPage() {
             className={`px-4 py-2.5 text-sm font-medium rounded-t-lg border-b-2 transition-colors focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none capitalize
               ${tab === t
                 ? 'border-[#006e2f] text-[#006e2f]'
-                : 'border-transparent text-gray-600 hover:text-gray-900'
+                : 'border-transparent text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-slate-100'
               }`}
           >
-            {t} <span className="ml-1 text-xs px-1.5 py-0.5 bg-gray-100 rounded-full">{tabCounts[t]}</span>
+            {t} <span className="ml-1 text-xs px-1.5 py-0.5 bg-gray-100 dark:bg-slate-800 rounded-full">{tabCounts[t]}</span>
           </button>
         ))}
       </div>
 
       {filtered.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-2xl border border-gray-100">
-          <BookOpen className="w-12 h-12 text-gray-300 mx-auto mb-3" aria-hidden="true" />
-          <p className="text-gray-500">No {tab} assignments</p>
+        <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-700">
+          <BookOpen className="w-12 h-12 text-gray-300 dark:text-slate-600 mx-auto mb-3" aria-hidden="true" />
+          <p className="text-gray-500 dark:text-slate-300">No {tab} assignments</p>
           {tab === 'active' && (
             <Link href="/teacher/assignments/create" className="mt-3 inline-block text-[#006e2f] font-medium hover:underline">
               Create your first assignment →
@@ -109,13 +109,13 @@ export default function TeacherAssignmentsPage() {
             return (
               <article
                 key={a.id}
-                className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex flex-col gap-3"
+                className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-700 shadow-sm p-5 flex flex-col gap-3"
                 role="listitem"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <h2 className="font-bold text-gray-900">{a.topic}</h2>
-                    <p className="text-gray-600 text-sm">{a.subject} · {a.className} (Grade {a.grade})</p>
+                    <h2 className="font-bold text-gray-900 dark:text-slate-100">{a.topic}</h2>
+                    <p className="text-gray-600 dark:text-slate-300 text-sm">{a.subject} · {a.className} (Grade {a.grade})</p>
                   </div>
                   <span className={`text-xs px-2 py-1 rounded-full font-medium shrink-0 ${
                     a.complexity === 'Easy' ? 'bg-green-50 text-green-700' :
@@ -128,13 +128,13 @@ export default function TeacherAssignmentsPage() {
 
                 {/* Progress bar */}
                 <div>
-                  <div className="flex justify-between text-xs text-gray-600 mb-1">
+                  <div className="flex justify-between text-xs text-gray-600 dark:text-slate-400 mb-1">
                     <span>Submissions</span>
                     <span aria-label={`${a.submittedCount} of ${a.totalStudents} submitted`}>
                       {a.submittedCount}/{a.totalStudents}
                     </span>
                   </div>
-                  <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden" role="progressbar" aria-valuenow={submissionPct} aria-valuemin={0} aria-valuemax={100} aria-label={`${Math.round(submissionPct)}% submitted`}>
+                  <div className="h-1.5 bg-gray-100 dark:bg-slate-800 rounded-full overflow-hidden" role="progressbar" aria-valuenow={submissionPct} aria-valuemin={0} aria-valuemax={100} aria-label={`${Math.round(submissionPct)}% submitted`}>
                     <div
                       className="h-full bg-[#006e2f] rounded-full"
                       style={{ width: `${submissionPct}%` }}
@@ -142,7 +142,7 @@ export default function TeacherAssignmentsPage() {
                   </div>
                 </div>
 
-                <p className="text-xs text-gray-500 flex items-center gap-1.5">
+                <p className="text-xs text-gray-500 dark:text-slate-400 flex items-center gap-1.5">
                   <Clock className="w-3.5 h-3.5" aria-hidden="true" />
                   Due: {new Date(a.dueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                 </p>
@@ -150,7 +150,7 @@ export default function TeacherAssignmentsPage() {
                 <div className="flex gap-2 pt-1">
                   <Link
                     href={`/teacher/assignments/${a.id}/status`}
-                    className="flex-1 min-h-[36px] text-center py-2 text-sm font-medium border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none"
+                    className="flex-1 min-h-[36px] text-center py-2 text-sm font-medium border border-gray-200 dark:border-slate-600 rounded-lg text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none"
                   >
                     View Status
                   </Link>

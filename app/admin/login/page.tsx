@@ -41,9 +41,9 @@ export default function AdminLogin() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f8f9ff] to-[#e5eeff] px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f8f9ff] to-[#e5eeff] dark:from-slate-950 dark:to-slate-900 px-4">
       <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl shadow-lg p-8 border border-[#e5eeff]">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg p-8 border border-[#e5eeff] dark:border-slate-700">
           {/* Header */}
           <div className="mb-8 text-center">
             <AppLogo
@@ -51,8 +51,8 @@ export default function AdminLogin() {
               className="mx-auto mb-4 rounded-2xl border border-slate-100 p-1"
               priority
             />
-            <h1 className="qs font-bold text-2xl text-[#0b1c30] mb-2">Admin Portal</h1>
-            <p className="text-[#6d7b6c] text-sm">School Assistant Administration</p>
+            <h1 className="qs font-bold text-2xl text-[#0b1c30] dark:text-slate-100 mb-2">Admin Portal</h1>
+            <p className="text-[#6d7b6c] dark:text-slate-400 text-sm">School Assistant Administration</p>
           </div>
 
           {/* Form */}
@@ -68,7 +68,7 @@ export default function AdminLogin() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@schoolassistant.app"
-                className="w-full px-4 py-2.5 border border-[#e5eeff] rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0058be] focus-visible:ring-offset-2 focus-visible:border-transparent text-[#0b1c30]"
+                className="w-full px-4 py-2.5 border border-[#e5eeff] dark:border-slate-600 bg-white dark:bg-slate-900 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0058be] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 focus-visible:border-transparent text-[#0b1c30] dark:text-slate-100"
                 required
                 disabled={loading}
               />
@@ -85,7 +85,7 @@ export default function AdminLogin() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full px-4 py-2.5 border border-[#e5eeff] rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0058be] focus-visible:ring-offset-2 focus-visible:border-transparent text-[#0b1c30]"
+                className="w-full px-4 py-2.5 border border-[#e5eeff] dark:border-slate-600 bg-white dark:bg-slate-900 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0058be] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 focus-visible:border-transparent text-[#0b1c30] dark:text-slate-100"
                 required
                 disabled={loading}
               />
@@ -109,8 +109,8 @@ export default function AdminLogin() {
           </form>
 
           {/* Footer */}
-          <div className="mt-6 pt-6 border-t border-[#e5eeff] text-center">
-            <p className="text-xs text-[#6d7b6c] mb-3">
+          <div className="mt-6 pt-6 border-t border-[#e5eeff] dark:border-slate-700 text-center">
+            <p className="text-xs text-[#6d7b6c] dark:text-slate-400 mb-3">
               Forgot your password?{' '}
               <a
                 href="mailto:support@schoolassistant.app"
@@ -123,8 +123,8 @@ export default function AdminLogin() {
         </div>
 
         {/* Info Box */}
-        <div className="mt-6 p-4 bg-white/50 rounded-lg border border-[#e5eeff] text-center">
-          <p className="text-xs text-[#6d7b6c]">
+        <div className="mt-6 p-4 bg-white/50 dark:bg-slate-900/60 rounded-lg border border-[#e5eeff] dark:border-slate-700 text-center">
+          <p className="text-xs text-[#6d7b6c] dark:text-slate-400">
             Admin access only. Unauthorized access is prohibited.
           </p>
         </div>

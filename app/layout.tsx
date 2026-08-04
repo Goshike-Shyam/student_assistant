@@ -14,6 +14,7 @@ import { StudentShell } from '@/components/ui/student-shell';
 import { IconEmojiReplacer } from '@/components/icon-emoji-replacer';
 import { Analytics } from "@vercel/analytics/next"
 import { Toaster } from 'sonner';
+import { ThemeProvider } from '@/lib/theme';
 
 export const metadata: Metadata = {
   title: 'Student Assistant | Veda AI',
@@ -39,13 +40,29 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const themeScript = `(() => {
+    try {
+      const t = localStorage.getItem('sa-theme');
+      const dark = t === 'dark';
+      document.documentElement.classList.toggle('dark', dark);
+      document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+    } catch {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.style.colorScheme = 'light';
+    }
+  })();`;
+
   return (
-    <html lang="en" data-scroll-behavior="smooth">
-      <body className="min-h-screen bg-slate-50 text-slate-900 antialiased">
+    <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
+      <body className="min-h-screen bg-slate-50 text-slate-900 antialiased transition-colors dark:bg-slate-950 dark:text-slate-100">
+        <ThemeProvider>
         {/* Skip-to-content link — appears on first Tab press */}
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:bg-white focus:px-4 focus:py-2 focus:rounded focus:shadow-lg focus:text-[#0058be] focus:underline"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:bg-white focus:px-4 focus:py-2 focus:rounded focus:shadow-lg focus:text-[#0058be] focus:underline dark:focus:bg-slate-900 dark:focus:text-cyan-300"
         >
           Skip to main content
         </a>
@@ -55,6 +72,7 @@ export default function RootLayout({
         <div id="main-content">
           <StudentShell>{children}</StudentShell>
         </div>
+        </ThemeProvider>
       </body>
     </html>
   );

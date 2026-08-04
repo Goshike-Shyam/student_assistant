@@ -35,9 +35,9 @@ interface Props {
 }
 
 const PRIORITY_STYLES: Record<NotifPriority, string> = {
-  high: 'border-l-4 border-red-400 bg-red-50',
-  medium: 'border-l-4 border-amber-400 bg-amber-50',
-  low: 'border-l-4 border-blue-300 bg-white',
+  high: 'border-l-4 border-red-400 bg-red-50 dark:bg-red-950/40',
+  medium: 'border-l-4 border-amber-400 bg-amber-50 dark:bg-amber-950/35',
+  low: 'border-l-4 border-blue-300 bg-white dark:bg-slate-900',
 }
 
 const CATEGORY_LABEL: Record<NotifCategory, string> = {
@@ -179,7 +179,7 @@ export function NotificationPanel({ fetchUrl, markReadUrl, emptyMessage, role }:
         aria-label={unread > 0 ? `${unread} unread notifications` : 'Notifications'}
         aria-expanded={open}
         aria-haspopup="dialog"
-        className="relative flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 hover:text-gray-900 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+        className="relative flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 hover:text-gray-900 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 dark:hover:text-slate-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
       >
         <Bell size={20} aria-hidden="true" />
         {unread > 0 && (
@@ -204,7 +204,7 @@ export function NotificationPanel({ fetchUrl, markReadUrl, emptyMessage, role }:
           role="dialog"
           aria-label="Notifications"
           aria-modal="false"
-          className="absolute right-0 mt-2 w-96 max-w-[calc(100vw-2rem)] bg-white border border-gray-200 rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden"
+          className="absolute right-0 mt-2 w-96 max-w-[calc(100vw-2rem)] bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden"
           style={{ maxHeight: 'calc(100vh - 80px)' }}
         >
           <div className={cn('flex items-center justify-between px-4 py-3 flex-shrink-0', ROLE_COLOUR[role])}>
@@ -237,11 +237,11 @@ export function NotificationPanel({ fetchUrl, markReadUrl, emptyMessage, role }:
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto divide-y divide-gray-100">
+          <div className="flex-1 overflow-y-auto divide-y divide-gray-100 dark:divide-slate-700">
             {loading && (
               <div className="flex items-center justify-center py-12" aria-live="polite" aria-busy="true">
                 <div
-                  className="w-6 h-6 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"
+                  className="w-6 h-6 border-2 border-gray-300 dark:border-slate-600 border-t-blue-600 rounded-full animate-spin"
                   aria-hidden="true"
                 />
                 <span className="sr-only">Loading notifications...</span>
@@ -250,11 +250,11 @@ export function NotificationPanel({ fetchUrl, markReadUrl, emptyMessage, role }:
 
             {error && (
               <div className="p-4 text-center" role="alert">
-                <p className="text-sm text-red-600">{error}</p>
+                <p className="text-sm text-red-600 dark:text-rose-400">{error}</p>
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
-                  className="mt-2 text-xs text-gray-500 underline hover:text-gray-700"
+                  className="mt-2 text-xs text-gray-500 dark:text-slate-400 underline hover:text-gray-700 dark:hover:text-slate-200"
                 >
                   Dismiss
                 </button>
@@ -263,9 +263,9 @@ export function NotificationPanel({ fetchUrl, markReadUrl, emptyMessage, role }:
 
             {!loading && !error && items.length === 0 && (
               <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-                <Bell size={32} className="text-gray-200 mb-3" aria-hidden="true" />
-                <p className="text-sm font-medium text-gray-500">All caught up!</p>
-                <p className="text-xs text-gray-400 mt-1">{emptyMessage}</p>
+                <Bell size={32} className="text-gray-200 dark:text-slate-700 mb-3" aria-hidden="true" />
+                <p className="text-sm font-medium text-gray-500 dark:text-slate-300">All caught up!</p>
+                <p className="text-xs text-gray-400 dark:text-slate-400 mt-1">{emptyMessage}</p>
               </div>
             )}
 
@@ -286,7 +286,7 @@ export function NotificationPanel({ fetchUrl, markReadUrl, emptyMessage, role }:
                     }}
                   >
                     <span
-                      className="text-[10px] tracking-wide font-semibold text-gray-500 bg-white/80 border border-gray-200 rounded px-1.5 py-0.5 h-fit mt-0.5"
+                      className="text-[10px] tracking-wide font-semibold text-gray-500 dark:text-slate-300 bg-white/80 dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded px-1.5 py-0.5 h-fit mt-0.5"
                       aria-hidden="true"
                     >
                       {CATEGORY_LABEL[notif.category]}
@@ -294,7 +294,7 @@ export function NotificationPanel({ fetchUrl, markReadUrl, emptyMessage, role }:
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
-                        <p className={cn('text-sm text-gray-900', !notif.isRead && 'font-semibold')}>
+                        <p className={cn('text-sm text-gray-900 dark:text-slate-100', !notif.isRead && 'font-semibold')}>
                           {notif.title}
                         </p>
                         {!notif.isRead && (
@@ -304,8 +304,8 @@ export function NotificationPanel({ fetchUrl, markReadUrl, emptyMessage, role }:
                           />
                         )}
                       </div>
-                      <p className="text-xs text-gray-600 mt-0.5 leading-relaxed line-clamp-2">{notif.body}</p>
-                      <p className="text-xs text-gray-400 mt-1">{timeAgo(notif.timestamp)}</p>
+                      <p className="text-xs text-gray-600 dark:text-slate-300 mt-0.5 leading-relaxed line-clamp-2">{notif.body}</p>
+                      <p className="text-xs text-gray-400 dark:text-slate-500 mt-1">{timeAgo(notif.timestamp)}</p>
                     </div>
                   </div>
                 )
@@ -331,8 +331,8 @@ export function NotificationPanel({ fetchUrl, markReadUrl, emptyMessage, role }:
           </div>
 
           {items.length > 0 && (
-            <div className="px-4 py-3 border-t border-gray-100 bg-gray-50 flex-shrink-0">
-              <p className="text-xs text-gray-400 text-center">
+            <div className="px-4 py-3 border-t border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 flex-shrink-0">
+              <p className="text-xs text-gray-400 dark:text-slate-400 text-center">
                 Showing last {items.length} notification{items.length !== 1 ? 's' : ''}
               </p>
             </div>

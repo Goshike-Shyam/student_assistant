@@ -109,9 +109,9 @@ export default function TeacherClassesPage() {
   if (loading) {
     return (
       <div className="p-8 animate-pulse" aria-busy="true" aria-label="Loading classes">
-        <div className="h-8 bg-gray-200 rounded w-32 mb-6" />
+        <div className="h-8 bg-gray-200 dark:bg-slate-700 rounded w-32 mb-6" />
         <div className="grid grid-cols-2 gap-4">
-          {[0, 1, 2].map((i) => <div key={i} className="h-40 bg-gray-200 rounded-xl" />)}
+          {[0, 1, 2].map((i) => <div key={i} className="h-40 bg-gray-200 dark:bg-slate-700 rounded-xl" />)}
         </div>
       </div>
     )
@@ -121,8 +121,8 @@ export default function TeacherClassesPage() {
     <main className="p-8 max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">My Classes</h1>
-          <p className="text-gray-600 text-sm mt-1">{classes.length} class{classes.length !== 1 ? 'es' : ''}</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">My Classes</h1>
+          <p className="text-gray-600 dark:text-slate-400 text-sm mt-1">{classes.length} class{classes.length !== 1 ? 'es' : ''}</p>
         </div>
         <button
           onClick={() => setShowForm((v) => !v)}
@@ -145,10 +145,10 @@ export default function TeacherClassesPage() {
       {showForm && (
         <div
           id="create-class-form"
-          className="mb-8 bg-white rounded-2xl border border-gray-200 shadow-sm p-6"
+          className="mb-8 bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-sm p-6"
           aria-label="Create new class form"
         >
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">New Class</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-4">New Class</h2>
 
           {formError && (
             <div role="alert" className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
@@ -169,7 +169,7 @@ export default function TeacherClassesPage() {
                   onChange={(e) => setForm((f) => ({ ...f, className: e.target.value }))}
                   required
                   aria-required="true"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 rounded-lg text-gray-900 dark:text-slate-100 focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none"
                   placeholder="e.g. Grade 7A"
                   disabled={submitting}
                 />
@@ -185,7 +185,7 @@ export default function TeacherClassesPage() {
                   onChange={(e) => setForm((f) => ({ ...f, grade: e.target.value }))}
                   required
                   aria-required="true"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 rounded-lg text-gray-900 dark:text-slate-100 focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none"
                   disabled={submitting}
                 >
                   <option value="">Select grade</option>
@@ -203,7 +203,7 @@ export default function TeacherClassesPage() {
                   onChange={(e) => setForm((f) => ({ ...f, board: e.target.value }))}
                   required
                   aria-required="true"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 rounded-lg text-gray-900 dark:text-slate-100 focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none"
                   disabled={submitting}
                 >
                   <option value="">Select board</option>
@@ -218,10 +218,10 @@ export default function TeacherClassesPage() {
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">
                   Academic Year
                 </label>
-                <div className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 text-sm">
+                <div className="px-3 py-2 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-gray-900 dark:text-slate-100 text-sm">
                   {getAcademicYearLabel(form.board as Board)}
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
                   Auto-detected based on selected curriculum
                 </p>
               </div>
@@ -244,7 +244,7 @@ export default function TeacherClassesPage() {
                       className={`min-h-[36px] px-3 py-1 rounded-full border text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none
                         ${form.subjects.includes(s)
                           ? 'bg-[#006e2f] text-white border-[#006e2f]'
-                          : 'bg-white text-gray-700 border-gray-300 hover:border-[#006e2f]'
+                          : 'bg-white dark:bg-slate-900 text-gray-700 dark:text-slate-300 border-gray-300 dark:border-slate-600 hover:border-[#006e2f]'
                         }`}
                     >
                       {s}
@@ -265,7 +265,7 @@ export default function TeacherClassesPage() {
               <button
                 type="button"
                 onClick={() => setShowForm(false)}
-                className="min-h-[44px] px-6 py-2.5 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:outline-none"
+                className="min-h-[44px] px-6 py-2.5 border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-200 font-semibold rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:outline-none"
               >
                 Cancel
               </button>
@@ -276,23 +276,23 @@ export default function TeacherClassesPage() {
 
       {/* Classes grid */}
       {classes.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-2xl border border-gray-100">
-          <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" aria-hidden="true" />
-          <p className="text-gray-500 font-medium">No classes yet</p>
-          <p className="text-gray-400 text-sm mt-1">Click "Create New Class" to get started.</p>
+        <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-700">
+          <Users className="w-12 h-12 text-gray-300 dark:text-slate-600 mx-auto mb-3" aria-hidden="true" />
+          <p className="text-gray-500 dark:text-slate-300 font-medium">No classes yet</p>
+          <p className="text-gray-400 dark:text-slate-500 text-sm mt-1">Click "Create New Class" to get started.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" role="list" aria-label="Class list">
           {classes.map((cls) => (
             <article
               key={cls.id}
-              className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex flex-col gap-3"
+              className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-700 shadow-sm p-5 flex flex-col gap-3"
               role="listitem"
             >
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <h2 className="font-bold text-gray-900 text-lg leading-tight">{cls.className}</h2>
-                  <p className="text-gray-600 text-sm mt-0.5">Grade {cls.grade} · {cls.board}</p>
+                  <h2 className="font-bold text-gray-900 dark:text-slate-100 text-lg leading-tight">{cls.className}</h2>
+                  <p className="text-gray-600 dark:text-slate-300 text-sm mt-0.5">Grade {cls.grade} · {cls.board}</p>
                 </div>
                 <span className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded-full font-medium shrink-0">
                   {cls.academicYear}
@@ -308,25 +308,25 @@ export default function TeacherClassesPage() {
                 ))}
               </div>
 
-              <p className="text-sm text-gray-600 flex items-center gap-1.5">
-                <Users className="w-4 h-4 text-gray-400" aria-hidden="true" />
+              <p className="text-sm text-gray-600 dark:text-slate-300 flex items-center gap-1.5">
+                <Users className="w-4 h-4 text-gray-400 dark:text-slate-500" aria-hidden="true" />
                 <span aria-label={`${cls.studentCount} students enrolled`}>
                   {cls.studentCount} student{cls.studentCount !== 1 ? 's' : ''}
                 </span>
               </p>
 
               {/* Actions */}
-              <div className="flex flex-col gap-2 mt-auto pt-2 border-t border-gray-100">
+              <div className="flex flex-col gap-2 mt-auto pt-2 border-t border-gray-100 dark:border-slate-700">
                 <Link
                   href={`/teacher/classes/${cls.id}/students`}
-                  className="flex items-center gap-2 min-h-[40px] px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none"
+                  className="flex items-center gap-2 min-h-[40px] px-4 py-2 rounded-lg border border-gray-200 dark:border-slate-600 text-sm font-medium text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none"
                 >
                   <Users className="w-4 h-4" aria-hidden="true" />
                   Manage Students
                 </Link>
                 <Link
                   href={`/teacher/assignments/create?classId=${cls.id}`}
-                  className="flex items-center gap-2 min-h-[40px] px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none"
+                  className="flex items-center gap-2 min-h-[40px] px-4 py-2 rounded-lg border border-gray-200 dark:border-slate-600 text-sm font-medium text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none"
                 >
                   <BookOpen className="w-4 h-4" aria-hidden="true" />
                   Create Assignment
@@ -334,7 +334,7 @@ export default function TeacherClassesPage() {
                 <button
                   onClick={() => handleGenerateInvite(cls.id)}
                   aria-label={copiedId === cls.id ? 'Invite link copied' : `Generate invite link for ${cls.className}`}
-                  className="flex items-center gap-2 min-h-[40px] px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none"
+                  className="flex items-center gap-2 min-h-[40px] px-4 py-2 rounded-lg border border-gray-200 dark:border-slate-600 text-sm font-medium text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none"
                 >
                   {copiedId === cls.id ? (
                     <Check className="w-4 h-4 text-green-600" aria-hidden="true" />

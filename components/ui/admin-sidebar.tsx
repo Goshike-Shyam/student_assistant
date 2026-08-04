@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LogOut } from 'lucide-react';
 import type { Route } from "next";
+import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { AppLogo } from '@/components/ui/app-logo';
 
 export function AdminSidebar() {
@@ -83,6 +84,7 @@ export function AdminSidebar() {
 
       {/* Sign out fixed at bottom */}
       <div className="px-3 py-4 border-t border-slate-700 flex-shrink-0">
+        <ThemeToggle className="mb-2 px-3 py-2.5 rounded-lg text-gray-200 hover:bg-slate-800 dark:hover:bg-slate-800" />
         <button
           type="button"
           onClick={handleSignOut}

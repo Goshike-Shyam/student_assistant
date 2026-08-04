@@ -55,11 +55,11 @@ export default function ParentPortalPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-        <div className="w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-lg">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-950 px-4">
+        <div className="w-full max-w-md rounded-2xl bg-white dark:bg-slate-900 p-8 text-center shadow-lg border border-transparent dark:border-slate-700">
           <span className="mb-4 block text-4xl" aria-hidden="true">👨‍👩‍👧</span>
-          <h1 className="mb-2 text-xl font-bold text-gray-900">Parent Portal</h1>
-          <p className="mb-6 text-sm text-gray-600">Please log in with your parent account to access this portal.</p>
+          <h1 className="mb-2 text-xl font-bold text-gray-900 dark:text-slate-100">Parent Portal</h1>
+          <p className="mb-6 text-sm text-gray-600 dark:text-slate-400">Please log in with your parent account to access this portal.</p>
           <a
             href="/login?role=parent"
             className="inline-flex min-h-[44px] items-center justify-center rounded-lg bg-blue-600 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
@@ -122,20 +122,20 @@ export default function ParentPortalPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
+    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
       
       {/* Main Content */}
       <div className="pt-4 px-6 pb-12">
         <div className="max-w-6xl mx-auto space-y-8">
           {/* Header */}
           <div className="space-y-2">
-            <h1 className="text-4xl font-bold text-slate-900">Parent Portal</h1>
-            <p className="text-lg text-slate-600">Monitor your child&apos;s learning progress and research activities</p>
+            <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100">Parent Portal</h1>
+            <p className="text-lg text-slate-600 dark:text-slate-300">Monitor your child&apos;s learning progress and research activities</p>
           </div>
 
           {/* Statistics Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card className="bg-white border-slate-200 hover:shadow-lg transition-shadow">
+            <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
@@ -147,7 +147,7 @@ export default function ParentPortalPage() {
               </CardHeader>
             </Card>
 
-            <Card className="bg-white border-slate-200 hover:shadow-lg transition-shadow">
+            <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
@@ -159,7 +159,7 @@ export default function ParentPortalPage() {
               </CardHeader>
             </Card>
 
-            <Card className="bg-white border-slate-200 hover:shadow-lg transition-shadow">
+            <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
@@ -177,7 +177,7 @@ export default function ParentPortalPage() {
 
           {/* Subject Distribution */}
           {subjectStats.length > 0 && (
-            <Card className="bg-white border-slate-200">
+            <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700">
               <CardHeader>
                 <CardTitle>Subject Areas</CardTitle>
                 <CardDescription>Topics your child has been exploring</CardDescription>
@@ -216,7 +216,7 @@ export default function ParentPortalPage() {
 
           {/* Subject Filter */}
           <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-sm font-semibold text-slate-700">Filter by subject:</span>
+            <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">Filter by subject:</span>
             <button
               onClick={() => setSelectedSubject(null)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -243,7 +243,7 @@ export default function ParentPortalPage() {
           </div>
 
           {/* Search History */}
-          <Card className="bg-white border-slate-200">
+          <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700">
             <CardHeader>
               <CardTitle>Research History</CardTitle>
               <CardDescription>Recent questions and topics explored</CardDescription>

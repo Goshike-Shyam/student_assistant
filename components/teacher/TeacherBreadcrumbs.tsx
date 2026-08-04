@@ -66,11 +66,11 @@ export function TeacherBreadcrumbs({ dynamicLabels = {} }: Props) {
   return (
     <nav
       aria-label="Breadcrumb"
-      className="flex items-center gap-1 text-sm text-gray-600 mb-4 flex-wrap"
+      className="flex items-center gap-1 text-sm text-gray-600 dark:text-slate-300 mb-4 flex-wrap"
     >
       <Link
         href="/teacher/dashboard"
-        className="flex items-center gap-1 hover:text-[#0058be] transition-colors
+        className="flex items-center gap-1 hover:text-[#0058be] dark:hover:text-cyan-300 transition-colors
           focus-visible:outline-none focus-visible:ring-2
           focus-visible:ring-[#0058be] focus-visible:ring-offset-2
           rounded-sm min-h-[44px] px-1"
@@ -81,11 +81,11 @@ export function TeacherBreadcrumbs({ dynamicLabels = {} }: Props) {
 
       {crumbs.map((crumb, i) => (
         <span key={i} className="flex items-center gap-1">
-          <ChevronRight className="h-4 w-4 text-gray-400" aria-hidden="true" />
+          <ChevronRight className="h-4 w-4 text-gray-400 dark:text-slate-500" aria-hidden="true" />
           {crumb.href ? (
             <Link
               href={crumb.href}
-              className="hover:text-[#0058be] hover:underline transition-colors
+              className="hover:text-[#0058be] dark:hover:text-cyan-300 hover:underline transition-colors
                 focus-visible:outline-none focus-visible:ring-2
                 focus-visible:ring-[#0058be] focus-visible:ring-offset-2
                 rounded-sm capitalize min-h-[44px] flex items-center px-1"
@@ -94,7 +94,7 @@ export function TeacherBreadcrumbs({ dynamicLabels = {} }: Props) {
             </Link>
           ) : (
             <span
-              className="text-gray-900 font-medium capitalize"
+              className="text-gray-900 dark:text-slate-100 font-medium capitalize"
               aria-current="page"
             >
               {crumb.label}

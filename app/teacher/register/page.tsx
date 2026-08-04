@@ -29,7 +29,7 @@ function PasswordStrengthBar({ password }: { password: string }) {
           />
         ))}
       </div>
-      <p className="text-xs text-gray-600">
+      <p className="text-xs text-gray-600 dark:text-slate-400">
         Strength: <span className="font-medium">{labels[strength - 1] ?? 'Weak'}</span>
       </p>
     </div>
@@ -103,13 +103,13 @@ export default function TeacherRegisterPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f0fdf4] to-[#e5eeff] px-4">
-        <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 border border-green-100 text-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f0fdf4] to-[#e5eeff] dark:from-slate-950 dark:to-slate-900 px-4">
+        <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-lg p-8 border border-green-100 dark:border-slate-700 text-center">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <GraduationCap className="w-8 h-8 text-green-600" aria-hidden="true" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Check your email</h1>
-          <p className="text-gray-600">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-2">Check your email</h1>
+          <p className="text-gray-600 dark:text-slate-300">
             We've sent a verification link to <strong>{form.email}</strong>. Click the link to
             activate your teacher account.
           </p>
@@ -125,16 +125,16 @@ export default function TeacherRegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f0fdf4] to-[#e5eeff] px-4 py-10">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f0fdf4] to-[#e5eeff] dark:from-slate-950 dark:to-slate-900 px-4 py-10">
       <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl shadow-lg p-8 border border-green-100">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg p-8 border border-green-100 dark:border-slate-700">
           {/* Header */}
           <div className="mb-8 text-center">
             <div className="w-14 h-14 bg-[#006e2f] rounded-2xl flex items-center justify-center mx-auto mb-4">
               <GraduationCap className="w-7 h-7 text-white" aria-hidden="true" />
             </div>
-            <h1 className="font-bold text-2xl text-gray-900 mb-1">Create Teacher Account</h1>
-            <p className="text-gray-600 text-sm">School Assistant — Teacher Portal</p>
+            <h1 className="font-bold text-2xl text-gray-900 dark:text-slate-100 mb-1">Create Teacher Account</h1>
+            <p className="text-gray-600 dark:text-slate-400 text-sm">School Assistant — Teacher Portal</p>
           </div>
 
           {errors._form && (
@@ -321,7 +321,7 @@ export default function TeacherRegisterPage() {
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-gray-600">
+          <p className="mt-6 text-center text-sm text-gray-600 dark:text-slate-400">
             Already have an account?{' '}
             <Link href="/teacher/login" className="text-[#0058be] font-medium hover:underline">
               Sign in

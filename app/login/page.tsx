@@ -7,7 +7,7 @@ import { AppLogo } from '@/components/ui/app-logo';
 
 export default function LoginPage() {
   return (
-    <main className="min-h-screen flex bg-white overflow-hidden">
+    <main className="min-h-screen flex bg-white dark:bg-slate-950 overflow-hidden">
       {/* LEFT BRAND PANEL */}
       <div className="hidden lg:flex lg:w-[44%] flex-col p-12 relative overflow-hidden" style={{ background: 'linear-gradient(145deg,#001d5e 0%,#003da8 45%,#0058be 100%)' }}>
         <div className="absolute top-0 right-0 w-96 h-96 rounded-full" style={{ background: 'radial-gradient(circle,rgba(255,255,255,.12),transparent)', transform: 'translate(35%,-35%)' }}></div>
@@ -65,7 +65,7 @@ export default function LoginPage() {
       </div>
 
       {/* RIGHT FORM PANEL */}
-      <div className="flex-1 flex items-center justify-center bg-white p-8 lg:p-14 overflow-y-auto">
+      <div className="flex-1 flex items-center justify-center bg-white dark:bg-slate-950 p-8 lg:p-14 overflow-y-auto">
         <SignInForm />
       </div>
     </main>

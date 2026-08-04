@@ -222,22 +222,22 @@ export default function AssignmentsPage() {
   if (!isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
       <main className="px-6 py-10">
         <div className="max-w-6xl mx-auto space-y-8">
             {/* Header */}
             <div>
-              <h1 className="text-4xl font-bold text-slate-900 mb-2">Assignments</h1>
+              <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100 mb-2">Assignments</h1>
             </div>
 
             {/* Tabs */}
-            <div role="tablist" aria-label="Assignment types" className="flex gap-1 border-b border-slate-200">
+            <div role="tablist" aria-label="Assignment types" className="flex gap-1 border-b border-slate-200 dark:border-slate-700">
               <button
                 role="tab"
                 aria-selected={tab === 'my'}
                 onClick={() => setTab('my')}
                 className={`px-5 py-2.5 text-sm font-medium border-b-2 transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none
-                  ${tab === 'my' ? 'border-blue-600 text-blue-700' : 'border-transparent text-slate-600 hover:text-slate-900'}`}
+                    ${tab === 'my' ? 'border-blue-600 text-blue-700 dark:text-cyan-300' : 'border-transparent text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100'}`}
               >
                 My Assignments
               </button>
@@ -246,7 +246,7 @@ export default function AssignmentsPage() {
                 aria-selected={tab === 'class'}
                 onClick={() => setTab('class')}
                 className={`px-5 py-2.5 text-sm font-medium border-b-2 transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none
-                  ${tab === 'class' ? 'border-blue-600 text-blue-700' : 'border-transparent text-slate-600 hover:text-slate-900'}`}
+                    ${tab === 'class' ? 'border-blue-600 text-blue-700 dark:text-cyan-300' : 'border-transparent text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100'}`}
               >
                 Class Assignments
                 {teacherAssignments.filter((a) => a.status === 'NOT_STARTED').length > 0 && (
@@ -260,7 +260,7 @@ export default function AssignmentsPage() {
             {/* MY ASSIGNMENTS TAB */}
             {tab === 'my' && (
               <div className="space-y-6">
-                <p className="text-slate-600">Select a subject to generate practice assignments</p>
+                <p className="text-slate-600 dark:text-slate-300">Select a subject to generate practice assignments</p>
 
                 {error && subjects.length === 0 && (
                   <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 text-center space-y-3">
@@ -281,14 +281,14 @@ export default function AssignmentsPage() {
                         href={`/assignments/${encodeURIComponent(subject)}`}
                         className="group"
                       >
-                        <div className="bg-white rounded-lg border border-slate-200 p-6 hover:shadow-lg hover:border-blue-300 transition-all cursor-pointer">
+                        <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-6 hover:shadow-lg hover:border-blue-300 dark:hover:border-cyan-500 transition-all cursor-pointer">
                           <div className="flex items-center justify-between mb-3">
-                            <h3 className="text-lg font-semibold text-slate-900 group-hover:text-blue-600">
+                            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-300">
                               {subject}
                             </h3>
                             <span className="text-blue-600 opacity-0 group-hover:opacity-100" aria-hidden="true">→</span>
                           </div>
-                          <p className="text-sm text-slate-600">
+                          <p className="text-sm text-slate-600 dark:text-slate-300">
                             Generate practice assignments on any topic
                           </p>
                         </div>
@@ -297,9 +297,9 @@ export default function AssignmentsPage() {
                   </div>
                 )}
 
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 space-y-3">
-                  <h3 className="font-semibold text-blue-900">How it works</h3>
-                  <ul className="text-sm text-blue-800 space-y-2">
+                <div className="bg-blue-50 dark:bg-slate-900 border border-blue-200 dark:border-slate-700 rounded-lg p-6 space-y-3">
+                  <h3 className="font-semibold text-blue-900 dark:text-cyan-200">How it works</h3>
+                  <ul className="text-sm text-blue-800 dark:text-slate-300 space-y-2">
                     <li>✓ Select a subject above</li>
                     <li>✓ Enter a topic you want to practice</li>
                     <li>✓ Choose difficulty level</li>
@@ -326,9 +326,9 @@ export default function AssignmentsPage() {
                 )}
 
                 {!taLoading && !taError && teacherAssignments.length === 0 && !openSubmissionId && (
-                  <div className="text-center py-16 bg-white rounded-2xl border border-slate-100">
-                    <p className="text-slate-500 font-medium">No class assignments yet</p>
-                    <p className="text-slate-400 text-sm mt-1">Assignments from your teachers will appear here.</p>
+                  <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-700">
+                    <p className="text-slate-500 dark:text-slate-300 font-medium">No class assignments yet</p>
+                    <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">Assignments from your teachers will appear here.</p>
                   </div>
                 )}
 
@@ -337,7 +337,7 @@ export default function AssignmentsPage() {
                   <div>
                     <button
                       onClick={handleBackToList}
-                      className="inline-flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-900 mb-6 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded-sm"
+                      className="inline-flex items-center gap-1.5 text-sm text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 mb-6 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded-sm"
                       aria-label="Back to class assignments list"
                     >
                       <ChevronLeft className="h-4 w-4" aria-hidden="true" />
@@ -346,12 +346,12 @@ export default function AssignmentsPage() {
 
                     <div className="max-w-3xl">
                       {/* Assignment header */}
-                      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-6">
-                        <h2 className="text-2xl font-bold text-slate-900 mb-1">{openedAssignment.topic}</h2>
-                        <p className="text-slate-600 text-sm">
+                      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 mb-6">
+                        <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1">{openedAssignment.topic}</h2>
+                        <p className="text-slate-600 dark:text-slate-300 text-sm">
                           {openedAssignment.subject} · {openedAssignment.className} · Teacher: {openedAssignment.teacherName}
                         </p>
-                        <p className="text-slate-500 text-xs mt-1">
+                        <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">
                           Due: {new Date(openedAssignment.dueDate).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}
                           {' · '}{openedAssignment.totalMarks} marks
                         </p>
@@ -387,9 +387,9 @@ export default function AssignmentsPage() {
                       {(openedAssignment.status === 'NOT_STARTED' || openedAssignment.status === 'IN_PROGRESS') && openedAssignment.questions && (
                         <form onSubmit={handleClassSubmit} className="space-y-5">
                           {openedAssignment.questions.map((q: any, i: number) => (
-                            <div key={q.id} className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+                            <div key={q.id} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5">
                               <div className="flex justify-between items-start gap-2 mb-3">
-                                <p className="font-medium text-slate-900">Q{i + 1}. {q.question}</p>
+                                <p className="font-medium text-slate-900 dark:text-slate-100">Q{i + 1}. {q.question}</p>
                                 <span className="text-xs text-slate-500 shrink-0">{q.marks} mark{q.marks !== 1 ? 's' : ''}</span>
                               </div>
 
@@ -400,7 +400,7 @@ export default function AssignmentsPage() {
                                     {(q.type === 'TRUE_FALSE' ? ['True', 'False'] : (q.options ?? [])).map((opt: string, oi: number) => (
                                       <label
                                         key={oi}
-                                        className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 cursor-pointer hover:bg-slate-50 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 transition-colors"
+                                        className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 dark:has-[:checked]:bg-cyan-950/30 transition-colors"
                                       >
                                         <input
                                           type="radio"
@@ -411,7 +411,7 @@ export default function AssignmentsPage() {
                                           className="accent-blue-600"
                                           aria-label={opt}
                                         />
-                                        <span className="text-sm text-slate-800">{opt}</span>
+                                        <span className="text-sm text-slate-800 dark:text-slate-200">{opt}</span>
                                       </label>
                                     ))}
                                   </div>
@@ -424,7 +424,7 @@ export default function AssignmentsPage() {
                                     type="text"
                                     value={answers[q.id] ?? ''}
                                     onChange={(e) => setAnswers((a) => ({ ...a, [q.id]: e.target.value }))}
-                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-900 text-sm focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
+                                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 rounded-lg text-slate-900 dark:text-slate-100 text-sm focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
                                     placeholder="Fill in the blank…"
                                   />
                                 </div>
@@ -436,7 +436,7 @@ export default function AssignmentsPage() {
                                     value={answers[q.id] ?? ''}
                                     onChange={(e) => setAnswers((a) => ({ ...a, [q.id]: e.target.value }))}
                                     rows={q.type === 'LONG_ANSWER' ? 5 : 3}
-                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-900 text-sm focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none resize-none"
+                                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 rounded-lg text-slate-900 dark:text-slate-100 text-sm focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none resize-none"
                                     placeholder="Write your answer…"
                                   />
                                 </div>
@@ -461,10 +461,10 @@ export default function AssignmentsPage() {
                 {/* ── SUBMISSION SUCCESS ────────────────────────────────── */}
                 {openSubmissionId && submitDone && (
                   <div className="flex items-center justify-center py-16">
-                    <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 text-center border border-green-100">
+                    <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-2xl shadow-lg p-8 text-center border border-green-100 dark:border-slate-700">
                       <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" aria-hidden="true" />
-                      <h2 className="text-2xl font-bold text-gray-900 mb-2">Submitted!</h2>
-                      <p className="text-gray-600 mb-6">Your teacher will review and share feedback soon.</p>
+                      <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-2">Submitted!</h2>
+                      <p className="text-gray-600 dark:text-slate-300 mb-6">Your teacher will review and share feedback soon.</p>
                       <button
                         onClick={handleBackToList}
                         className="min-h-[44px] px-8 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:outline-none"
@@ -479,12 +479,12 @@ export default function AssignmentsPage() {
                 {!openSubmissionId && !taLoading && !taError && teacherAssignments.map((item) => (
                   <div
                     key={item.submissionId}
-                    className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm"
+                    className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm"
                   >
                     <div className="flex items-start justify-between gap-3 mb-3">
                       <div>
-                        <h2 className="font-bold text-slate-900">{item.topic}</h2>
-                        <p className="text-sm text-slate-600 mt-0.5">
+                        <h2 className="font-bold text-slate-900 dark:text-slate-100">{item.topic}</h2>
+                        <p className="text-sm text-slate-600 dark:text-slate-300 mt-0.5">
                           {item.subject} · {item.className} · Teacher: {item.teacherName}
                         </p>
                       </div>
@@ -496,7 +496,7 @@ export default function AssignmentsPage() {
                       </span>
                     </div>
 
-                    <p className="text-xs text-slate-500 mb-3">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
                       Due: {new Date(item.dueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                       {item.score !== null && item.totalMarks
                         ? ` · Score: ${item.score}/${item.totalMarks}`

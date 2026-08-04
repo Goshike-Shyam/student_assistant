@@ -48,8 +48,8 @@ export default function SignupPage() {
   const [termsChecked, setTermsChecked] = useState(false);
   const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const labelClassName = 'text-sm font-medium text-gray-900';
-  const fieldClassName = 'w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500';
+  const labelClassName = 'text-sm font-medium text-gray-900 dark:text-slate-100';
+  const fieldClassName = 'w-full rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2.5 text-sm text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-cyan-500';
 
   // Update available subjects when grade or board changes
   useEffect(() => {
@@ -139,17 +139,17 @@ export default function SignupPage() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-slate-50 dark:bg-slate-950 px-4 py-10 sm:px-6 lg:px-8">
       <div className="mx-auto grid max-w-[1400px] gap-10 xl:grid-cols-[0.85fr_0.95fr]">
-        <section className="rounded-[2rem] border border-slate-200/80 bg-white/95 p-10 shadow-xl shadow-slate-200/40">
+        <section className="rounded-[2rem] border border-slate-200/80 dark:border-slate-700 bg-white/95 dark:bg-slate-900 p-10 shadow-xl shadow-slate-200/40 dark:shadow-slate-950/40">
           <AppLogo
             size={56}
             className="mb-6 rounded-2xl border border-slate-100 p-1"
             priority
           />
           <p className="text-sm font-medium uppercase tracking-[0.35em] text-cyan-600">Create or access your account</p>
-          <h1 className="mt-6 text-4xl font-semibold text-slate-900">Welcome to School Assistant</h1>
-          <p className="mt-4 max-w-2xl text-slate-600">Choose whether you’re a student, parent, or teacher so we can personalize your learning pathways and classroom tools.</p>
+          <h1 className="mt-6 text-4xl font-semibold text-slate-900 dark:text-slate-100">Welcome to School Assistant</h1>
+          <p className="mt-4 max-w-2xl text-slate-600 dark:text-slate-300">Choose whether you’re a student, parent, or teacher so we can personalize your learning pathways and classroom tools.</p>
 
           <div className="mt-10 grid gap-4 sm:grid-cols-3">
             {['Student', 'Parent', 'Teacher'].map((option) => (
@@ -157,21 +157,21 @@ export default function SignupPage() {
                 key={option}
                 type="button"
                 onClick={() => setRole(option)}
-                className={`rounded-3xl border px-5 py-5 text-left text-sm transition ${role === option ? 'border-cyan-600 bg-cyan-50 text-cyan-900' : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'}`}>
+                className={`rounded-3xl border px-5 py-5 text-left text-sm transition ${role === option ? 'border-cyan-600 bg-cyan-50 dark:bg-cyan-950/40 text-cyan-900 dark:text-cyan-200' : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
                 <p className="font-semibold">{option}</p>
-                <p className="mt-2 text-sm text-slate-500">Personalized setup and progress options.</p>
+                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Personalized setup and progress options.</p>
               </button>
             ))}
           </div>
 
           <div className="mt-10 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-8">
-              <p className="text-sm font-semibold text-slate-900">Easy sign up</p>
-              <p className="mt-3 text-sm text-slate-600">Register with email and set up your profile in minutes.</p>
+            <div className="rounded-[2rem] border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-8">
+              <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Easy sign up</p>
+              <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">Register with email and set up your profile in minutes.</p>
             </div>
-            <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-8">
-              <p className="text-sm font-semibold text-slate-900">Secure onboarding</p>
-              <p className="mt-3 text-sm text-slate-600">Your data is protected and only used to personalize learning suggestions.</p>
+            <div className="rounded-[2rem] border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-8">
+              <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Secure onboarding</p>
+              <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">Your data is protected and only used to personalize learning suggestions.</p>
             </div>
           </div>
         </section>
@@ -202,7 +202,7 @@ export default function SignupPage() {
               <div>
                 <Label htmlFor="email" className={labelClassName}>Email Address</Label>
                 <Input id="email" className={fieldClassName} type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@school.edu" />
-                <p className="mt-1 text-xs text-gray-600">We will use this email for login and account notifications.</p>
+                <p className="mt-1 text-xs text-gray-600 dark:text-slate-400">We will use this email for login and account notifications.</p>
               </div>
               <div>
                 <Label htmlFor="phone" className={labelClassName}>Phone Number</Label>
@@ -221,7 +221,7 @@ export default function SignupPage() {
                   onChange={(event) => setParentEmail(event.target.value)}
                   placeholder="parent@example.com"
                 />
-                <p className="mt-1 text-xs text-gray-600">Required for student accounts so teachers can contact parents.</p>
+                <p className="mt-1 text-xs text-gray-600 dark:text-slate-400">Required for student accounts so teachers can contact parents.</p>
               </div>
               <div />
             </div>
@@ -250,9 +250,9 @@ export default function SignupPage() {
                   <option>State Board</option>
                 </Select>
               </div>
-              <div className="flex items-center gap-3 rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4">
+              <div className="flex items-center gap-3 rounded-3xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-4">
                 <input id="terms" type="checkbox" className="h-4 w-4 accent-cyan-600" checked={termsChecked} onChange={(event) => setTermsChecked(event.target.checked)} />
-                <label htmlFor="terms" className="text-sm text-gray-900">I agree to the Terms of Use and Privacy Policy.</label>
+                <label htmlFor="terms" className="text-sm text-gray-900 dark:text-slate-100">I agree to the Terms of Use and Privacy Policy.</label>
               </div>
             </div>
 
@@ -269,7 +269,7 @@ export default function SignupPage() {
                       className={`rounded-lg border-2 px-4 py-3 text-sm font-medium transition ${
                         selectedSubjects.includes(subject)
                           ? 'border-cyan-600 bg-cyan-50 text-cyan-900'
-                          : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+                          : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-500'
                       }`}
                     >
                       <span className={`mr-2 ${selectedSubjects.includes(subject) ? '✓' : '○'}`}></span>
@@ -277,11 +277,11 @@ export default function SignupPage() {
                     </button>
                   ))
                 ) : (
-                  <p className="text-sm text-gray-600">Select grade and board to see available subjects</p>
+                  <p className="text-sm text-gray-600 dark:text-slate-400">Select grade and board to see available subjects</p>
                 )}
               </div>
               {selectedSubjects.length > 0 && (
-                <p className="mt-3 text-sm text-gray-600">
+                <p className="mt-3 text-sm text-gray-600 dark:text-slate-400">
                   Selected: {selectedSubjects.length} subject{selectedSubjects.length !== 1 ? 's' : ''}
                 </p>
               )}
@@ -293,16 +293,16 @@ export default function SignupPage() {
               </div>
             ) : null}
 
-            <Button type="submit" disabled={isSubmitting} className="w-full rounded-full bg-slate-950 px-6 py-4 text-sm text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60">
+            <Button type="submit" disabled={isSubmitting} className="w-full rounded-full bg-slate-950 dark:bg-cyan-600 px-6 py-4 text-sm text-white hover:bg-slate-800 dark:hover:bg-cyan-500 disabled:cursor-not-allowed disabled:opacity-60">
               {isSubmitting ? 'Creating account...' : 'Create account'}
             </Button>
           </form>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-600">
+          <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-600 dark:text-slate-400">
             <span>Or sign up using</span>
             <div className="flex gap-3">
               {['Google', 'Microsoft', 'Apple'].map((provider) => (
-                <Button key={provider} type="button" className="rounded-full border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 hover:bg-slate-50">{provider}</Button>
+                <Button key={provider} type="button" className="rounded-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-3 text-sm text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800">{provider}</Button>
               ))}
             </div>
           </div>

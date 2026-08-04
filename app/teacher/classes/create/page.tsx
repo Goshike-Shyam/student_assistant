@@ -67,9 +67,9 @@ export default function CreateClassPage() {
 
   return (
     <main className="p-8 max-w-4xl mx-auto">
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 md:p-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">Create Class</h1>
-        <p className="text-sm text-gray-600 mb-6">Set up a new class and add the subjects you teach.</p>
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-sm p-6 md:p-8">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-1">Create Class</h1>
+        <p className="text-sm text-gray-600 dark:text-slate-400 mb-6">Set up a new class and add the subjects you teach.</p>
 
         {error && (
           <div role="alert" className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
@@ -79,7 +79,7 @@ export default function CreateClassPage() {
 
         <form onSubmit={handleSubmit} className="space-y-5" aria-label="Create class form">
           <div>
-            <label htmlFor="class-name" className="block text-sm font-semibold text-gray-800 mb-1.5">
+            <label htmlFor="class-name" className="block text-sm font-semibold text-gray-800 dark:text-slate-300 mb-1.5">
               Class Name
             </label>
             <input
@@ -88,13 +88,13 @@ export default function CreateClassPage() {
               value={className}
               onChange={(e) => setClassName(e.target.value)}
               placeholder="e.g. 8th Class Science"
-              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none"
+              className="w-full px-3 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 rounded-lg text-sm text-gray-900 dark:text-slate-100 focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none"
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="grade" className="block text-sm font-semibold text-gray-800 mb-1.5">
+              <label htmlFor="grade" className="block text-sm font-semibold text-gray-800 dark:text-slate-300 mb-1.5">
                 Grade
               </label>
               <input
@@ -103,19 +103,19 @@ export default function CreateClassPage() {
                 value={grade}
                 onChange={(e) => setGrade(e.target.value)}
                 placeholder="e.g. 8"
-                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none"
+                className="w-full px-3 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 rounded-lg text-sm text-gray-900 dark:text-slate-100 focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none"
               />
             </div>
 
             <div>
-              <label htmlFor="board" className="block text-sm font-semibold text-gray-800 mb-1.5">
+              <label htmlFor="board" className="block text-sm font-semibold text-gray-800 dark:text-slate-300 mb-1.5">
                 Board
               </label>
               <select
                 id="board"
                 value={board}
                 onChange={(e) => setBoard(e.target.value as typeof BOARD_OPTIONS[number])}
-                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none"
+                className="w-full px-3 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 rounded-lg text-sm text-gray-900 dark:text-slate-100 focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none"
               >
                 {BOARD_OPTIONS.map((b) => (
                   <option key={b} value={b}>
@@ -127,14 +127,14 @@ export default function CreateClassPage() {
           </div>
 
           <div>
-            <p className="block text-sm font-semibold text-gray-800 mb-2">Subjects</p>
+            <p className="block text-sm font-semibold text-gray-800 dark:text-slate-300 mb-2">Subjects</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {SUBJECT_OPTIONS.map((subject) => {
                 const checked = subjects.includes(subject)
                 return (
                   <label
                     key={subject}
-                    className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border text-sm cursor-pointer transition-colors ${checked ? 'border-[#006e2f] bg-green-50 text-green-800' : 'border-gray-200 hover:bg-gray-50 text-gray-700'}`}
+                    className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border text-sm cursor-pointer transition-colors ${checked ? 'border-[#006e2f] bg-green-50 dark:bg-emerald-950/30 text-green-800 dark:text-emerald-300' : 'border-gray-200 dark:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-800 text-gray-700 dark:text-slate-300'}`}
                   >
                     <input
                       type="checkbox"

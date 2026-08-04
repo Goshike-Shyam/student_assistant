@@ -195,25 +195,25 @@ export default function AdminUsersPage() {
   return (
     <div className="flex-1 flex flex-col min-h-screen">
         {/* Admin Top Nav */}
-        <nav className="h-16 bg-white border-b border-[#e5eeff] flex items-center justify-between px-8 sticky top-0 z-40" style={{ boxShadow: '0 2px 8px rgba(0,88,190,.04)' }}>
+        <nav className="h-16 bg-white dark:bg-slate-900 border-b border-[#e5eeff] dark:border-slate-700 flex items-center justify-between px-8 sticky top-0 z-40" style={{ boxShadow: '0 2px 8px rgba(0,88,190,.04)' }}>
           <div className="flex items-center gap-8">
-            <span className="qs font-bold text-lg text-[#006e2f]">EduPulse</span>
+            <span className="qs font-bold text-lg text-[#006e2f] dark:text-cyan-300">EduPulse</span>
             <div className="flex items-center gap-6">
-              <a href="/admin" className="text-sm font-semibold text-[#3d4a3d] pb-2 hover:text-[#0058be]">Dashboard</a>
-              <a href="#" className="text-sm font-semibold text-[#3d4a3d] pb-2 border-b-2 border-[#006e2f] text-[#006e2f]">Support</a>
-              <a href="#" className="text-sm font-semibold text-[#3d4a3d] pb-2 hover:text-[#0058be]">Help Center</a>
+              <a href="/admin" className="text-sm font-semibold text-[#3d4a3d] dark:text-slate-300 pb-2 hover:text-[#0058be] dark:hover:text-cyan-300">Dashboard</a>
+              <a href="#" className="text-sm font-semibold text-[#3d4a3d] dark:text-cyan-300 pb-2 border-b-2 border-[#006e2f] dark:border-cyan-400 text-[#006e2f]">Support</a>
+              <a href="#" className="text-sm font-semibold text-[#3d4a3d] dark:text-slate-300 pb-2 hover:text-[#0058be] dark:hover:text-cyan-300">Help Center</a>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <div className="relative flex items-center flex-1">
-              <Search className="absolute left-3 h-4 w-4 text-[#4B5563] pointer-events-none" aria-hidden="true" />
+              <Search className="absolute left-3 h-4 w-4 text-[#4B5563] dark:text-slate-400 pointer-events-none" aria-hidden="true" />
               <input 
                 type="text" 
                 placeholder="Search user..." 
                 aria-label="Search users"
                 value={searchQuery}
                 onChange={handleSearchChange}
-                className="w-44 pl-9 pr-4 py-2 border border-[#bccbb9] rounded-full text-sm bg-[#f8f9ff] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0058be] focus-visible:ring-offset-2" 
+                className="w-44 pl-9 pr-4 py-2 border border-[#bccbb9] dark:border-slate-600 rounded-full text-sm bg-[#f8f9ff] dark:bg-slate-800 text-[#0b1c30] dark:text-slate-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0058be] focus-visible:ring-offset-2" 
                 style={{ fontFamily: 'inherit' }} 
               />
             </div>
@@ -225,7 +225,7 @@ export default function AdminUsersPage() {
             />
             <a
               href="/admin/settings"
-              className="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 hover:text-gray-900 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              className="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-200 hover:bg-gray-200 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-slate-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
               aria-label="Settings"
             >
               <Settings size={20} aria-hidden="true" />
@@ -233,31 +233,31 @@ export default function AdminUsersPage() {
             <div className="flex items-center gap-2 ml-1">
               <div className="w-9 h-9 rounded-full bg-[#213145] border-2 border-[#adc6ff] flex items-center justify-center font-bold text-white text-xs qs">{adminInitials}</div>
               <div>
-                <p className="text-sm font-semibold leading-none">{adminName}</p>
-                <p className="text-[10px] text-[#374151] mt-0.5">ADMIN</p>
+                <p className="text-sm font-semibold leading-none text-[#0b1c30] dark:text-slate-100">{adminName}</p>
+                <p className="text-[10px] text-[#374151] dark:text-slate-400 mt-0.5">ADMIN</p>
               </div>
             </div>
           </div>
         </nav>
 
         {/* MAIN */}
-        <main className="flex-1 p-8">
+        <main className="flex-1 p-8 bg-slate-50 dark:bg-slate-950">
           {/* Page header */}
           <div className="flex items-start justify-between mb-7">
             <div>
-              <h1 className="qs font-bold text-[32px] text-[#0b1c30] leading-none mb-2">User Management</h1>
-              <p className="text-[#3d4a3d] text-sm">Review and manage identities across the platform.</p>
+              <h1 className="qs font-bold text-[32px] text-[#0b1c30] dark:text-slate-100 leading-none mb-2">User Management</h1>
+              <p className="text-[#3d4a3d] dark:text-slate-300 text-sm">Review and manage identities across the platform.</p>
             </div>
           </div>
 
           {/* Tabs */}
-          <div className="border-b border-[#e5eeff] mb-6 flex gap-8">
+          <div className="border-b border-[#e5eeff] dark:border-slate-700 mb-6 flex gap-8">
             <button
               onClick={() => setActiveTab('users')}
               className={`pb-4 font-semibold text-sm transition-colors ${
                 activeTab === 'users'
                   ? 'text-[#0058be] border-b-2 border-[#0058be]'
-                  : 'text-[#374151] hover:text-[#0b1c30]'
+                  : 'text-[#374151] dark:text-slate-300 hover:text-[#0b1c30] dark:hover:text-slate-100'
               }`}
             >
               Users & Parents
@@ -267,7 +267,7 @@ export default function AdminUsersPage() {
               className={`pb-4 font-semibold text-sm transition-colors ${
                 activeTab === 'admins'
                   ? 'text-[#0058be] border-b-2 border-[#0058be]'
-                  : 'text-[#374151] hover:text-[#0b1c30]'
+                  : 'text-[#374151] dark:text-slate-300 hover:text-[#0b1c30] dark:hover:text-slate-100'
               }`}
             >
               Admin Accounts
@@ -278,10 +278,10 @@ export default function AdminUsersPage() {
           {activeTab === 'users' && (
             <>
               {/* Filters */}
-              <div className="bg-white border border-[#e5eeff] rounded-2xl p-5 mb-5 flex items-end gap-4 shadow-sm">
+              <div className="bg-white dark:bg-slate-900 border border-[#e5eeff] dark:border-slate-700 rounded-2xl p-5 mb-5 flex items-end gap-4 shadow-sm">
                 <div className="flex-1 min-w-0">
-                  <label htmlFor="filter-role" className="block text-xs font-bold text-[#374151] mb-1.5 uppercase tracking-wider">Role</label>
-                  <select id="filter-role" className="w-full px-4 py-2.5 border border-[#bccbb9] rounded-xl text-[#0b1c30] text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0058be] focus-visible:ring-offset-2 focus-visible:border-[#0058be] transition-colors" style={{ fontFamily: 'inherit' }}>
+                  <label htmlFor="filter-role" className="block text-xs font-bold text-[#374151] dark:text-slate-300 mb-1.5 uppercase tracking-wider">Role</label>
+                  <select id="filter-role" className="w-full px-4 py-2.5 border border-[#bccbb9] dark:border-slate-600 bg-white dark:bg-slate-800 rounded-xl text-[#0b1c30] dark:text-slate-100 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0058be] focus-visible:ring-offset-2 focus-visible:border-[#0058be] transition-colors" style={{ fontFamily: 'inherit' }}>
                     <option>All Roles</option>
                     <option>Student</option>
                     <option>Teacher</option>
@@ -289,8 +289,8 @@ export default function AdminUsersPage() {
                   </select>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <label htmlFor="filter-status" className="block text-xs font-bold text-[#374151] mb-1.5 uppercase tracking-wider">Status</label>
-                  <select id="filter-status" className="w-full px-4 py-2.5 border border-[#bccbb9] rounded-xl text-[#0b1c30] text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0058be] focus-visible:ring-offset-2 focus-visible:border-[#0058be] transition-colors" style={{ fontFamily: 'inherit' }}>
+                  <label htmlFor="filter-status" className="block text-xs font-bold text-[#374151] dark:text-slate-300 mb-1.5 uppercase tracking-wider">Status</label>
+                  <select id="filter-status" className="w-full px-4 py-2.5 border border-[#bccbb9] dark:border-slate-600 bg-white dark:bg-slate-800 rounded-xl text-[#0b1c30] dark:text-slate-100 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0058be] focus-visible:ring-offset-2 focus-visible:border-[#0058be] transition-colors" style={{ fontFamily: 'inherit' }}>
                     <option>All Status</option>
                     <option>Active</option>
                     <option>Inactive</option>
@@ -298,12 +298,12 @@ export default function AdminUsersPage() {
                   </select>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <label htmlFor="filter-date" className="block text-xs font-bold text-[#374151] mb-1.5 uppercase tracking-wider">Registration Date</label>
-                  <input id="filter-date" type="date" className="w-full px-4 py-2.5 border border-[#bccbb9] rounded-xl text-[#0b1c30] text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0058be] focus-visible:ring-offset-2 focus-visible:border-[#0058be] transition-colors" style={{ fontFamily: 'inherit' }} />
+                  <label htmlFor="filter-date" className="block text-xs font-bold text-[#374151] dark:text-slate-300 mb-1.5 uppercase tracking-wider">Registration Date</label>
+                  <input id="filter-date" type="date" className="w-full px-4 py-2.5 border border-[#bccbb9] dark:border-slate-600 bg-white dark:bg-slate-800 rounded-xl text-[#0b1c30] dark:text-slate-100 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0058be] focus-visible:ring-offset-2 focus-visible:border-[#0058be] transition-colors" style={{ fontFamily: 'inherit' }} />
                 </div>
                 <button
                   aria-label="Search users"
-                  className="flex items-center gap-2 min-h-[44px] px-4 bg-[#eff4ff] border border-[#dce9ff] rounded-xl hover:bg-[#dce9ff] transition-colors text-[#0058be] font-semibold text-sm"
+                  className="flex items-center gap-2 min-h-[44px] px-4 bg-[#eff4ff] dark:bg-slate-800 border border-[#dce9ff] dark:border-slate-600 rounded-xl hover:bg-[#dce9ff] dark:hover:bg-slate-700 transition-colors text-[#0058be] dark:text-cyan-300 font-semibold text-sm"
                 >
                   <Search className="h-4 w-4" aria-hidden="true" />
                   <span>Search</span>
@@ -311,26 +311,26 @@ export default function AdminUsersPage() {
               </div>
 
               {/* Users Table */}
-              <div className="bg-white border border-[#e5eeff] rounded-2xl shadow-sm overflow-hidden">
+              <div className="bg-white dark:bg-slate-900 border border-[#e5eeff] dark:border-slate-700 rounded-2xl shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-[#e5eeff]">
-                        <th scope="col" className="text-left p-4 text-[#374151] font-semibold text-sm">Name</th>
-                        <th scope="col" className="text-left p-4 text-[#374151] font-semibold text-sm">Email</th>
-                        <th scope="col" className="text-left p-4 text-[#374151] font-semibold text-sm">Board/Grade</th>
-                        <th scope="col" className="text-left p-4 text-[#374151] font-semibold text-sm">Plan</th>
-                        <th scope="col" className="text-left p-4 text-[#374151] font-semibold text-sm">Status</th>
-                        <th scope="col" className="text-left p-4 text-[#374151] font-semibold text-sm">Children</th>
-                        <th scope="col" className="text-left p-4 text-[#374151] font-semibold text-sm">Joined</th>
-                        <th scope="col" className="text-center p-4 text-[#374151] font-semibold text-sm">Actions</th>
+                      <tr className="border-b border-[#e5eeff] dark:border-slate-700">
+                        <th scope="col" className="text-left p-4 text-[#374151] dark:text-slate-300 font-semibold text-sm">Name</th>
+                        <th scope="col" className="text-left p-4 text-[#374151] dark:text-slate-300 font-semibold text-sm">Email</th>
+                        <th scope="col" className="text-left p-4 text-[#374151] dark:text-slate-300 font-semibold text-sm">Board/Grade</th>
+                        <th scope="col" className="text-left p-4 text-[#374151] dark:text-slate-300 font-semibold text-sm">Plan</th>
+                        <th scope="col" className="text-left p-4 text-[#374151] dark:text-slate-300 font-semibold text-sm">Status</th>
+                        <th scope="col" className="text-left p-4 text-[#374151] dark:text-slate-300 font-semibold text-sm">Children</th>
+                        <th scope="col" className="text-left p-4 text-[#374151] dark:text-slate-300 font-semibold text-sm">Joined</th>
+                        <th scope="col" className="text-center p-4 text-[#374151] dark:text-slate-300 font-semibold text-sm">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {loading ? (
                         // Skeleton loader
                         [...Array(5)].map((_, idx) => (
-                          <tr key={idx} className="border-b border-[#e5eeff] hover:bg-[#f8f9ff]">
+                          <tr key={idx} className="border-b border-[#e5eeff] dark:border-slate-700 hover:bg-[#f8f9ff] dark:hover:bg-slate-800">
                             <td className="p-4">
                               <div className="flex items-center gap-3">
                                 <div className="w-8 h-8 rounded-full bg-[#e5eeff] animate-pulse"></div>
@@ -351,7 +351,7 @@ export default function AdminUsersPage() {
                       ) : users.length === 0 ? (
                         <tr>
                           <td colSpan={8} className="p-8 text-center">
-                            <p className="text-[#374151]">No users found</p>
+                            <p className="text-[#374151] dark:text-slate-300">No users found</p>
                           </td>
                         </tr>
                       ) : (
@@ -364,17 +364,17 @@ export default function AdminUsersPage() {
                             .slice(0, 2);
                           
                           return (
-                            <tr key={user.id} className="border-b border-[#e5eeff] hover:bg-[#f8f9ff]">
+                            <tr key={user.id} className="border-b border-[#e5eeff] dark:border-slate-700 hover:bg-[#f8f9ff] dark:hover:bg-slate-800">
                               <td className="p-4">
                                 <div className="flex items-center gap-3">
                                   <div className="w-8 h-8 rounded-full bg-[#0058be] text-white flex items-center justify-center text-xs font-bold qs">
                                     {initials}
                                   </div>
-                                  <span className="font-semibold text-[#0b1c30] text-sm">{user.name}</span>
+                                  <span className="font-semibold text-[#0b1c30] dark:text-slate-100 text-sm">{user.name}</span>
                                 </div>
                               </td>
-                              <td className="p-4 text-[#374151] text-sm">{user.email}</td>
-                              <td className="p-4 text-[#374151] text-sm">{user.board}</td>
+                              <td className="p-4 text-[#374151] dark:text-slate-300 text-sm">{user.email}</td>
+                              <td className="p-4 text-[#374151] dark:text-slate-300 text-sm">{user.board}</td>
                               <td className="p-4">
                                 <span className="inline-flex items-center text-xs font-bold rounded-full bg-[#eff4ff] text-[#0058be] border border-[#adc6ff] px-2.5 py-1">
                                   {user.plan}
@@ -386,11 +386,11 @@ export default function AdminUsersPage() {
                                   Active
                                 </div>
                               </td>
-                              <td className="p-4 text-[#0b1c30] font-semibold text-sm">{user.child_count}</td>
-                              <td className="p-4 text-[#374151] text-sm">{user.created_at}</td>
+                              <td className="p-4 text-[#0b1c30] dark:text-slate-100 font-semibold text-sm">{user.child_count}</td>
+                              <td className="p-4 text-[#374151] dark:text-slate-300 text-sm">{user.created_at}</td>
                               <td className="p-4 flex items-center justify-center gap-2">
                                 <Link href={`/admin/users/${user.id}`}>
-                                  <button className="w-8 h-8 rounded-lg bg-white hover:bg-[#e5eeff] flex items-center justify-center text-[#0058be] transition-colors" title="View Details">
+                                  <button className="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 hover:bg-[#e5eeff] dark:hover:bg-slate-700 flex items-center justify-center text-[#0058be] dark:text-cyan-300 transition-colors" title="View Details">
                                     <span className="mat">info</span>
                                   </button>
                                 </Link>
@@ -405,23 +405,23 @@ export default function AdminUsersPage() {
 
                 {/* Pagination */}
                 {!loading && users.length > 0 && (
-                  <div className="flex items-center justify-between p-4 border-t border-[#e5eeff] bg-[#f8f9ff]">
-                    <p className="text-sm text-[#374151]">
+                  <div className="flex items-center justify-between p-4 border-t border-[#e5eeff] dark:border-slate-700 bg-[#f8f9ff] dark:bg-slate-800">
+                    <p className="text-sm text-[#374151] dark:text-slate-300">
                       Showing {(currentPage - 1) * perPage + 1} to {Math.min(currentPage * perPage, totalUsers)} of {totalUsers} users
                     </p>
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                         disabled={currentPage === 1}
-                        className="px-3 py-2 border border-[#bccbb9] rounded-lg text-sm font-semibold text-[#0b1c30] hover:bg-[#eff4ff] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="px-3 py-2 border border-[#bccbb9] dark:border-slate-600 rounded-lg text-sm font-semibold text-[#0b1c30] dark:text-slate-100 hover:bg-[#eff4ff] dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
                         Previous
                       </button>
-                      <span className="text-sm font-semibold text-[#0b1c30]">Page {currentPage}</span>
+                      <span className="text-sm font-semibold text-[#0b1c30] dark:text-slate-100">Page {currentPage}</span>
                       <button
                         onClick={() => setCurrentPage(prev => prev + 1)}
                         disabled={currentPage * perPage >= totalUsers}
-                        className="px-3 py-2 border border-[#bccbb9] rounded-lg text-sm font-semibold text-[#0b1c30] hover:bg-[#eff4ff] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="px-3 py-2 border border-[#bccbb9] dark:border-slate-600 rounded-lg text-sm font-semibold text-[#0b1c30] dark:text-slate-100 hover:bg-[#eff4ff] dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
                         Next
                       </button>
@@ -438,8 +438,8 @@ export default function AdminUsersPage() {
               {/* Admin Accounts Header */}
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="qs font-bold text-xl text-[#0b1c30] mb-1">Administrator Accounts</h2>
-                  <p className="text-[#374151] text-sm">Manage admin users and send invitations</p>
+                  <h2 className="qs font-bold text-xl text-[#0b1c30] dark:text-slate-100 mb-1">Administrator Accounts</h2>
+                  <p className="text-[#374151] dark:text-slate-300 text-sm">Manage admin users and send invitations</p>
                 </div>
                 {adminRole === 'SUPER_ADMIN' && (
                   <button
@@ -453,23 +453,23 @@ export default function AdminUsersPage() {
               </div>
 
               {/* Admins Table */}
-              <div className="bg-white border border-[#e5eeff] rounded-2xl shadow-sm overflow-hidden">
+              <div className="bg-white dark:bg-slate-900 border border-[#e5eeff] dark:border-slate-700 rounded-2xl shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-[#e5eeff]">
-                        <th scope="col" className="text-left p-4 text-[#374151] font-semibold text-sm">Name</th>
-                        <th scope="col" className="text-left p-4 text-[#374151] font-semibold text-sm">Email</th>
-                        <th scope="col" className="text-left p-4 text-[#374151] font-semibold text-sm">Role</th>
-                        <th scope="col" className="text-left p-4 text-[#374151] font-semibold text-sm">Status</th>
-                        <th scope="col" className="text-left p-4 text-[#374151] font-semibold text-sm">Last Login</th>
-                        <th scope="col" className="text-center p-4 text-[#374151] font-semibold text-sm">Actions</th>
+                      <tr className="border-b border-[#e5eeff] dark:border-slate-700">
+                        <th scope="col" className="text-left p-4 text-[#374151] dark:text-slate-300 font-semibold text-sm">Name</th>
+                        <th scope="col" className="text-left p-4 text-[#374151] dark:text-slate-300 font-semibold text-sm">Email</th>
+                        <th scope="col" className="text-left p-4 text-[#374151] dark:text-slate-300 font-semibold text-sm">Role</th>
+                        <th scope="col" className="text-left p-4 text-[#374151] dark:text-slate-300 font-semibold text-sm">Status</th>
+                        <th scope="col" className="text-left p-4 text-[#374151] dark:text-slate-300 font-semibold text-sm">Last Login</th>
+                        <th scope="col" className="text-center p-4 text-[#374151] dark:text-slate-300 font-semibold text-sm">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {adminsLoading ? (
                         [...Array(3)].map((_, idx) => (
-                          <tr key={idx} className="border-b border-[#e5eeff]">
+                          <tr key={idx} className="border-b border-[#e5eeff] dark:border-slate-700">
                             <td className="p-4"><div className="h-4 bg-[#e5eeff] rounded w-32 animate-pulse"></div></td>
                             <td className="p-4"><div className="h-4 bg-[#e5eeff] rounded w-40 animate-pulse"></div></td>
                             <td className="p-4"><div className="h-4 bg-[#e5eeff] rounded w-24 animate-pulse"></div></td>
@@ -483,7 +483,7 @@ export default function AdminUsersPage() {
                       ) : admins.length === 0 ? (
                         <tr>
                           <td colSpan={6} className="p-8 text-center">
-                            <p className="text-[#374151]">No admins found</p>
+                            <p className="text-[#374151] dark:text-slate-300">No admins found</p>
                           </td>
                         </tr>
                       ) : (
@@ -503,16 +503,16 @@ export default function AdminUsersPage() {
                           }[admin.role] || admin.role;
 
                           return (
-                            <tr key={admin.id} className="border-b border-[#e5eeff] hover:bg-[#f8f9ff]">
+                            <tr key={admin.id} className="border-b border-[#e5eeff] dark:border-slate-700 hover:bg-[#f8f9ff] dark:hover:bg-slate-800">
                               <td className="p-4">
                                 <div className="flex items-center gap-3">
                                   <div className="w-8 h-8 rounded-full bg-[#006e2f] text-white flex items-center justify-center text-xs font-bold qs">
                                     {initials}
                                   </div>
-                                  <span className="font-semibold text-[#0b1c30] text-sm">{admin.name}</span>
+                                  <span className="font-semibold text-[#0b1c30] dark:text-slate-100 text-sm">{admin.name}</span>
                                 </div>
                               </td>
-                              <td className="p-4 text-[#374151] text-sm">{admin.email}</td>
+                              <td className="p-4 text-[#374151] dark:text-slate-300 text-sm">{admin.email}</td>
                               <td className="p-4">
                                 <span className={`inline-flex items-center text-xs font-bold rounded-full px-2.5 py-1 ${
                                   admin.role === 'SUPER_ADMIN'
@@ -532,13 +532,13 @@ export default function AdminUsersPage() {
                                   {admin.isActive ? 'Active' : 'Inactive'}
                                 </div>
                               </td>
-                              <td className="p-4 text-[#374151] text-sm">
+                              <td className="p-4 text-[#374151] dark:text-slate-300 text-sm">
                                 {admin.lastLogin ? new Date(admin.lastLogin).toLocaleDateString() : 'Never'}
                               </td>
                               <td className="p-4 flex items-center justify-center gap-2">
                                 {admin.role !== 'SUPER_ADMIN' && adminRole === 'SUPER_ADMIN' && (
                                   <button
-                                    className="w-8 h-8 rounded-lg bg-white hover:bg-red-50 flex items-center justify-center text-red-600 transition-colors"
+                                    className="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-red-950/40 flex items-center justify-center text-red-600 dark:text-red-300 transition-colors"
                                     title="Deactivate"
                                   >
                                     <span className="mat">block</span>
@@ -560,10 +560,10 @@ export default function AdminUsersPage() {
       {/* Invite Admin Modal */}
       {showInviteModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div role="dialog" aria-modal="true" aria-labelledby="invite-dialog-title" className="bg-white rounded-2xl shadow-xl max-w-md w-full">
+          <div role="dialog" aria-modal="true" aria-labelledby="invite-dialog-title" className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl max-w-md w-full border border-transparent dark:border-slate-700">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-[#e5eeff]">
-              <h2 id="invite-dialog-title" className="qs font-bold text-lg text-[#0b1c30]">Invite Admin</h2>
+            <div className="flex items-center justify-between p-6 border-b border-[#e5eeff] dark:border-slate-700">
+              <h2 id="invite-dialog-title" className="qs font-bold text-lg text-[#0b1c30] dark:text-slate-100">Invite Admin</h2>
               <button
                 aria-label="Close invite dialog"
                 onClick={() => {
@@ -571,9 +571,9 @@ export default function AdminUsersPage() {
                   setInviteError('');
                   setInviteMessage('');
                 }}
-                className="w-9 h-9 flex items-center justify-center hover:bg-[#f8f9ff] rounded-lg transition-colors"
+                className="w-9 h-9 flex items-center justify-center hover:bg-[#f8f9ff] dark:hover:bg-slate-800 rounded-lg transition-colors"
               >
-                <span className="mat text-[#374151]" aria-hidden="true">close</span>
+                <span className="mat text-[#374151] dark:text-slate-300" aria-hidden="true">close</span>
               </button>
             </div>
 
@@ -581,7 +581,7 @@ export default function AdminUsersPage() {
             <form onSubmit={handleInviteSubmit} className="p-6 space-y-4">
               {/* Email Field */}
               <div>
-                <label htmlFor="invite-email" className="block text-sm font-semibold text-[#0b1c30] mb-2">
+                <label htmlFor="invite-email" className="block text-sm font-semibold text-[#0b1c30] dark:text-slate-200 mb-2">
                   Email Address
                 </label>
                 <input
@@ -590,7 +590,7 @@ export default function AdminUsersPage() {
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
                   placeholder="admin@example.com"
-                  className="w-full px-4 py-2.5 border border-[#e5eeff] rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0058be] focus-visible:ring-offset-2 text-[#0b1c30]"
+                  className="w-full px-4 py-2.5 border border-[#e5eeff] dark:border-slate-600 bg-white dark:bg-slate-800 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0058be] focus-visible:ring-offset-2 text-[#0b1c30] dark:text-slate-100"
                   required
                   disabled={inviteLoading}
                 />
@@ -598,14 +598,14 @@ export default function AdminUsersPage() {
 
               {/* Role Field */}
               <div>
-                <label htmlFor="invite-role" className="block text-sm font-semibold text-[#0b1c30] mb-2">
+                <label htmlFor="invite-role" className="block text-sm font-semibold text-[#0b1c30] dark:text-slate-200 mb-2">
                   Role
                 </label>
                 <select
                   id="invite-role"
                   value={inviteRole}
                   onChange={(e) => setInviteRole(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-[#e5eeff] rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0058be] focus-visible:ring-offset-2 text-[#0b1c30]"
+                  className="w-full px-4 py-2.5 border border-[#e5eeff] dark:border-slate-600 bg-white dark:bg-slate-800 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0058be] focus-visible:ring-offset-2 text-[#0b1c30] dark:text-slate-100"
                   disabled={inviteLoading}
                 >
                   <option value="SUPPORT">Support Agent</option>
@@ -637,7 +637,7 @@ export default function AdminUsersPage() {
                     setInviteError('');
                     setInviteMessage('');
                   }}
-                  className="flex-1 px-4 py-2.5 border border-[#e5eeff] rounded-lg text-[#0b1c30] font-semibold hover:bg-[#f8f9ff] transition-colors disabled:opacity-50"
+                  className="flex-1 px-4 py-2.5 border border-[#e5eeff] dark:border-slate-600 rounded-lg text-[#0b1c30] dark:text-slate-100 font-semibold hover:bg-[#f8f9ff] dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
                   disabled={inviteLoading}
                 >
                   Cancel

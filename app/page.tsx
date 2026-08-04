@@ -28,7 +28,7 @@ export default function HomePage() {
   if (!isLoggedIn) {
     // Show login/welcome screen for non-authenticated users
     return (
-      <main className="min-h-screen bg-white overflow-hidden">
+      <main className="min-h-screen bg-white dark:bg-slate-950 overflow-hidden">
         <div className="flex min-h-screen">
           {/* LEFT BRAND PANEL */}
           <div className="hidden lg:flex lg:w-1/2 flex-col p-12 relative overflow-hidden" style={{ background: 'linear-gradient(145deg,#001d5e 0%,#003da8 45%,#0058be 100%)' }}>
@@ -86,7 +86,7 @@ export default function HomePage() {
           </div>
 
           {/* RIGHT FORM PANEL */}
-          <div className="flex-1 flex items-center justify-center bg-white p-8 lg:p-14 overflow-y-auto">
+          <div className="flex-1 flex items-center justify-center bg-white dark:bg-slate-950 p-8 lg:p-14 overflow-y-auto">
             <div className="w-full max-w-[420px]">
               {/* Mobile logo */}
               <div className="flex lg:hidden items-center gap-2 mb-8">
@@ -95,12 +95,12 @@ export default function HomePage() {
                   className="rounded-xl"
                   priority
                 />
-                <span className="qs font-bold text-xl text-[#006e2f]">Student Assistant</span>
+                <span className="qs font-bold text-xl text-[#006e2f] dark:text-cyan-300">Student Assistant</span>
               </div>
 
               <div className="mb-8">
-                <h1 className="qs font-bold text-[38px] text-[#0b1c30] leading-tight mb-2">Welcome to Student Assistant</h1>
-                <p className="text-[#374151] text-base">Personalized learning, homework support, and progress tracking in one place.</p>
+                <h1 className="qs font-bold text-[38px] text-[#0b1c30] dark:text-slate-100 leading-tight mb-2">Welcome to Student Assistant</h1>
+                <p className="text-[#374151] dark:text-slate-400 text-base">Personalized learning, homework support, and progress tracking in one place.</p>
               </div>
 
               <div className="space-y-4">
@@ -113,14 +113,14 @@ export default function HomePage() {
 
                 <Link
                   href="/signup"
-                  className="w-full px-6 py-3.5 bg-white text-[#0058be] border-2 border-[#0058be] qs font-bold rounded-xl hover:bg-[#f0f7ff] transition-colors flex items-center justify-center gap-2 text-base"
+                  className="w-full px-6 py-3.5 bg-white dark:bg-slate-900 text-[#0058be] dark:text-cyan-300 border-2 border-[#0058be] dark:border-cyan-500 qs font-bold rounded-xl hover:bg-[#f0f7ff] dark:hover:bg-slate-800 transition-colors flex items-center justify-center gap-2 text-base"
                 >
                   Create Account <span className="mat text-xl">person_add</span>
                 </Link>
               </div>
 
-              <div className="pt-4 border-t border-[#e5eeff] mt-4">
-                <p className="text-sm text-[#374151] text-center">
+              <div className="pt-4 border-t border-[#e5eeff] dark:border-slate-700 mt-4">
+                <p className="text-sm text-[#374151] dark:text-slate-400 text-center">
                   Start your learning journey today
                 </p>
               </div>
@@ -133,87 +133,87 @@ export default function HomePage() {
 
   // Show dashboard for logged-in users
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
+    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
       
       {/* Main Content */}
       <div className="pt-6 px-6 pb-12">
         <div className="max-w-6xl mx-auto space-y-8">
           {/* Welcome Section */}
           <div className="space-y-3">
-            <h1 className="text-4xl font-bold text-slate-900">Welcome back, {userName}! 👋</h1>
-              <p className="text-lg text-slate-700">Continue your learning journey with personalized insights and resources.</p>
+            <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100">Welcome back, {userName}! 👋</h1>
+              <p className="text-lg text-slate-700 dark:text-slate-300">Continue your learning journey with personalized insights and resources.</p>
           </div>
 
           {/* Quick Access Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Link href="/resources" className="bg-white rounded-lg border border-slate-200 p-6 hover:shadow-lg transition-shadow cursor-pointer">
+            <Link href="/resources" className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-6 hover:shadow-lg transition-shadow cursor-pointer">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-slate-900">Research & Learning</h3>
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Research & Learning</h3>
                 <BookOpen className="w-5 h-5 text-cyan-600" />
               </div>
-              <p className="text-sm text-slate-600">Ask questions and explore topics with AI tutor</p>
+              <p className="text-sm text-slate-600 dark:text-slate-300">Ask questions and explore topics with AI tutor</p>
             </Link>
 
-            <Link href="/practice" className="bg-white rounded-lg border border-slate-200 p-6 hover:shadow-lg transition-shadow cursor-pointer">
+            <Link href="/practice" className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-6 hover:shadow-lg transition-shadow cursor-pointer">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-slate-900">Practice Tests</h3>
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Practice Tests</h3>
                 <TrendingUp className="w-5 h-5 text-green-600" />
               </div>
-              <p className="text-sm text-slate-600">Test your knowledge with practice exercises</p>
+              <p className="text-sm text-slate-600 dark:text-slate-300">Test your knowledge with practice exercises</p>
             </Link>
 
-            <Link href="/assignments" className="bg-white rounded-lg border border-slate-200 p-6 hover:shadow-lg transition-shadow cursor-pointer">
+            <Link href="/assignments" className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-6 hover:shadow-lg transition-shadow cursor-pointer">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-slate-900">Assignments</h3>
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Assignments</h3>
                 <Users className="w-5 h-5 text-blue-600" />
               </div>
-              <p className="text-sm text-slate-600">View and submit your assignments</p>
+              <p className="text-sm text-slate-600 dark:text-slate-300">View and submit your assignments</p>
             </Link>
 
-            <Link href="/chat" className="bg-white rounded-lg border border-slate-200 p-6 hover:shadow-lg transition-shadow cursor-pointer">
+            <Link href="/chat" className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-6 hover:shadow-lg transition-shadow cursor-pointer">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-slate-900">AI Chat</h3>
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">AI Chat</h3>
                 <MessageSquare className="w-5 h-5 text-purple-600" />
               </div>
-              <p className="text-sm text-slate-600">Chat with your personal AI tutor</p>
+              <p className="text-sm text-slate-600 dark:text-slate-300">Chat with your personal AI tutor</p>
             </Link>
           </div>
 
           {/* About Section */}
-          <div className="bg-white rounded-lg border border-slate-200 p-8 space-y-6">
+          <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-8 space-y-6">
             <div>
-              <h2 className="text-2xl font-bold text-slate-900 mb-3">About Student Assistant</h2>
-              <p className="text-slate-600 leading-relaxed">
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-3">About Student Assistant</h2>
+              <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
                 Student Assistant is an innovative learning platform designed to empower students with personalized education. Our AI-powered system adapts to each student's learning style, providing targeted support and engaging content across multiple subjects.
               </p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-6">
               <div className="space-y-2">
-                <h3 className="font-semibold text-slate-900 flex items-center gap-2">
+                <h3 className="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                   <span className="text-cyan-600">✓</span> Personalized Learning
                 </h3>
-                <p className="text-sm text-slate-600">Adaptive learning paths tailored to your pace and style</p>
+                <p className="text-sm text-slate-600 dark:text-slate-300">Adaptive learning paths tailored to your pace and style</p>
               </div>
               <div className="space-y-2">
-                <h3 className="font-semibold text-slate-900 flex items-center gap-2">
+                <h3 className="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                   <span className="text-green-600">✓</span> AI-Powered Support
                 </h3>
-                <p className="text-sm text-slate-600">24/7 access to intelligent tutoring and homework help</p>
+                <p className="text-sm text-slate-600 dark:text-slate-300">24/7 access to intelligent tutoring and homework help</p>
               </div>
               <div className="space-y-2">
-                <h3 className="font-semibold text-slate-900 flex items-center gap-2">
+                <h3 className="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                   <span className="text-blue-600">✓</span> Progress Tracking
                 </h3>
-                <p className="text-sm text-slate-600">Real-time insights into your learning journey</p>
+                <p className="text-sm text-slate-600 dark:text-slate-300">Real-time insights into your learning journey</p>
               </div>
             </div>
           </div>
 
           {/* Features Section */}
-          <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-200 p-8 space-y-4">
-            <h3 className="text-xl font-bold text-blue-900">Key Features</h3>
-            <ul className="grid md:grid-cols-2 gap-3 text-sm text-blue-900">
+          <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-slate-900 dark:to-slate-800 rounded-lg border border-blue-200 dark:border-slate-700 p-8 space-y-4">
+            <h3 className="text-xl font-bold text-blue-900 dark:text-cyan-200">Key Features</h3>
+            <ul className="grid md:grid-cols-2 gap-3 text-sm text-blue-900 dark:text-slate-200">
               <li className="flex items-center gap-2">
                 <span className="text-blue-600">►</span> Curriculum-aligned content for CBSE/ICSE
               </li>

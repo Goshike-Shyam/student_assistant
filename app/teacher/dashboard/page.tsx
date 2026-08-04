@@ -95,10 +95,10 @@ export default function TeacherDashboard() {
     return (
       <div className="p-8" aria-busy="true" aria-label="Loading dashboard">
         <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-48" />
+          <div className="h-8 bg-gray-200 dark:bg-slate-700 rounded w-48" />
           <div className="grid grid-cols-3 gap-4">
             {[0, 1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="h-24 bg-gray-200 rounded-xl" />
+              <div key={i} className="h-24 bg-gray-200 dark:bg-slate-700 rounded-xl" />
             ))}
           </div>
         </div>
@@ -109,12 +109,12 @@ export default function TeacherDashboard() {
   return (
     <main className="p-8 max-w-6xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 text-sm mt-1">Welcome back! Here&apos;s your class overview.</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Dashboard</h1>
+        <p className="text-gray-600 dark:text-slate-300 text-sm mt-1">Welcome back! Here&apos;s your class overview.</p>
       </div>
 
       {error && (
-        <div role="alert" className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700">
+        <div role="alert" className="mb-6 p-4 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-300">
           {error}
         </div>
       )}
@@ -123,16 +123,16 @@ export default function TeacherDashboard() {
       {overview && overview.pendingReviews > 0 && (
         <div
           role="alert"
-          className="mb-6 flex items-center gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl"
+          className="mb-6 flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl"
         >
           <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" aria-hidden="true" />
-          <span className="text-amber-800 font-medium">
+          <span className="text-amber-800 dark:text-amber-200 font-medium">
             {overview.pendingReviews} submission{overview.pendingReviews !== 1 ? 's' : ''} waiting
             for your review.
           </span>
           <Link
             href="/teacher/assignments"
-            className="ml-auto text-sm text-amber-700 underline hover:text-amber-900 focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:outline-none rounded"
+            className="ml-auto text-sm text-amber-700 dark:text-amber-300 underline hover:text-amber-900 dark:hover:text-amber-200 focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:outline-none rounded"
           >
             Review now →
           </Link>
@@ -149,15 +149,15 @@ export default function TeacherDashboard() {
               return (
                 <div
                   key={card.key}
-                  className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm"
+                  className="bg-white dark:bg-slate-900 rounded-xl p-5 border border-gray-100 dark:border-slate-700 shadow-sm"
                 >
                   <div className="flex items-center gap-3 mb-3">
                     <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${card.colour}`}>
                       <Icon className="w-5 h-5" aria-hidden="true" />
                     </div>
-                    <p className="text-sm font-medium text-gray-600">{card.label}</p>
+                    <p className="text-sm font-medium text-gray-600 dark:text-slate-300">{card.label}</p>
                   </div>
-                  <p className="text-2xl font-bold text-gray-900" aria-label={`${card.label}: ${card.format(value)}`}>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-slate-100" aria-label={`${card.label}: ${card.format(value)}`}>
                     {card.format(value)}
                   </p>
                 </div>
@@ -169,7 +169,7 @@ export default function TeacherDashboard() {
 
       {/* Quick Actions */}
       <section aria-labelledby="quick-actions-heading" className="mb-8">
-        <h2 id="quick-actions-heading" className="text-lg font-semibold text-gray-900 mb-3">
+        <h2 id="quick-actions-heading" className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-3">
           Quick Actions
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -178,25 +178,25 @@ export default function TeacherDashboard() {
               label: 'Create Assignment',
               href:  '/teacher/assignments/create',
               icon:  <ClipboardList className="h-6 w-6" aria-hidden="true" />,
-              color: 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100',
+              color: 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/50',
             },
             {
               label: 'Add Student',
               href:  '/teacher/students',
               icon:  <UserPlus className="h-6 w-6" aria-hidden="true" />,
-              color: 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100',
+              color: 'bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800 hover:bg-green-100 dark:hover:bg-green-900/50',
             },
             {
               label: 'View Analytics',
               href:  '/teacher/analytics',
               icon:  <BarChart3 className="h-6 w-6" aria-hidden="true" />,
-              color: 'bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100',
+              color: 'bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800 hover:bg-purple-100 dark:hover:bg-purple-900/50',
             },
             {
               label: 'My Classes',
               href:  '/teacher/classes',
               icon:  <Users className="h-6 w-6" aria-hidden="true" />,
-              color: 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100',
+              color: 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800 hover:bg-amber-100 dark:hover:bg-amber-900/50',
             },
           ].map((action) => (
             <Link
@@ -219,21 +219,21 @@ export default function TeacherDashboard() {
       {/* Recent submissions / activity placeholder */}
       {recentActivity.length > 0 && (
         <section aria-labelledby="activity-heading" className="mb-8">
-          <h2 id="activity-heading" className="text-lg font-semibold text-gray-900 mb-3">
+          <h2 id="activity-heading" className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-3">
             Recent Activity
           </h2>
-          <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-700 divide-y divide-gray-100 dark:divide-slate-700">
             {recentActivity.map((item, i) => (
               <div key={i} className="flex items-start gap-3 p-4">
                 <span className="text-lg mt-0.5" aria-hidden="true">
                   {item.type === 'SUBMISSION' ? '📝' : item.type === 'ENROLLMENT' ? '🎓' : '🔔'}
                 </span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">{item.childName}</p>
-                  <p className="text-sm text-gray-600">{item.detail}</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-slate-100 truncate">{item.childName}</p>
+                  <p className="text-sm text-gray-600 dark:text-slate-300">{item.detail}</p>
                 </div>
                 <time
-                  className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0"
+                  className="text-xs text-gray-400 dark:text-slate-500 whitespace-nowrap flex-shrink-0"
                   dateTime={item.timestamp}
                 >
                   {item.timeAgo}
@@ -246,12 +246,12 @@ export default function TeacherDashboard() {
 
       {recentActivity.length === 0 && !loading && (
         <section aria-labelledby="activity-heading-empty" className="mb-8">
-          <h2 id="activity-heading-empty" className="text-lg font-semibold text-gray-900 mb-3">
+          <h2 id="activity-heading-empty" className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-3">
             Recent Activity
           </h2>
-          <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
-            <Bell className="w-10 h-10 text-gray-300 mx-auto mb-3" aria-hidden="true" />
-            <p className="text-sm text-gray-500">
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-700 p-8 text-center">
+            <Bell className="w-10 h-10 text-gray-300 dark:text-slate-600 mx-auto mb-3" aria-hidden="true" />
+            <p className="text-sm text-gray-500 dark:text-slate-400">
               No recent activity. Create your first assignment to get started.
             </p>
           </div>

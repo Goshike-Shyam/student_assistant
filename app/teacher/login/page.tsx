@@ -72,9 +72,9 @@ export default function TeacherLoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f0fdf4] to-[#e5eeff] px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f0fdf4] to-[#e5eeff] dark:from-slate-950 dark:to-slate-900 px-4">
       <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl shadow-lg p-8 border border-green-100">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg p-8 border border-green-100 dark:border-slate-700">
           {/* Header */}
           <div className="mb-8 text-center">
             <AppLogo
@@ -82,8 +82,8 @@ export default function TeacherLoginPage() {
               className="mx-auto mb-4 rounded-2xl border border-slate-100 p-1"
               priority
             />
-            <h1 className="font-bold text-2xl text-gray-900 mb-1">Teacher Portal</h1>
-            <p className="text-gray-600 text-sm">School Assistant — Sign in to continue</p>
+            <h1 className="font-bold text-2xl text-gray-900 dark:text-slate-100 mb-1">Teacher Portal</h1>
+            <p className="text-gray-600 dark:text-slate-400 text-sm">School Assistant — Sign in to continue</p>
           </div>
 
           {/* Email verified success banner */}
@@ -121,7 +121,7 @@ export default function TeacherLoginPage() {
                     onChange={(e) => setResendEmail(e.target.value)}
                     required
                     aria-required="true"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006e2f]"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006e2f]"
                     placeholder="teacher@school.edu"
                   />
                 </div>
@@ -139,7 +139,7 @@ export default function TeacherLoginPage() {
               <button
                 type="button"
                 onClick={() => setShowResend(false)}
-                className="mt-2 text-xs text-gray-500 hover:underline focus-visible:outline-none"
+                className="mt-2 text-xs text-gray-500 dark:text-slate-400 hover:underline focus-visible:outline-none"
               >
                 Back to login
               </button>
@@ -150,7 +150,7 @@ export default function TeacherLoginPage() {
             <form onSubmit={handleSubmit} noValidate className="space-y-5">
               {/* Email */}
               <div>
-                <label htmlFor="tl-email" className="block text-sm font-semibold text-gray-700 mb-1.5">
+                <label htmlFor="tl-email" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1.5">
                   Email Address
                 </label>
                 <input
@@ -161,7 +161,7 @@ export default function TeacherLoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   aria-required="true"
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:border-transparent"
+                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 rounded-lg text-gray-900 dark:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:border-transparent"
                   placeholder="teacher@school.edu"
                   disabled={loading}
                 />
@@ -169,7 +169,7 @@ export default function TeacherLoginPage() {
 
               {/* Password */}
               <div>
-                <label htmlFor="tl-pw" className="block text-sm font-semibold text-gray-700 mb-1.5">
+                <label htmlFor="tl-pw" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1.5">
                   Password
                 </label>
                 <div className="relative">
@@ -181,7 +181,7 @@ export default function TeacherLoginPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     aria-required="true"
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-900 pr-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:border-transparent"
+                    className="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 rounded-lg text-gray-900 dark:text-slate-100 pr-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:border-transparent"
                     placeholder="Your password"
                     disabled={loading}
                   />
@@ -189,7 +189,7 @@ export default function TeacherLoginPage() {
                     type="button"
                     onClick={() => setShowPassword((v) => !v)}
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006e2f] rounded"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006e2f] rounded"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" aria-hidden="true" /> : <Eye className="w-4 h-4" aria-hidden="true" />}
                   </button>
@@ -205,7 +205,7 @@ export default function TeacherLoginPage() {
               </button>
 
               {/* Manual resend link */}
-              <p className="text-center text-xs text-gray-500">
+              <p className="text-center text-xs text-gray-500 dark:text-slate-400">
                 Didn&apos;t receive a verification email?{' '}
                 <button
                   type="button"
@@ -218,7 +218,7 @@ export default function TeacherLoginPage() {
             </form>
           )}
 
-          <p className="mt-6 text-center text-sm text-gray-600">
+          <p className="mt-6 text-center text-sm text-gray-600 dark:text-slate-400">
             Don&apos;t have an account?{' '}
             <Link href="/teacher/register" className="text-[#0058be] font-medium hover:underline">
               Register here

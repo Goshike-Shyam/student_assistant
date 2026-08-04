@@ -14,6 +14,7 @@ import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import type { Route } from 'next';
 import { NotificationPanel } from '@/components/shared/NotificationPanel';
+import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { AppLogo } from '@/components/ui/app-logo';
 
 const navItems: Array<{ label: string; href: Route }> = [];
@@ -68,7 +69,7 @@ export function SiteHeader() {
   if (pathname.startsWith('/admin') || pathname.startsWith('/teacher')) return null;
 
   return (
-    <nav className="sticky top-0 z-40 w-full h-16 bg-white border-b border-[#e5eeff] flex items-center justify-between px-10"
+    <nav className="sticky top-0 z-40 w-full h-16 bg-white border-b border-[#e5eeff] dark:bg-slate-900 dark:border-slate-700 flex items-center justify-between px-10"
       style={{ boxShadow: '0 2px 12px rgba(0,88,190,.06)' }}
     >
       <div className="flex items-center">
@@ -102,7 +103,7 @@ export function SiteHeader() {
 
         {/* Show skeleton during hydration to prevent Sign In flash */}
         {!isHydrated ? (
-          <div className="w-10 h-10 rounded-full bg-[#e5eeff] animate-pulse" />
+          <div className="w-10 h-10 rounded-full bg-[#e5eeff] dark:bg-slate-700 animate-pulse" />
         ) : isLoggedIn ? (
           <div className="relative">
             <button
@@ -110,7 +111,7 @@ export function SiteHeader() {
               aria-label="User menu"
               aria-expanded={menuOpen}
               aria-haspopup="true"
-              className="w-10 h-10 rounded-full bg-[#d3e4fe] border-2 border-[#22c55e] flex items-center justify-center font-bold text-[#006e2f] text-xs qs"
+              className="w-10 h-10 rounded-full bg-[#d3e4fe] border-2 border-[#22c55e] dark:bg-slate-800 dark:border-cyan-500 flex items-center justify-center font-bold text-[#006e2f] dark:text-cyan-200 text-xs qs"
             >
               {userInitials}
             </button>
@@ -118,19 +119,19 @@ export function SiteHeader() {
             <div
               id="umenu"
               role="menu"
-              className={`${menuOpen ? '' : 'hidden'} absolute top-11 right-0 bg-white rounded-2xl border border-[#e5eeff] py-2 min-w-[200px]`}
+              className={`${menuOpen ? '' : 'hidden'} absolute top-11 right-0 bg-white dark:bg-slate-900 rounded-2xl border border-[#e5eeff] dark:border-slate-700 py-2 min-w-[200px]`}
               style={{ boxShadow: '0 8px 32px rgba(0,88,190,.14)' }}
             >
-              <div className="px-4 py-3 border-b border-[#f8f9ff]">
-                <p className="font-semibold text-sm">{userName}</p>
-                <p className="text-xs text-[#374151]">{userGrade} · {userRole}</p>
+              <div className="px-4 py-3 border-b border-[#f8f9ff] dark:border-slate-700">
+                <p className="font-semibold text-sm text-slate-900 dark:text-slate-100">{userName}</p>
+                <p className="text-xs text-[#374151] dark:text-slate-400">{userGrade} · {userRole}</p>
               </div>
 
               <a
                 href="/parent-portal"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-[#0b1c30] hover:bg-[#eff4ff] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500"
+                className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-[#0b1c30] dark:text-slate-200 hover:bg-[#eff4ff] dark:hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500"
                 onClick={() => setMenuOpen(false)}
               >
                 <span className="text-lg" aria-hidden="true">👨‍👩‍👧</span>
@@ -142,7 +143,7 @@ export function SiteHeader() {
               {userRole === 'Admin' && (
                 <Link
                   href={'/admin' as Route}
-                  className="flex items-center gap-2 px-4 py-2.5 text-sm text-[#0b1c30] hover:bg-[#eff4ff] transition-colors"
+                  className="flex items-center gap-2 px-4 py-2.5 text-sm text-[#0b1c30] dark:text-slate-200 hover:bg-[#eff4ff] dark:hover:bg-slate-800 transition-colors"
                 >
                   <span className="mat text-[#0058be] text-lg">
                     admin_panel_settings
@@ -151,7 +152,9 @@ export function SiteHeader() {
                 </Link>
               )}
 
-              <div className="border-t border-[#f8f9ff] mt-1 pt-1">
+              <ThemeToggle className="rounded-none px-4" />
+
+              <div className="border-t border-[#f8f9ff] dark:border-slate-700 mt-1 pt-1">
                 <button
                   onClick={async () => {
                     // 1. Clear ALL auth cookies server-side
@@ -174,7 +177,7 @@ export function SiteHeader() {
                     //    page unload with no React state cache
                     window.location.replace('/login');
                   }}
-                  className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-[#ba1a1a] hover:bg-[#fff4f4] transition-colors text-left"
+                  className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-[#ba1a1a] dark:text-rose-400 hover:bg-[#fff4f4] dark:hover:bg-rose-950/40 transition-colors text-left"
                 >
                   <span className="mat text-[#ba1a1a] text-lg">logout</span>
                   Sign Out

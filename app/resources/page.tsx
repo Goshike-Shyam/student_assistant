@@ -319,14 +319,14 @@ export default function ResourcesPage() {
   };
 
   return (
-    <main className="flex h-screen flex-col overflow-hidden bg-white">
-      <div className="flex items-center justify-between border-b border-slate-200 bg-gradient-to-r from-cyan-50 to-blue-50 px-6 py-4">
+    <main className="flex h-screen flex-col overflow-hidden bg-white dark:bg-slate-950">
+      <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 px-6 py-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Research Assistant</h1>
-          <p className="text-sm text-slate-600">Curriculum-aligned AI research helper</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Research Assistant</h1>
+          <p className="text-sm text-slate-600 dark:text-slate-300">Curriculum-aligned AI research helper</p>
         </div>
         {searchResponses.length > 0 && (
-          <button className="rounded-lg bg-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-300">
+          <button className="rounded-lg bg-slate-200 dark:bg-slate-700 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-100 transition-colors hover:bg-slate-300 dark:hover:bg-slate-600">
             + New Chat
           </button>
         )}
@@ -343,7 +343,7 @@ export default function ResourcesPage() {
             onClick={() => switchView('research')}
             className={cn(
               'flex min-h-[44px] items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500',
-              activeView === 'research' ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              activeView === 'research' ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-200 hover:bg-gray-200 dark:hover:bg-slate-700'
             )}
           >
             <span aria-hidden="true">🔍</span>
@@ -364,7 +364,7 @@ export default function ResourcesPage() {
             }}
             className={cn(
               'flex min-h-[44px] items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500',
-              activeView === 'history' ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              activeView === 'history' ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-200 hover:bg-gray-200 dark:hover:bg-slate-700'
             )}
           >
             <span aria-hidden="true">🕐</span>
@@ -373,7 +373,7 @@ export default function ResourcesPage() {
               <span
                 className={cn(
                   'ml-1 rounded-full px-1.5 py-0.5 text-xs',
-                  activeView === 'history' ? 'bg-white/20 text-white' : 'bg-blue-100 text-blue-700'
+                  activeView === 'history' ? 'bg-white/20 text-white' : 'bg-blue-100 dark:bg-cyan-900/40 text-blue-700 dark:text-cyan-200'
                 )}
               >
                 {historyItems.length}
@@ -391,18 +391,18 @@ export default function ResourcesPage() {
                 <Search className="h-8 w-8 text-cyan-600" />
               </div>
               <div>
-                <h2 className="text-2xl font-semibold text-slate-900">Start your research</h2>
-                <p className="mt-2 text-slate-600">Ask a question below to get AI-powered, curriculum-aligned answers</p>
+                <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">Start your research</h2>
+                <p className="mt-2 text-slate-600 dark:text-slate-300">Ask a question below to get AI-powered, curriculum-aligned answers</p>
               </div>
               {earlierSearches.length > 0 && (
                 <div className="mt-8 w-full max-w-md">
-                  <p className="mb-3 text-left text-sm font-semibold text-slate-700">Recent searches</p>
+                  <p className="mb-3 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Recent searches</p>
                   <div className="space-y-2">
                     {earlierSearches.slice(0, 3).map((search) => (
                       <button
                         key={search.id}
                         onClick={() => setSearchQuery(search.query)}
-                        className="w-full rounded-lg border border-slate-200 bg-slate-100 p-3 text-left text-sm text-slate-700 transition-colors hover:bg-slate-200 hover:text-slate-900"
+                        className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-900 p-3 text-left text-sm text-slate-700 dark:text-slate-200 transition-colors hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100"
                       >
                         <p className="font-medium">{search.query}</p>
                         {search.subject && <p className="mt-1 text-xs text-slate-500">{search.subject}</p>}
@@ -424,8 +424,8 @@ export default function ResourcesPage() {
                   </div>
 
                   <div className="flex justify-start">
-                    <div className="w-full overflow-hidden rounded-lg border border-slate-300 bg-slate-100 px-4 py-3 text-slate-900">
-                      <div className="prose prose-sm max-w-none break-words text-slate-800">
+                    <div className="w-full overflow-hidden rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-900 px-4 py-3 text-slate-900 dark:text-slate-100">
+                      <div className="prose prose-sm max-w-none break-words text-slate-800 dark:text-slate-200">
                         <p className="whitespace-pre-wrap break-words">{response.response}</p>
                       </div>
 
@@ -486,7 +486,7 @@ export default function ResourcesPage() {
         </div>
       </div>
 
-      <div hidden={activeView !== 'research'} className="sticky bottom-0 border-t border-slate-200 bg-white px-4 py-4">
+      <div hidden={activeView !== 'research'} className="sticky bottom-0 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-4">
         <div className="mx-auto max-w-3xl space-y-3">
           <div className="flex items-end gap-3">
             <div className="flex-1">
@@ -501,7 +501,7 @@ export default function ResourcesPage() {
                 }}
                 aria-label="Select subject for research"
                 disabled={subjects.length === 0}
-                className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 transition-colors focus-visible:border-cyan-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+                className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 transition-colors focus-visible:border-cyan-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
               >
                 <option value="">Select subject...</option>
                 {subjects.map((subject) => (
@@ -524,7 +524,7 @@ export default function ResourcesPage() {
           {attachedFiles.length > 0 && (
             <div className="flex flex-wrap gap-2 rounded-lg border border-blue-200 bg-blue-50 p-3">
               {attachedFiles.map((file, idx) => (
-                <div key={idx} className="flex items-center gap-2 rounded-full border border-blue-200 bg-white px-3 py-1 text-xs text-slate-700">
+                <div key={idx} className="flex items-center gap-2 rounded-full border border-blue-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-1 text-xs text-slate-700 dark:text-slate-200">
                   <span>{file.name}</span>
                   <button
                     onClick={() => setAttachedFiles((prev) => prev.filter((_, i) => i !== idx))}
@@ -551,7 +551,7 @@ export default function ResourcesPage() {
                   }
                 }}
                 placeholder="Type your question... (Shift+Enter for new line)"
-                className="w-full resize-none overflow-hidden rounded-lg border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder-slate-500 transition-colors focus-visible:border-cyan-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+                className="w-full resize-none overflow-hidden rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 transition-colors focus-visible:border-cyan-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
                 style={{ minHeight: '44px', maxHeight: '120px' }}
               />
             </div>
@@ -560,7 +560,7 @@ export default function ResourcesPage() {
               <button
                 onClick={handleFileAttach}
                 title="Attach file"
-                className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white p-3 text-slate-700 transition-all hover:bg-slate-50"
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 p-3 text-slate-700 dark:text-slate-200 transition-all hover:bg-slate-50 dark:hover:bg-slate-800"
               >
                 <Paperclip size={18} />
               </button>
@@ -579,7 +579,7 @@ export default function ResourcesPage() {
                 className={`inline-flex items-center justify-center rounded-lg p-3 transition-all ${
                   isListening
                     ? 'bg-red-500 text-white hover:bg-red-600'
-                    : 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
+                    : 'border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800'
                 }`}
               >
                 <Mic size={18} />
@@ -601,7 +601,7 @@ export default function ResourcesPage() {
       <div id="history-panel" role="tabpanel" aria-labelledby="history-tab" hidden={activeView !== 'history'} className="flex-1 overflow-y-auto px-4 py-6">
         <div className="mx-auto max-w-3xl">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-base font-semibold text-gray-900">Your Research History</h2>
+            <h2 className="text-base font-semibold text-gray-900 dark:text-slate-100">Your Research History</h2>
             <button
               type="button"
               onClick={() => {
@@ -644,10 +644,10 @@ export default function ResourcesPage() {
           )}
 
           {!historyLoading && !historyError && historyItems.length === 0 && (
-            <div className="rounded-xl border-2 border-dashed border-gray-200 p-10 text-center">
+            <div className="rounded-xl border-2 border-dashed border-gray-200 dark:border-slate-700 p-10 text-center">
               <span className="mb-3 block text-4xl" aria-hidden="true">📭</span>
-              <p className="mb-1 text-sm font-medium text-gray-600">No research history yet</p>
-              <p className="mb-4 text-xs text-gray-400">Your past research queries will appear here</p>
+              <p className="mb-1 text-sm font-medium text-gray-600 dark:text-slate-300">No research history yet</p>
+              <p className="mb-4 text-xs text-gray-400 dark:text-slate-500">Your past research queries will appear here</p>
               <button
                 type="button"
                 onClick={() => switchView('research')}
@@ -671,7 +671,7 @@ export default function ResourcesPage() {
                 return (
                   <div
                     key={item.id}
-                    className="overflow-hidden rounded-xl border border-gray-200 bg-white transition-colors hover:border-blue-200"
+                    className="overflow-hidden rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 transition-colors hover:border-blue-200 dark:hover:border-cyan-500"
                     role="listitem"
                   >
                     <button
@@ -679,7 +679,7 @@ export default function ResourcesPage() {
                       onClick={() => toggleItem(item.id)}
                       aria-expanded={isOpen}
                       aria-controls={`item-${item.id}`}
-                      className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500"
+                      className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-gray-50 dark:hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500"
                     >
                       <span className="shrink-0 whitespace-nowrap rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
                         {item.subject}
@@ -689,7 +689,7 @@ export default function ResourcesPage() {
                         <span className="line-clamp-1 text-sm font-medium text-blue-600 underline underline-offset-2 hover:text-blue-800">
                           {item.queryText}
                         </span>
-                        <span className="mt-0.5 block text-xs text-gray-400">{date}</span>
+                        <span className="mt-0.5 block text-xs text-gray-400 dark:text-slate-500">{date}</span>
                       </span>
 
                       <span
@@ -702,15 +702,15 @@ export default function ResourcesPage() {
                     </button>
 
                     {isOpen && (
-                      <div id={`item-${item.id}`} className="border-t border-gray-100 bg-gray-50">
+                      <div id={`item-${item.id}`} className="border-t border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-800">
                         <div className="px-4 pt-4 pb-2">
-                          <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-500">Your Question</p>
-                          <p className="rounded-lg border border-gray-100 bg-white px-3 py-2.5 text-sm text-gray-800">{item.queryText}</p>
+                          <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">Your Question</p>
+                          <p className="rounded-lg border border-gray-100 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2.5 text-sm text-gray-800 dark:text-slate-200">{item.queryText}</p>
                         </div>
 
                         <div className="px-4 py-2">
-                          <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-500">Response</p>
-                          <div className="max-h-96 overflow-y-auto whitespace-pre-wrap rounded-lg border border-blue-100 bg-white px-3 py-3 text-sm leading-relaxed text-gray-800">
+                          <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">Response</p>
+                          <div className="max-h-96 overflow-y-auto whitespace-pre-wrap rounded-lg border border-blue-100 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-3 text-sm leading-relaxed text-gray-800 dark:text-slate-200">
                             {item.response || 'Response not available for this query.'}
                           </div>
                         </div>

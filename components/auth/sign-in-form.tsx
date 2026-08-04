@@ -75,18 +75,18 @@ export default function SignInForm() {
           className="rounded-xl"
           priority
         />
-        <span className="qs font-bold text-xl text-[#006e2f]">Student Assistant</span>
+        <span className="qs font-bold text-xl text-[#006e2f] dark:text-cyan-300">Student Assistant</span>
       </div>
 
       <div className="mb-8">
-        <h1 className="qs font-bold text-[38px] text-[#0b1c30] leading-tight mb-2">Welcome Back</h1>
-        <p className="text-[#6d7b6c] text-base">Sign in to your account to access your learning dashboard.</p>
+        <h1 className="qs font-bold text-[38px] text-[#0b1c30] dark:text-slate-100 leading-tight mb-2">Welcome Back</h1>
+        <p className="text-[#6d7b6c] dark:text-slate-400 text-base">Sign in to your account to access your learning dashboard.</p>
       </div>
 
       {session ? (
         <div className="space-y-6">
-          <div className="rounded-2xl bg-[#eff4ff] border border-[#d8e2ff] p-5">
-            <p className="text-sm text-[#0b1c30]">
+          <div className="rounded-2xl bg-[#eff4ff] dark:bg-slate-900 border border-[#d8e2ff] dark:border-slate-700 p-5">
+            <p className="text-sm text-[#0b1c30] dark:text-slate-200">
               Signed in as <span className="font-semibold text-[#0058be]">{session?.email ?? "Not signed in"}</span>
             </p>
           </div>
@@ -100,7 +100,7 @@ export default function SignInForm() {
             </button>
             <Link
               href="/dashboard"
-              className="px-6 py-3.5 border-2 border-[#bccbb9] text-[#0b1c30] qs font-bold rounded-xl hover:bg-[#f8f9ff] transition-all text-center text-sm"
+              className="px-6 py-3.5 border-2 border-[#bccbb9] dark:border-slate-600 text-[#0b1c30] dark:text-slate-100 qs font-bold rounded-xl hover:bg-[#f8f9ff] dark:hover:bg-slate-800 transition-all text-center text-sm"
             >
               View dashboard
             </Link>
@@ -109,7 +109,7 @@ export default function SignInForm() {
       ) : (
         <form className="space-y-5" onSubmit={handleSignIn}>
           <div>
-            <label htmlFor="signin-email" className="block text-sm font-semibold text-[#0b1c30] mb-2.5">Email address</label>
+            <label htmlFor="signin-email" className="block text-sm font-semibold text-[#0b1c30] dark:text-slate-100 mb-2.5">Email address</label>
             <input
               id="signin-email"
               type="email"
@@ -117,12 +117,12 @@ export default function SignInForm() {
               onChange={(event) => setEmail(event.target.value)}
               placeholder="you@example.com"
               required
-              className="w-full px-4 py-3 border-2 border-[#bccbb9] rounded-xl text-[#0b1c30] placeholder-[#4B5563] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0058be] focus-visible:ring-offset-2 focus-visible:border-[#0058be] transition-colors font-base"
+              className="w-full px-4 py-3 border-2 border-[#bccbb9] dark:border-slate-600 bg-white dark:bg-slate-900 rounded-xl text-[#0b1c30] dark:text-slate-100 placeholder-[#4B5563] dark:placeholder-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0058be] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950 focus-visible:border-[#0058be] transition-colors font-base"
             />
           </div>
 
           <div>
-            <label htmlFor="signin-password" className="block text-sm font-semibold text-[#0b1c30] mb-2.5">Password</label>
+            <label htmlFor="signin-password" className="block text-sm font-semibold text-[#0b1c30] dark:text-slate-100 mb-2.5">Password</label>
             <input
               id="signin-password"
               type="password"
@@ -130,7 +130,7 @@ export default function SignInForm() {
               onChange={(event) => setPassword(event.target.value)}
               placeholder="Enter your password"
               required
-              className="w-full px-4 py-3 border-2 border-[#bccbb9] rounded-xl text-[#0b1c30] placeholder-[#4B5563] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0058be] focus-visible:ring-offset-2 focus-visible:border-[#0058be] transition-colors font-base"
+              className="w-full px-4 py-3 border-2 border-[#bccbb9] dark:border-slate-600 bg-white dark:bg-slate-900 rounded-xl text-[#0b1c30] dark:text-slate-100 placeholder-[#4B5563] dark:placeholder-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0058be] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950 focus-visible:border-[#0058be] transition-colors font-base"
             />
           </div>
 
@@ -142,13 +142,13 @@ export default function SignInForm() {
           </button>
 
           {status ? (
-            <p role="alert" className={`text-sm text-center ${status.includes('successful') ? 'text-[#006e2f]' : 'text-[#ba1a1a]'}`}>
+            <p role="alert" className={`text-sm text-center ${status.includes('successful') ? 'text-[#006e2f] dark:text-emerald-400' : 'text-[#ba1a1a] dark:text-rose-400'}`}>
               {status}
             </p>
           ) : null}
 
-          <div className="pt-4 border-t border-[#e5eeff]">
-            <p className="text-sm text-[#6d7b6c]">
+          <div className="pt-4 border-t border-[#e5eeff] dark:border-slate-700">
+            <p className="text-sm text-[#6d7b6c] dark:text-slate-400">
               Don't have an account?{' '}
               <Link href="/signup" className="font-semibold text-[#0058be] hover:text-[#003da8]">
                 Create one
