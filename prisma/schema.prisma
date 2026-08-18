@@ -600,3 +600,31 @@ model TeacherVerificationToken {
   pageViews    Int       @default(0) @map("page_views")
   @@map("student_sessions")
 }
+
+model Podcast {
+  id           BigInt   @id @default(autoincrement()) @db.BigInt
+  queryId      String?  @map("query_id") @db.VarChar(36)
+  audioUrl     String   @map("audio_url") @db.VarChar(2048)
+  durationSecs Int?     @map("duration_secs") @db.Integer
+  filePath     String?  @map("file_path") @db.VarChar(500)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("podcasts")
+}
+
+model UserFeatureAccess {
+  id        BigInt    @id @default(autoincrement()) @db.BigInt
+  userId    String    @map("user_id") @db.VarChar(64)
+  userRole  String    @map("user_role") @db.VarChar(20)
+  feature   String    @db.VarChar(50)
+  isEnabled Boolean   @default(false) @map("is_enabled")
+  enabledBy BigInt?   @map("enabled_by") @db.BigInt
+  enabledAt DateTime? @map("enabled_at")
+  notes     String?   @db.VarChar(500)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  @@unique([userId, userRole, feature], name: "uq_user_feature")
+  @@index([feature, isEnabled])
+  @@map("user_feature_access")
+}
