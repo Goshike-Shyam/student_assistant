@@ -11,7 +11,7 @@
  *   unset        -> defaults to 'elevenlabs'
  */
 
-export const activeProvider = process.env.TTS_PROVIDER ?? 'elevenlabs'
+export const activeProvider = 'edge' process.env.TTS_PROVIDER ?? 'elevenlabs'
 
 console.log(
   `[TTS Provider] Active: ${activeProvider}`,
