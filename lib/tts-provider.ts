@@ -11,7 +11,9 @@
  *   unset        -> defaults to 'elevenlabs'
  */
 
-export const activeProvider = 'edge' process.env.TTS_PROVIDER ?? 'elevenlabs'
+//For Testing purpose hardcoding edge tts
+export const activeProvider = 'edge' 
+//process.env.TTS_PROVIDER ?? 'elevenlabs'
 
 console.log(
   `[TTS Provider] Active: ${activeProvider}`,
