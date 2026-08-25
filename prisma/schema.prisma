@@ -605,6 +605,7 @@ model Podcast {
   id           BigInt   @id @default(autoincrement()) @db.BigInt
   queryId      String?  @map("query_id") @db.VarChar(36)
   audioUrl     String   @map("audio_url") @db.VarChar(2048)
+  segmentsJson String?  @map("segments_json") @db.Text
   durationSecs Int?     @map("duration_secs") @db.Integer
   filePath     String?  @map("file_path") @db.VarChar(500)
   createdAt    DateTime @default(now()) @map("created_at")

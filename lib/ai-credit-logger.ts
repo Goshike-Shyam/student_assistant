@@ -18,6 +18,8 @@ interface LogCreditParams {
   userId: string;
   userRole: 'STUDENT' | 'TEACHER' | 'SYSTEM';
   feature: string;
+  modelProvider?: string;
+  modelName?: string;
   promptTokens: number;
   completionTokens: number;
   latencyMs?: number;
@@ -28,6 +30,8 @@ export async function logAiCredit(params: LogCreditParams): Promise<void> {
   const totalTokens = params.promptTokens + params.completionTokens;
   const costUsd = calcCostUsd(params.promptTokens, params.completionTokens);
   const today = new Date().toISOString().split('T')[0];
+  const modelProvider = params.modelProvider ?? 'GOOGLE';
+  const modelName = params.modelName ?? 'gemini-2.5-flash';
 
   try {
     await Promise.all([
@@ -38,8 +42,8 @@ export async function logAiCredit(params: LogCreditParams): Promise<void> {
           userRole: params.userRole,
           sessionId: params.sessionId ?? null,
           feature: params.feature,
-          modelProvider: 'GOOGLE',
-          modelName: 'gemini-2.5-flash',
+          modelProvider,
+          modelName,
           promptTokens: params.promptTokens,
           completionTokens: params.completionTokens,
           totalTokens,
@@ -56,7 +60,7 @@ export async function logAiCredit(params: LogCreditParams): Promise<void> {
             summaryDate: new Date(today),
             userId: params.userId,
             feature: params.feature,
-            modelName: 'gemini-2.5-flash',
+            modelName,
           },
         },
         update: {
@@ -71,7 +75,7 @@ export async function logAiCredit(params: LogCreditParams): Promise<void> {
           userId: params.userId,
           userRole: params.userRole,
           feature: params.feature,
-          modelName: 'gemini-2.5-flash',
+          modelName,
           callCount: 1,
           totalTokens,
           totalCostUsd: new Prisma.Decimal(costUsd.toFixed(6)),

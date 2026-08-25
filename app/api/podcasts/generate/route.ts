@@ -2,26 +2,21 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getTeacherSession } from '@/lib/teacher-auth'
 import { prisma } from '@/lib/prismaClient'
 import { hasFeatureAccess } from '@/lib/feature-access'
-import { buildPodcastScript, generateTTSAudio } from '@/lib/tts'
+import { generatePodcastScript, generateInterruptionAnswer } from '@/lib/podcast-script'
+import { generatePodcastSegments, generateAnswerAudio, activeProvider } from '@/lib/tts-provider'
 import { logAiCredit } from '@/lib/ai-credit-logger'
 
 /**
- * ID SAFETY CONTRACT - DO NOT USE BigInt() DIRECTLY
- * queryId can arrive as UUID or numeric string from clients.
- * Always normalize via safeId() before DB operations.
+ * PODCAST GENERATE CONTRACT
+ * POST mode=podcast -> full segment generation
+ * POST mode=answer  -> interruption answer generation
+ * GET -> feature access check for current role/user
  */
-function safeId(
-  raw: string | number | null | undefined,
-): bigint | string | null {
+function safeId(raw: string | number | null | undefined): string | null {
   if (raw === null || raw === undefined || raw === '') return null
   const str = String(raw).trim()
-  if (isNumericId(str)) return BigInt(str)
   if (str.length > 0) return str
   return null
-}
-
-function isNumericId(raw: string | null | undefined): boolean {
-  return /^\d+$/.test(String(raw ?? ''))
 }
 
 function isBindFormatError(err: unknown): boolean {
@@ -32,18 +27,20 @@ function isBindFormatError(err: unknown): boolean {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { topic, subject, response, queryId, role, userId: studentUserId } = body
-
-    if (!topic || !subject || !response) {
-      return NextResponse.json(
-        { error: 'topic, subject and response required' },
-        { status: 400 },
-      )
-    }
+    const {
+      topic,
+      subject,
+      response,
+      queryId,
+      role,
+      userId: studentUserId,
+      mode,
+      question,
+    } = body
 
     let userId: string
     let userRole: 'STUDENT' | 'TEACHER'
-    let grade = '6'
+    let grade = '7'
 
     if (role === 'TEACHER') {
       const session = await getTeacherSession()
@@ -53,6 +50,13 @@ export async function POST(req: NextRequest) {
       userId = session.teacherId
       userRole = 'TEACHER'
     } else {
+      if (!topic || !subject || !response) {
+        return NextResponse.json(
+          { error: 'topic, subject and response required' },
+          { status: 400 },
+        )
+      }
+
       if (!studentUserId) {
         return NextResponse.json(
           { error: 'Unauthorized: missing student userId' },
@@ -92,19 +96,59 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    if (mode === 'answer') {
+      if (!question || !response) {
+        return NextResponse.json(
+          { error: 'question and response required' },
+          { status: 400 },
+        )
+      }
+
+      const startMs = Date.now()
+      const answerText = await generateInterruptionAnswer(
+        String(question),
+        String(topic ?? 'Research topic'),
+        String(subject ?? 'General'),
+        grade,
+        String(response),
+      )
+
+      const answerResult = await generateAnswerAudio(answerText, userId)
+
+      logAiCredit({
+        userId,
+        userRole,
+        feature: 'PODCAST_QA',
+        modelProvider: activeProvider === 'edge' ? 'MICROSOFT' : 'ELEVENLABS',
+        modelName: activeProvider === 'edge' ? 'msedge-tts-neural' : 'elevenlabs-tts-flash',
+        promptTokens: answerResult.charCount,
+        completionTokens: 0,
+        latencyMs: Date.now() - startMs,
+      }).catch(console.error)
+
+      return NextResponse.json({
+        answerText,
+        audioUrl: answerResult.audioUrl,
+        durationSecs: answerResult.durationSecs,
+      })
+    }
+
+    if (!topic || !subject || !response) {
+      return NextResponse.json(
+        { error: 'topic, subject and response required' },
+        { status: 400 },
+      )
+    }
+
     const queryIdSafe = safeId(queryId)
 
     if (queryIdSafe !== null) {
-      const podcastQueryId =
-        typeof queryIdSafe === 'bigint' ? String(queryIdSafe) : queryIdSafe
-
       const existing = await prisma.podcast
         .findFirst({
-          where: { queryId: podcastQueryId as any },
-          select: { id: true, audioUrl: true, durationSecs: true },
+          where: { queryId: queryIdSafe },
+          select: { id: true, audioUrl: true, durationSecs: true, segmentsJson: true },
         })
         .catch((err) => {
-          // Runtime-safe fallback when Prisma client type and DB column drift temporarily.
           if (isBindFormatError(err)) {
             console.warn('[Podcast/Generate] cache lookup skipped due to queryId bind type mismatch')
             return null
@@ -112,36 +156,39 @@ export async function POST(req: NextRequest) {
           throw err
         })
 
-      if (existing?.audioUrl) {
+      if (existing?.segmentsJson) {
+        let parsedSegments: unknown[] = []
+        try {
+          parsedSegments = JSON.parse(existing.segmentsJson)
+        } catch {
+          parsedSegments = []
+        }
+
         return NextResponse.json({
           podcastId: existing.id.toString(),
-          audioUrl: existing.audioUrl,
+          segments: parsedSegments,
           durationSecs: existing.durationSecs ?? 0,
           cached: true,
         })
       }
     }
 
-    const script = buildPodcastScript(topic, subject, grade, response)
-
     const startMs = Date.now()
-    const ttsResult = await generateTTSAudio(script, grade, userId)
-    const latencyMs = Date.now() - startMs
+    const script = await generatePodcastScript(topic, subject, grade, response)
 
-    const queryIdForSave =
-      queryIdSafe === null
-        ? null
-        : typeof queryIdSafe === 'bigint'
-          ? String(queryIdSafe)
-          : queryIdSafe
+    const ttsResult = await generatePodcastSegments(script, userId)
+    const durationSecs = ttsResult.segmentCount * 8
+
+    const queryIdForSave = queryIdSafe ?? null
 
     const podcast = await prisma.podcast
       .create({
         data: {
           queryId: queryIdForSave as any,
-          audioUrl: ttsResult.audioUrl,
-          durationSecs: ttsResult.durationSecs,
-          filePath: ttsResult.filePath,
+          audioUrl: ttsResult.segments[0]?.audioUrl ?? '',
+          segmentsJson: JSON.stringify(ttsResult.segments),
+          durationSecs,
+          filePath: ttsResult.segments[0]?.filePath ?? '',
         },
       })
       .catch(async (err) => {
@@ -151,9 +198,10 @@ export async function POST(req: NextRequest) {
         return prisma.podcast.create({
           data: {
             queryId: null,
-            audioUrl: ttsResult.audioUrl,
-            durationSecs: ttsResult.durationSecs,
-            filePath: ttsResult.filePath,
+            audioUrl: ttsResult.segments[0]?.audioUrl ?? '',
+            segmentsJson: JSON.stringify(ttsResult.segments),
+            durationSecs,
+            filePath: ttsResult.segments[0]?.filePath ?? '',
           },
         })
       })
@@ -162,21 +210,70 @@ export async function POST(req: NextRequest) {
       userId,
       userRole,
       feature: 'PODCAST',
-      promptTokens: ttsResult.charCount,
+      modelProvider: activeProvider === 'edge' ? 'MICROSOFT' : 'ELEVENLABS',
+      modelName: activeProvider === 'edge' ? 'msedge-tts-neural' : 'elevenlabs-tts-flash',
+      promptTokens: ttsResult.totalChars,
       completionTokens: 0,
-      latencyMs,
+      latencyMs: Date.now() - startMs,
     }).catch(console.error)
 
     return NextResponse.json({
       podcastId: podcast.id.toString(),
-      audioUrl: ttsResult.audioUrl,
-      durationSecs: ttsResult.durationSecs,
+      segments: ttsResult.segments,
+      durationSecs,
+      script,
       cached: false,
     })
   } catch (err: any) {
+    const isAuthErr =
+      err?.statusCode === 401 ||
+      err?.message?.includes('401') ||
+      err?.message?.includes('Unauthorized')
+
+    const isBillingErr =
+      err?.statusCode === 402 ||
+      err?.message?.includes('402') ||
+      err?.message?.toLowerCase?.().includes('payment required')
+
+    const isQuotaErr =
+      err?.statusCode === 429 ||
+      err?.message?.toLowerCase?.().includes('quota') ||
+      err?.message?.toLowerCase?.().includes('rate limit')
+
+    if (isAuthErr) {
+      console.error('[Podcast] ElevenLabs auth error - check ELEVENLABS_API_KEY')
+      return NextResponse.json(
+        { error: 'Podcast service unavailable', code: 'TTS_AUTH_ERROR' },
+        { status: 503 },
+      )
+    }
+
+    if (isQuotaErr) {
+      return NextResponse.json(
+        {
+          error: 'Podcast generation limit reached. Please try again in a few minutes.',
+          code: 'TTS_QUOTA_ERROR',
+        },
+        { status: 429 },
+      )
+    }
+
+    if (isBillingErr) {
+      return NextResponse.json(
+        {
+          error: 'Podcast service is temporarily unavailable due to TTS billing or plan limits. Please contact admin to top up or adjust ElevenLabs plan.',
+          code: 'TTS_BILLING_ERROR',
+        },
+        { status: 402 },
+      )
+    }
+
     console.error('[Podcast/Generate]', err)
     return NextResponse.json(
-      { error: err?.message ?? 'Generation failed' },
+      {
+        error: 'Podcast generation failed. Please try again.',
+        code: 'TTS_UNKNOWN_ERROR',
+      },
       { status: 500 },
     )
   }
