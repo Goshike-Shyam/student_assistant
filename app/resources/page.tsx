@@ -5,6 +5,7 @@ import { Mic, Paperclip, Send, Share2, Search, Copy } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { PodcastPlayer } from '@/components/shared/PodcastPlayer';
 import { cn } from '@/lib/utils';
 import type { ResearchHistoryItem, ResearchSource } from '@/types/research';
 
@@ -13,6 +14,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 export default function ResourcesPage() {
   interface SearchResponseItem {
     id: number;
+    queryId?: string;
     query: string;
     subject: string;
     response: string;
@@ -281,6 +283,7 @@ export default function ResourcesPage() {
         ...prev,
         {
           id: responseId,
+          queryId: data.queryId ? String(data.queryId) : undefined,
           query: searchQuery,
           subject: selectedSubject,
           response: data.response,
@@ -475,6 +478,17 @@ export default function ResourcesPage() {
                           <Copy size={12} />
                           Copy
                         </button>
+                      </div>
+
+                      <div className="mt-4 border-t border-slate-300 pt-3">
+                        <PodcastPlayer
+                          queryId={response.queryId}
+                          userId={studentId ?? undefined}
+                          topic={response.query}
+                          subject={response.subject || 'General'}
+                          response={response.response}
+                          role="student"
+                        />
                       </div>
                     </div>
                   </div>

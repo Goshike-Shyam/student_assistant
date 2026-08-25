@@ -16,6 +16,16 @@ function getClientIP(request: NextRequest): string {
   )
 }
 
+function getRateLimitKey(request: NextRequest, email: string): string {
+  const ip = getClientIP(request).trim().toLowerCase()
+  const normalizedEmail = email.trim().toLowerCase()
+  const userAgent = (request.headers.get('user-agent') || 'unknown-agent')
+    .slice(0, 120)
+    .toLowerCase()
+
+  return `${ip}:${normalizedEmail}:${userAgent}`
+}
+
 function checkRateLimit(ip: string): boolean {
   const now = Date.now()
   const attempt = failedAttempts.get(ip)
@@ -46,20 +56,22 @@ function clearFailedAttempts(ip: string) {
 
 export async function POST(request: NextRequest) {
   try {
-    const ip = getClientIP(request)
+    const { email, password } = await request.json()
 
-    // Check rate limit
-    if (!checkRateLimit(ip)) {
+    const normalizedEmail = String(email ?? '').trim().toLowerCase()
+    const rawPassword = String(password ?? '')
+    const rateLimitKey = getRateLimitKey(request, normalizedEmail || 'missing-email')
+
+    // Check rate limit after normalization so attempts are scoped per email+client.
+    if (!checkRateLimit(rateLimitKey)) {
       return NextResponse.json(
         { error: 'Too many failed login attempts. Please try again in 15 minutes.' },
         { status: 429 }
       )
     }
 
-    const { email, password } = await request.json()
-
-    if (!email || !password) {
-      recordFailedAttempt(ip)
+    if (!normalizedEmail || !rawPassword) {
+      recordFailedAttempt(rateLimitKey)
       return NextResponse.json(
         { error: 'Invalid email or password' },
         { status: 401 }
@@ -67,13 +79,18 @@ export async function POST(request: NextRequest) {
     }
 
     // Find admin by email (case-insensitive)
-    const admin = await prisma.admin.findUnique({
-      where: { email: email.toLowerCase() },
+    const admin = await prisma.admin.findFirst({
+      where: {
+        email: {
+          equals: normalizedEmail,
+          mode: 'insensitive',
+        },
+      },
     })
 
     // Generic error message to not reveal email existence
     if (!admin || !admin.isActive) {
-      recordFailedAttempt(ip)
+      recordFailedAttempt(rateLimitKey)
       return NextResponse.json(
         { error: 'Invalid email or password' },
         { status: 401 }
@@ -81,10 +98,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Compare password
-    const isPasswordValid = await comparePassword(password, admin.passwordHash)
+    const isPasswordValid = await comparePassword(rawPassword, admin.passwordHash)
 
     if (!isPasswordValid) {
-      recordFailedAttempt(ip)
+      recordFailedAttempt(rateLimitKey)
       return NextResponse.json(
         { error: 'Invalid email or password' },
         { status: 401 }
@@ -92,7 +109,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Successful login
-    clearFailedAttempts(ip)
+    clearFailedAttempts(rateLimitKey)
 
     // Update last login
     await prisma.admin.update({
