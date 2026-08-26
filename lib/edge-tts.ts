@@ -20,6 +20,21 @@ import { MsEdgeTTS, OUTPUT_FORMAT } from 'msedge-tts'
 import { createClient } from '@supabase/supabase-js'
 import { v4 as uuidv4 } from 'uuid'
 
+// Validate Supabase credentials on module load
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''
+
+console.log('[EdgeTTS] Supabase credential check:', {
+  urlPresent: !!SUPABASE_URL,
+  urlValue: SUPABASE_URL.substring(0, 40),
+  urlHasTrailingSlash: SUPABASE_URL.endsWith('/'),
+  keyPresent: !!SERVICE_KEY,
+  keyLength: SERVICE_KEY.length,
+  keyPrefix: SERVICE_KEY.substring(0, 20),
+  // Valid service_role key starts with 'eyJ' and is typically 220-240 chars long.
+  keyLooksValid: SERVICE_KEY.startsWith('eyJ') && SERVICE_KEY.length > 200,
+})
+
 export type { DialogueSegment } from './elevenlabs-tts'
 export type { PodcastSegmentResult } from './elevenlabs-tts'
 export type { PodcastResult } from './elevenlabs-tts'
@@ -34,10 +49,49 @@ import {
 
 export { parseDialogue }
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-)
+const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
+const rawKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''
+
+const supabaseUrl = rawUrl
+  .trim()
+  .replace(/\/$/, '')
+  .replace(/^["']|["']$/g, '')
+
+const supabaseKey = rawKey
+  .trim()
+  .replace(/^["']|["']$/g, '')
+  .replace(/\n/g, '')
+
+if (!supabaseUrl || !supabaseUrl.startsWith('https://')) {
+  throw new Error(
+    '[EdgeTTS] NEXT_PUBLIC_SUPABASE_URL is missing or invalid. Must start with https://',
+  )
+}
+
+if (!supabaseKey || !supabaseKey.startsWith('eyJ')) {
+  throw new Error(
+    '[EdgeTTS] SUPABASE_SERVICE_ROLE_KEY is missing or invalid. Must start with eyJ. Check Vercel Environment Variables.',
+  )
+}
+
+if (supabaseKey.length < 200) {
+  throw new Error(
+    `[EdgeTTS] SUPABASE_SERVICE_ROLE_KEY appears truncated. Expected 220+ chars, got: ${supabaseKey.length}. Re-copy from Supabase Dashboard -> API -> service_role`,
+  )
+}
+
+const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false,
+    detectSessionInUrl: false,
+  },
+})
+
+console.log('[EdgeTTS] Supabase client created:', {
+  url: supabaseUrl.substring(0, 40),
+  keyLength: supabaseKey.length,
+})
 
 const STORAGE_BUCKET = 'podcasts'
 
@@ -57,11 +111,11 @@ async function synthesiseSegment(
   await tts.setMetadata(voice, OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3)
 
   const { audioStream } = tts.toStream(text)
-  const chunks: Buffer[] = []
+  const chunks: Uint8Array[] = []
 
   await new Promise<void>((resolve, reject) => {
     audioStream.on('data', (chunk: Buffer | Uint8Array | string) => {
-      chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk))
+      chunks.push(Buffer.isBuffer(chunk) ? new Uint8Array(chunk) : new Uint8Array(Buffer.from(chunk)))
     })
     audioStream.on('end', resolve)
     audioStream.on('error', reject)
@@ -69,7 +123,14 @@ async function synthesiseSegment(
     tts.close()
   })
 
-  const buffer = Buffer.concat(chunks)
+  const totalLength = chunks.reduce((sum, chunk) => sum + chunk.byteLength, 0)
+  const merged = new Uint8Array(totalLength)
+  let offset = 0
+  for (const chunk of chunks) {
+    merged.set(chunk, offset)
+    offset += chunk.byteLength
+  }
+  const buffer = Buffer.from(merged)
   const fileName = `${uuidv4()}-seg${segIndex}.mp3`
   const filePath = `${childId}/segments/${fileName}`
 
