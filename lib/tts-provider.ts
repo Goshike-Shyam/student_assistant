@@ -31,11 +31,13 @@ async function getProvider() {
 
 export async function generatePodcastSegments(script: string, childId: string) {
   const provider = await getProvider()
+  console.log(`[TTS Provider for generatePodcastSegments] Generating podcast from ${provider}`)
   return provider.generatePodcastSegments(script, childId)
 }
 
 export async function generateAnswerAudio(answerText: string, childId: string) {
   const provider = await getProvider()
+  console.log(`[TTS Provider] Generating podcast from ${provider}`)
   return provider.generateAnswerAudio(answerText, childId)
 }
 
