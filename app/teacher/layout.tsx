@@ -5,6 +5,8 @@
  * Public pages (login, register, verify-email, classes/join) render without sidebar
  * Protected pages redirect to /teacher/login if no valid session
  * x-pathname header forwarded by middleware to detect public paths
+ * Always provide fallback values for all session fields
+ * Child components must never receive undefined name/email/school
  */
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
@@ -50,19 +52,26 @@ export default async function TeacherLayout({ children }: TeacherLayoutProps) {
   const session = await getTeacherSession()
   if (!session) redirect('/teacher/login')
 
+  const teacherName = session.name ?? session.email ?? 'Teacher'
+  const teacherEmail = session.email ?? ''
+  const teacherId = session.teacherId ?? ''
+
   console.log(
     '[TeacherLayout] session:',
     JSON.stringify({
-      teacherId: session.teacherId,
-      name: session.name,
-      email: session.email,
+      teacherId,
+      name: teacherName,
+      email: teacherEmail,
     }),
   )
 
-  const teacher = await prisma.teacher.findUnique({
-    where: { id: BigInt(session.teacherId) },
-    select: { schoolName: true },
-  })
+  const teacher = /^\d+$/.test(teacherId)
+    ? await prisma.teacher.findUnique({
+        where: { id: BigInt(teacherId) },
+        select: { schoolName: true },
+      })
+    : null
+  const teacherSchool = teacher?.schoolName ?? ''
 
   const dynamicLabels: Record<string, string> = {
     create: 'Create Class',
@@ -75,12 +84,12 @@ export default async function TeacherLayout({ children }: TeacherLayoutProps) {
   const classIdSegment =
     segments[0] === 'teacher' && segments[1] === 'classes' ? segments[2] : null
 
-  if (classIdSegment && /^\d+$/.test(classIdSegment)) {
+  if (classIdSegment && /^\d+$/.test(classIdSegment) && /^\d+$/.test(teacherId)) {
     try {
       const cls = await prisma.teacherClass.findFirst({
         where: {
           id: BigInt(classIdSegment),
-          teacherId: BigInt(session.teacherId),
+          teacherId: BigInt(teacherId),
         },
         select: { className: true },
       })
@@ -99,13 +108,13 @@ export default async function TeacherLayout({ children }: TeacherLayoutProps) {
         Skip to main content
       </a>
       <TeacherSidebar
-        teacherName={session.name ?? 'Teacher'}
-        schoolName={teacher?.schoolName ?? ''}
+        teacherName={teacherName}
+        schoolName={teacherSchool}
       />
       <div className="flex-1 flex flex-col overflow-hidden">
         <TeacherTopBar
-          teacherName={session.name ?? 'Teacher'}
-          teacherEmail={session.email ?? ''}
+          teacherName={teacherName}
+          teacherEmail={teacherEmail}
         />
         {/* Page content */}
         <main className="flex-1 overflow-auto" id="main-content">

@@ -10,7 +10,7 @@
  */
 "use client";
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
 import type { Route } from 'next';
 import { NotificationPanel } from '@/components/shared/NotificationPanel';
@@ -23,6 +23,7 @@ const navItems: Array<{ label: string; href: Route }> = [];
 export function SiteHeader() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const [userName, setUserName] = useState<string | null>(null);
   const [userGrade, setUserGrade] = useState('Grade 10');
   const [userRole, setUserRole] = useState('Student');
@@ -65,6 +66,52 @@ export function SiteHeader() {
   const isParentRole = normalizedRole === 'parent' || pathname.startsWith('/parent');
   const headerRole: 'student' | 'parent' = isParentRole ? 'parent' : 'student';
 
+  /**
+   * USER MENU CLOSE CONTRACT
+   * Closes on: outside mousedown, Escape key,
+   *   any menu item click, page scroll
+   * menuRef must wrap BOTH button AND panel
+   * useEffect deps: [menuOpen] - re-registers
+   *   listener each time menu opens/closes
+   * mousedown preferred over click -
+   *   fires before other click handlers
+   * Each menu item calls setMenuOpen(false)
+   *   before its own action
+   */
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setMenuOpen(false);
+      }
+    };
+
+    const handleScroll = () => {
+      setMenuOpen(false);
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('keydown', handleEscape);
+    document.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('scroll', handleScroll);
+    };
+  }, [menuOpen]);
+
+  const toggleMenu = useCallback(() => {
+    setMenuOpen((prev) => !prev);
+  }, []);
+
   // Admin and teacher pages have their own navigation — never show the student header there
   if (pathname.startsWith('/admin') || pathname.startsWith('/teacher')) return null;
 
@@ -105,9 +152,9 @@ export function SiteHeader() {
         {!isHydrated ? (
           <div className="w-10 h-10 rounded-full bg-[#e5eeff] dark:bg-slate-700 animate-pulse" />
         ) : isLoggedIn ? (
-          <div className="relative">
+          <div ref={menuRef} className="relative" data-user-menu>
             <button
-              onClick={() => setMenuOpen(!menuOpen)}
+              onClick={toggleMenu}
               aria-label="User menu"
               aria-expanded={menuOpen}
               aria-haspopup="true"
@@ -143,6 +190,7 @@ export function SiteHeader() {
               {userRole === 'Admin' && (
                 <Link
                   href={'/admin' as Route}
+                  onClick={() => setMenuOpen(false)}
                   className="flex items-center gap-2 px-4 py-2.5 text-sm text-[#0b1c30] dark:text-slate-200 hover:bg-[#eff4ff] dark:hover:bg-slate-800 transition-colors"
                 >
                   <span className="mat text-[#0058be] text-lg">
@@ -152,11 +200,14 @@ export function SiteHeader() {
                 </Link>
               )}
 
-              <ThemeToggle className="rounded-none px-4" />
+              <div onClick={() => setMenuOpen(false)}>
+                <ThemeToggle className="rounded-none px-4" />
+              </div>
 
               <div className="border-t border-[#f8f9ff] dark:border-slate-700 mt-1 pt-1">
                 <button
                   onClick={async () => {
+                    setMenuOpen(false);
                     // 1. Clear ALL auth cookies server-side
                     try {
                       await fetch('/api/auth/logout', { method: 'POST' });
