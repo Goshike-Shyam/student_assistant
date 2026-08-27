@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { LogOut } from 'lucide-react'
 import { NotificationPanel } from '@/components/shared/NotificationPanel'
@@ -26,7 +26,54 @@ function getInitials(teacherName: string): string {
 
 export function TeacherTopBar({ teacherName, teacherEmail }: TeacherTopBarProps) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
   const initials = getInitials(teacherName)
+
+  /**
+   * USER MENU CLOSE CONTRACT
+   * Closes on: outside mousedown, Escape key,
+   *   any menu item click, page scroll
+   * menuRef must wrap BOTH button AND panel
+   * useEffect deps: [menuOpen] - re-registers
+   *   listener each time menu opens/closes
+   * mousedown preferred over click -
+   *   fires before other click handlers
+   * Each menu item calls setMenuOpen(false)
+   *   before its own action
+   */
+  useEffect(() => {
+    if (!menuOpen) return
+
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false)
+      }
+    }
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setMenuOpen(false)
+      }
+    }
+
+    const handleScroll = () => {
+      setMenuOpen(false)
+    }
+
+    document.addEventListener('mousedown', handleOutsideClick)
+    document.addEventListener('keydown', handleEscape)
+    document.addEventListener('scroll', handleScroll, { passive: true })
+
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick)
+      document.removeEventListener('keydown', handleEscape)
+      document.removeEventListener('scroll', handleScroll)
+    }
+  }, [menuOpen])
+
+  const toggleMenu = useCallback(() => {
+    setMenuOpen((o) => !o)
+  }, [])
 
   async function handleLogout() {
     try {
@@ -73,10 +120,10 @@ export function TeacherTopBar({ teacherName, teacherEmail }: TeacherTopBarProps)
           emptyMessage="No submissions awaiting review"
           role="teacher"
         />
-        <div className="relative" data-user-menu>
+        <div ref={menuRef} className="relative" data-user-menu>
           <button
             type="button"
-            onClick={() => setMenuOpen((o) => !o)}
+            onClick={toggleMenu}
             aria-label={`User menu - ${teacherName || 'Teacher'}`}
             aria-expanded={menuOpen}
             className="flex items-center justify-center w-9 h-9 rounded-full bg-blue-600 dark:bg-cyan-600 text-white text-sm font-bold hover:bg-blue-700 dark:hover:bg-cyan-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
@@ -94,11 +141,16 @@ export function TeacherTopBar({ teacherName, teacherEmail }: TeacherTopBarProps)
                   <p className="text-xs text-gray-500 dark:text-slate-400 truncate">{teacherEmail}</p>
               </div>
 
-                <ThemeToggle className="px-3 py-2" />
+                <div onClick={() => setMenuOpen(false)}>
+                  <ThemeToggle className="px-3 py-2" />
+                </div>
 
               <button
                 type="button"
-                onClick={handleLogout}
+                onClick={async () => {
+                  setMenuOpen(false)
+                  await handleLogout()
+                }}
                 role="menuitem"
                   className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-red-600 dark:text-rose-400 hover:bg-red-50 dark:hover:bg-rose-950/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-red-500"
               >

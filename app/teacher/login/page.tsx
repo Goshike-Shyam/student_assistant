@@ -2,14 +2,24 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { Eye, EyeOff, CheckCircle } from 'lucide-react'
 import { AppLogo } from '@/components/ui/app-logo'
 
 export default function TeacherLoginPage() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const verified = searchParams.get('verified') === 'true'
+
+  /**
+   * TEACHER LOGIN REDIRECT CONTRACT
+   * MUST use window.location.replace() NOT router.push()
+   * router.push() = client-side nav, cookie may not
+   *   be committed -> dashboard renders with no session
+   * window.location.replace() = full page reload
+   *   -> browser commits cookie -> layout has session
+   * Do NOT use router.push, router.replace, or
+   * router.refresh() after teacher login
+   */
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -45,7 +55,7 @@ export default function TeacherLoginPage() {
         return
       }
 
-      router.push('/teacher/dashboard')
+      window.location.replace('/teacher/dashboard')
     } catch {
       setError('An unexpected error occurred')
       setLoading(false)
