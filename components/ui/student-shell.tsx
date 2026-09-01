@@ -1,6 +1,7 @@
 'use client'
 import { usePathname } from 'next/navigation'
 import { Sidebar } from './sidebar'
+import { ThemeApplier } from '@/components/gamification/ThemeApplier'
 
 /** Paths that show the student sidebar */
 const STUDENT_SIDEBAR_PATHS = [
@@ -12,6 +13,7 @@ const STUDENT_SIDEBAR_PATHS = [
   '/ai-tutor',
   '/chat',
   '/progress',
+  '/settings',
 ]
 
 /**
@@ -28,6 +30,7 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-[calc(100vh-64px)]">
+      <ThemeApplier />
       <Sidebar />
       <div className="flex-1 overflow-x-hidden">{children}</div>
     </div>

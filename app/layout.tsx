@@ -9,12 +9,14 @@
  */
 import type { Metadata } from 'next';
 import './globals.css';
+import '@/app/gamification-themes.css';
 import { SiteHeader } from '@/components/ui/site-header';
 import { StudentShell } from '@/components/ui/student-shell';
 import { IconEmojiReplacer } from '@/components/icon-emoji-replacer';
 import { Analytics } from "@vercel/analytics/next"
 import { Toaster } from 'sonner';
 import { ThemeProvider } from '@/lib/theme';
+import '@/lib/gamification/config';
 
 export const metadata: Metadata = {
   title: 'Student Assistant | Veda AI',

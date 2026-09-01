@@ -8,9 +8,10 @@ interface User {
   id?: string;
   email?: string;
   name?: string;
+  grade?: number | null;
+  curriculum?: string | null;
+  role?: string;
 }
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 export default function SignInForm() {
   const [email, setEmail] = useState('');
@@ -23,7 +24,7 @@ export default function SignInForm() {
     setStatus('Signing in...');
 
     try {
-      const response = await fetch(`${API_URL}/api/auth/signin`, {
+      const response = await fetch('/api/auth/signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -43,8 +44,8 @@ export default function SignInForm() {
       localStorage.setItem('userBoard', data.user?.curriculum || 'CBSE');
       localStorage.setItem('userRole', data.user?.role ? (data.user.role === 'STUDENT' ? 'Student' : data.user.role === 'INSTRUCTOR' ? 'Teacher' : 'Admin') : 'Student');
       
-      // Redirect to dashboard immediately
-      window.location.href = '/dashboard';
+      // Hard redirect ensures browser state is fully committed before protected page load.
+      window.location.replace('/dashboard');
     } catch (error) {
       setStatus(error instanceof Error ? error.message : 'Sign in failed. Please try again.');
     }
@@ -62,8 +63,8 @@ export default function SignInForm() {
     setEmail('');
     setPassword('');
     
-    // Redirect to login page
-    window.location.href = '/login';
+    // Hard redirect avoids stale router cache.
+    window.location.replace('/login');
   };
 
   return (

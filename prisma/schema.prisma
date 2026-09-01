@@ -629,3 +629,38 @@ model UserFeatureAccess {
   @@index([feature, isEnabled])
   @@map("user_feature_access")
 }
+
+model StudentXpLog {
+  id          BigInt   @id @default(autoincrement()) @db.BigInt
+  childId     String   @map("child_id") @db.VarChar(64)
+  action      String   @db.VarChar(50)
+  xpEarned    Int      @map("xp_earned")
+  referenceId String?  @map("reference_id") @db.VarChar(100)
+  monthYear   String   @map("month_year") @db.VarChar(7)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([childId, monthYear], name: "idx_student_xp_child_month")
+  @@index([action], name: "idx_student_xp_action")
+  @@map("student_xp_log")
+}
+
+model StudentBadge {
+  id        BigInt   @id @default(autoincrement()) @db.BigInt
+  childId   String   @map("child_id") @db.VarChar(64)
+  badgeId   String   @map("badge_id") @db.VarChar(50)
+  awardedAt DateTime @default(now()) @map("awarded_at")
+
+  @@unique([childId, badgeId], name: "uq_child_badge")
+  @@map("student_badges")
+}
+
+model StudentPreferences {
+  childId        String   @id @map("child_id") @db.VarChar(64)
+  dashboardTheme String   @default("classic") @map("dashboard_theme") @db.VarChar(30)
+  comicTheme     String   @default("none") @map("comic_theme") @db.VarChar(30)
+  avatarJson     String?  @map("avatar_json") @db.Text
+  gamificationOn Boolean  @default(true) @map("gamification_on")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@map("student_preferences")
+}

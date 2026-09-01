@@ -15,6 +15,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { AssignmentResponse, FeedbackResult } from '@/types/assignments';
 import { Button } from '@/components/ui/button';
+import { celebrate } from '@/lib/gamification/confetti';
 
 interface AssignmentToolbarProps {
   assignment: AssignmentResponse;
@@ -82,6 +83,7 @@ export default function AssignmentToolbar({
       const data: FeedbackResult = await response.json();
       setSubmitted(true);
       onSubmitSuccess?.(data);
+      celebrate('submit');
       toast.success('Assignment submitted! Check your feedback below.');
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Submission failed. Try again.';

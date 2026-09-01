@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { ArrowLeft, UserPlus, Trash2, LayoutDashboard, ClipboardList, Users, ChevronLeft } from 'lucide-react'
 import Link from 'next/link'
+import { BadgeShelf } from '@/components/gamification/BadgeShelf'
 
 interface Student {
   childId: string
@@ -275,6 +276,7 @@ export default function ClassStudentsPage() {
                 <th scope="col" className="text-left px-4 py-3 font-semibold text-gray-700">Grade</th>
                 <th scope="col" className="text-left px-4 py-3 font-semibold text-gray-700">Enrolled</th>
                 <th scope="col" className="text-left px-4 py-3 font-semibold text-gray-700">Submissions</th>
+                <th scope="col" className="text-left px-4 py-3 font-semibold text-gray-700">Badges</th>
                 <th scope="col" className="text-left px-4 py-3 font-semibold text-gray-700">Actions</th>
               </tr>
             </thead>
@@ -304,6 +306,9 @@ export default function ClassStudentsPage() {
                         <span className="text-xs text-gray-500">+{student.submissions.length - 3} more</span>
                       )}
                     </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <BadgeShelf childId={student.childId} compact />
                   </td>
                   <td className="px-4 py-3">
                     <button

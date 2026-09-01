@@ -9,6 +9,8 @@ import { isValidSubjectForBoardAndGrade } from '../lib/subjects-seed.js';
 import { generateContentWithRetry } from './utils.js';
 import { logAiCredit } from '../lib/ai-credit-logger.js';
 import { callGeminiWithRetry } from '../lib/ai-with-retry.js';
+import { awardXP } from '../lib/gamification/xp.js';
+import { updateLoginStreak } from '../lib/gamification/streak.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -207,6 +209,9 @@ router.post(
 
     // Return user data without password
     const { password: _, ...userWithoutPassword } = user;
+    if (user.role === 'STUDENT') {
+      updateLoginStreak(user.id).catch(() => {});
+    }
     res.json({ user: userWithoutPassword });
   }),
 );
@@ -817,6 +822,8 @@ Rules for sources:
       });
 
       queryId = savedQuery.id;
+
+      awardXP(String(studentId), 'RESEARCH_QUERY', savedQuery.id.toString()).catch(() => {});
 
       await prisma.searchResponse.create({
         data: {
