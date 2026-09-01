@@ -20,6 +20,8 @@ export default function ParentPortalPage() {
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [totalSearches, setTotalSearches] = useState(0);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [gamificationDisabled, setGamificationDisabled] = useState(false);
+  const [savingGamification, setSavingGamification] = useState(false);
 
   const subjects = [
     'Mathematics',
@@ -48,6 +50,39 @@ export default function ParentPortalPage() {
     setIsAuthenticated(true);
     setStudentId(storedStudentId);
   }, []);
+
+  useEffect(() => {
+    if (!studentId) return;
+
+    fetch(`/api/parent/preferences?parentId=${encodeURIComponent(studentId)}`)
+      .then((r) => r.json())
+      .then((d) => {
+        setGamificationDisabled(d.gamificationDisabled === true);
+      })
+      .catch(() => {});
+  }, [studentId]);
+
+  const saveGamificationPreference = async (disabled: boolean) => {
+    if (!studentId) return;
+    setSavingGamification(true);
+    try {
+      const res = await fetch(`/api/parent/preferences?parentId=${encodeURIComponent(studentId)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ gamificationDisabled: disabled }),
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to update preference');
+      }
+
+      setGamificationDisabled(disabled);
+    } catch (error) {
+      console.error('Error updating parent preference:', error);
+    } finally {
+      setSavingGamification(false);
+    }
+  };
 
   if (isAuthenticated === null) {
     return null;
@@ -132,6 +167,41 @@ export default function ParentPortalPage() {
             <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100">Parent Portal</h1>
             <p className="text-lg text-slate-600 dark:text-slate-300">Monitor your child&apos;s learning progress and research activities</p>
           </div>
+
+          <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700">
+            <CardHeader>
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <CardTitle className="text-base">Gamification Control</CardTitle>
+                  <CardDescription>
+                    Disable or enable XP and badges for children linked to this parent account.
+                  </CardDescription>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => saveGamificationPreference(!gamificationDisabled)}
+                  disabled={savingGamification}
+                  aria-pressed={!gamificationDisabled}
+                  className={`relative h-6 w-11 rounded-full transition-colors ${
+                    gamificationDisabled ? 'bg-slate-300 dark:bg-slate-600' : 'bg-green-500'
+                  } disabled:opacity-60`}
+                >
+                  <span
+                    className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${
+                      gamificationDisabled ? 'translate-x-0.5' : 'translate-x-5'
+                    }`}
+                  />
+                </button>
+              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                {savingGamification
+                  ? 'Saving preference...'
+                  : gamificationDisabled
+                    ? 'Gamification is disabled by parent control.'
+                    : 'Gamification is currently enabled.'}
+              </p>
+            </CardHeader>
+          </Card>
 
           {/* Statistics Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { ArrowLeft, Send, CheckCircle } from 'lucide-react'
+import { celebrate } from '@/lib/gamification/confetti'
 
 interface Question {
   id: number
@@ -108,6 +109,7 @@ export default function ClassAssignmentPage() {
     const data = await res.json()
 
     if (res.ok) {
+      celebrate('submit')
       setSubmitted(true)
     } else {
       setError(data.error ?? 'Submission failed')

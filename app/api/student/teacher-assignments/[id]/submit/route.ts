@@ -10,6 +10,7 @@ import { prisma } from '@/lib/prismaClient'
 import { callGeminiWithRetry } from '@/lib/ai-with-retry'
 import { logAiCredit } from '@/lib/ai-credit-logger'
 import { createNotification } from '@/lib/notifications'
+import { awardXP } from '@/lib/gamification/xp'
 
 export async function POST(
   request: NextRequest,
@@ -58,6 +59,8 @@ export async function POST(
         status: 'SUBMITTED',
       },
     })
+
+    awardXP(childId, 'ASSIGNMENT_SUBMIT', submissionId.toString()).catch(() => {})
 
     await createNotification({
       userId: submission.assignment.teacherId.toString(),

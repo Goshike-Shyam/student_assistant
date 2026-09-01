@@ -16,6 +16,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prismaClient';
 import { callGeminiWithRetry } from '@/lib/ai-with-retry';
 import { logAiCredit } from '@/lib/ai-credit-logger';
+import { awardXP } from '@/lib/gamification/xp';
 
 const LLM_TIMEOUT_MS = 45000;
 
@@ -228,7 +229,7 @@ export async function POST(request: NextRequest) {
     const normalizedMarksAwarded = toSafeInt(feedback.total_marks_awarded);
     const normalizedMarksPossible = toSafeInt(feedback.total_marks_possible);
 
-    await prisma.practiceAttempt.create({
+    const savedAttempt = await prisma.practiceAttempt.create({
       data: {
         practiceTestId,
         childId: practiceTest.childId,
@@ -241,6 +242,13 @@ export async function POST(request: NextRequest) {
         completedAt: new Date(),
       },
     });
+
+    awardXP(practiceTest.childId, 'PRACTICE_COMPLETE', savedAttempt.id.toString()).catch(() => {});
+    if (normalizedScore === 100) {
+      awardXP(practiceTest.childId, 'SCORE_PERFECT').catch(() => {});
+    } else if (normalizedScore !== null && normalizedScore >= 90) {
+      awardXP(practiceTest.childId, 'SCORE_ABOVE_90').catch(() => {});
+    }
 
     // STEP 7 — Return feedback
     return NextResponse.json(feedback, { status: 200 });

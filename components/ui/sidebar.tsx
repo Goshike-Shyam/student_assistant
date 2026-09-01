@@ -1,6 +1,8 @@
 'use client'
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { XPWidget } from '@/components/gamification/XPWidget';
+import { GAMIFICATION_ENABLED } from '@/lib/gamification/config';
 
 const STUDENT_NAV = [
   { href: '/dashboard',   icon: 'home',            label: 'Home' },
@@ -9,6 +11,7 @@ const STUDENT_NAV = [
   { href: '/practice',    icon: 'auto_stories',      label: 'Practice' },
   { href: '/progress',    icon: 'insights',          label: 'Progress' },
   { href: '/ai-tutor',    icon: 'headphones',        label: 'Podcasts' },
+  { href: '/settings',    icon: 'tune',              label: 'Settings' },
 ];
 
 export function Sidebar() {
@@ -22,6 +25,7 @@ export function Sidebar() {
           Current Streak: 5 Days <span className="mat-fill text-[#ff8e4d] text-sm">local_fire_department</span>
         </p>
       </div>
+  {GAMIFICATION_ENABLED && <XPWidget />}
 
       {/* Feature navigation — no subject links */}
       <nav className="flex flex-col gap-0.5 flex-1" aria-label="Student navigation">

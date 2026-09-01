@@ -1,7 +1,6 @@
 'use client';
 
 import { FormEvent, useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -9,8 +8,6 @@ import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import { getSubjectsByBoardAndGrade } from '@/lib/subjects-seed';
 import { AppLogo } from '@/components/ui/app-logo';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 const roleMap: Record<string, string> = {
   Student: 'STUDENT',
@@ -34,7 +31,6 @@ const GRADES = [
 ];
 
 export default function SignupPage() {
-  const router = useRouter();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [parentEmail, setParentEmail] = useState('');
@@ -104,7 +100,7 @@ export default function SignupPage() {
         'State Board': 'STATE_BOARD',
       };
 
-      const response = await fetch(`${API_URL}/api/users`, {
+      const response = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -120,16 +116,17 @@ export default function SignupPage() {
         }),
       });
 
+      const payload = await response.json().catch(() => null);
+
       if (!response.ok) {
-        const errorBody = await response.json().catch(() => null);
-        throw new Error(errorBody?.message || 'Signup request failed.');
+        throw new Error(payload?.error || payload?.message || 'Registration failed. Please try again.');
       }
 
       setStatus({ type: 'success', message: 'Account created successfully. Redirecting to login...' });
       
-      // Redirect to login page after 1.5 seconds
+      // Hard redirect avoids stale client/router cache edge cases after auth flows.
       setTimeout(() => {
-        router.push('/login');
+        window.location.replace('/login');
       }, 1500);
     } catch (error) {
       setStatus({ type: 'error', message: error instanceof Error ? error.message : 'Signup failed. Please try again.' });

@@ -1,0 +1,61 @@
+/* Dashboard theme variables.
+   Applied via data-theme attribute on <body>
+   or on main content wrapper.
+   All themes preserve WCAG AA contrast. */
+
+[data-gtheme="classic"] {
+  --gt-sidebar-bg: #1e293b;
+  --gt-sidebar-text: #f1f5f9;
+  --gt-accent: #3b82f6;
+  --gt-card-bg: #ffffff;
+  --gt-page-bg: #f8fafc;
+}
+[data-gtheme="galaxy"] {
+  --gt-sidebar-bg: #020617;
+  --gt-sidebar-text: #e2e8f0;
+  --gt-accent: #818cf8;
+  --gt-card-bg: #0f172a;
+  --gt-page-bg: #070d1a;
+}
+[data-gtheme="manga_gold"] {
+  --gt-sidebar-bg: #1c1100;
+  --gt-sidebar-text: #fef3c7;
+  --gt-accent: #f59e0b;
+  --gt-card-bg: #fffbeb;
+  --gt-page-bg: #fdf4e7;
+}
+[data-gtheme="cyber"] {
+  --gt-sidebar-bg: #0c1445;
+  --gt-sidebar-text: #bfdbfe;
+  --gt-accent: #3b82f6;
+  --gt-card-bg: #0f1f5e;
+  --gt-page-bg: #0a1030;
+}
+[data-gtheme="neon"] {
+  --gt-sidebar-bg: #1a0533;
+  --gt-sidebar-text: #f0abfc;
+  --gt-accent: #a855f7;
+  --gt-card-bg: #270845;
+  --gt-page-bg: #130321;
+}
+[data-gtheme="matrix"] {
+  --gt-sidebar-bg: #001a00;
+  --gt-sidebar-text: #86efac;
+  --gt-accent: #22c55e;
+  --gt-card-bg: #002200;
+  --gt-page-bg: #001200;
+}
+[data-gtheme="sakura"] {
+  --gt-sidebar-bg: #4a0020;
+  --gt-sidebar-text: #fce7f3;
+  --gt-accent: #ec4899;
+  --gt-card-bg: #fff1f2;
+  --gt-page-bg: #fdf2f8;
+}
+[data-gtheme="nature"] {
+  --gt-sidebar-bg: #14532d;
+  --gt-sidebar-text: #dcfce7;
+  --gt-accent: #16a34a;
+  --gt-card-bg: #f0fdf4;
+  --gt-page-bg: #f7fef7;
+}

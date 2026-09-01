@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { BadgeShelf } from '@/components/gamification/BadgeShelf';
 
 // Placeholder quotes for inspirational messages
 const EDUCATION_QUOTES = [
@@ -18,6 +19,7 @@ const EDUCATION_QUOTES = [
 ];
 
 interface ChildAssignmentStats {
+  childId: string;
   childName: string;
   grade: number;
   board: string;
@@ -69,6 +71,7 @@ export default function AssignmentReportsPage() {
     // Placeholder data
     setChildrenStats([
       {
+        childId: '1',
         childName: 'Aryan',
         grade: 8,
         board: 'CBSE',
@@ -145,6 +148,11 @@ export default function AssignmentReportsPage() {
                 <Button onClick={handleDownloadReport}>
                   Download Report PDF
                 </Button>
+              </div>
+
+              <div className="bg-white rounded-lg border border-slate-200 p-4">
+                <h3 className="text-sm font-semibold text-slate-800 mb-2">Badge Progress</h3>
+                <BadgeShelf childId={child.childId} compact />
               </div>
 
               {/* Key Metrics Cards */}

@@ -1,12 +1,39 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import HomeworkHelpIcon from '@/components/icons/homework_help.png'
 import ResearchTopicIcon from '@/components/icons/research_topic.png'
 import StudentProgressIcon from '@/components/icons/student_progress.png'
+import { AvatarSVG, DEFAULT_AVATAR, type AvatarConfig } from '@/components/gamification/AvatarBuilder'
+
+function normalizeAvatar(value: unknown): AvatarConfig {
+  if (!value || typeof value !== 'object') return DEFAULT_AVATAR
+
+  const v = value as Partial<AvatarConfig>
+  return {
+    skinTone: typeof v.skinTone === 'string' ? v.skinTone : DEFAULT_AVATAR.skinTone,
+    hairStyle: typeof v.hairStyle === 'string' ? v.hairStyle : DEFAULT_AVATAR.hairStyle,
+    hairColor: typeof v.hairColor === 'string' ? v.hairColor : DEFAULT_AVATAR.hairColor,
+    outfit: typeof v.outfit === 'string' ? v.outfit : DEFAULT_AVATAR.outfit,
+    accessory: typeof v.accessory === 'string' ? v.accessory : DEFAULT_AVATAR.accessory,
+  }
+}
 
 export default function DashboardPage() {
+  const [avatar, setAvatar] = useState<AvatarConfig>(DEFAULT_AVATAR)
+
+  useEffect(() => {
+    const childId = localStorage.getItem('userId')
+    if (!childId) return
+
+    fetch(`/api/student/preferences?childId=${encodeURIComponent(childId)}`)
+      .then((r) => r.json())
+      .then((d) => setAvatar(normalizeAvatar(d?.avatarJson)))
+      .catch(() => setAvatar(DEFAULT_AVATAR))
+  }, [])
+
   return (
     <main className="flex-1 overflow-x-hidden">
         {/* HERO */}
@@ -38,8 +65,10 @@ export default function DashboardPage() {
             {/* Right illustration */}
             <div className="hidden lg:flex flex-1 items-center justify-center relative min-h-[340px]">
               <div className="float-slow w-72 h-64 rounded-3xl border border-white/40 relative overflow-hidden flex items-center justify-center" style={{ background: 'linear-gradient(145deg,#1a2d4d,#0b1c30)', boxShadow: '0 20px 60px rgba(0,30,80,.3)' }}>
-                <span className="mat text-white/20 text-8xl" style={{ fontVariationSettings: "'FILL' 0,'wght' 200,'GRAD' 0,'opsz' 48" }}>person_play</span>
-                <p className="absolute bottom-4 text-white/30 text-xs tracking-widest font-mono">[ student illustration ]</p>
+                <div className="h-36 w-36 rounded-full bg-white/10 ring-1 ring-white/20 backdrop-blur-sm flex items-center justify-center">
+                  <AvatarSVG config={avatar} size={126} />
+                </div>
+                <p className="absolute bottom-4 text-white/40 text-xs tracking-widest font-mono">[ your avatar ]</p>
                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#22c55e] to-[#4ae176]"></div>
               </div>
               {/* Floating streak card */}
