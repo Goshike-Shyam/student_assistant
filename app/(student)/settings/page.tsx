@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 import { AvatarBuilder, DEFAULT_AVATAR, type AvatarConfig } from '@/components/gamification/AvatarBuilder'
 import { BadgeShelf } from '@/components/gamification/BadgeShelf'
 import { ComicBackground } from '@/components/gamification/ComicBackground'
+import { SubjectSelector } from '@/components/shared/SubjectSelector'
 import { COMIC_THEMES, DASHBOARD_THEMES, GAMIFICATION_ENABLED } from '@/lib/gamification/config'
 import type { ComicThemeId } from '@/lib/gamification/config'
 
@@ -13,6 +14,7 @@ interface Prefs {
   comicTheme: string
   avatarJson: AvatarConfig
   gamificationOn: boolean
+  subjects: string[]
 }
 
 const DEFAULT_PREFS: Prefs = {
@@ -20,11 +22,14 @@ const DEFAULT_PREFS: Prefs = {
   comicTheme: 'none',
   avatarJson: DEFAULT_AVATAR,
   gamificationOn: true,
+  subjects: [],
 }
 
 export default function StudentSettingsPage() {
   const [childId, setChildId] = useState<string | null>(null)
   const [prefs, setPrefs] = useState<Prefs>(DEFAULT_PREFS)
+  const [board, setBoard] = useState('CBSE')
+  const [grade, setGrade] = useState(9)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState<Record<string, boolean>>({})
 
@@ -45,6 +50,7 @@ export default function StudentSettingsPage() {
           comicTheme: d.comicTheme ?? 'none',
           avatarJson: d.avatarJson ?? DEFAULT_AVATAR,
           gamificationOn: d.gamificationOn ?? true,
+          subjects: Array.isArray(d.subjects) ? d.subjects : [],
         })
         document.documentElement.setAttribute('data-gtheme', d.dashboardTheme ?? 'classic')
       })
@@ -56,7 +62,7 @@ export default function StudentSettingsPage() {
 
   const enabledByUser = useMemo(() => prefs.gamificationOn && GAMIFICATION_ENABLED, [prefs.gamificationOn])
 
-  const savePartial = async (key: 'theme' | 'comic' | 'avatar' | 'optout', payload: Partial<Prefs>) => {
+  const savePartial = async (key: 'theme' | 'comic' | 'avatar' | 'optout' | 'subjects', payload: Partial<Prefs>) => {
     if (!childId) return
     setSaving((prev) => ({ ...prev, [key]: true }))
     try {
@@ -94,6 +100,60 @@ export default function StudentSettingsPage() {
         <section className="rounded-2xl border border-slate-200 bg-white/95 p-6 shadow-sm">
           <h1 className="text-3xl font-bold text-slate-900">Student Settings</h1>
           <p className="mt-2 text-sm text-slate-600">Personalize your avatar and dashboard while controlling gamification participation.</p>
+        </section>
+
+        <section className="rounded-2xl border border-slate-200 bg-white/95 p-6 space-y-4 shadow-sm">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-900">Academic Subjects</h2>
+              <p className="text-xs text-slate-500">Choose the subjects that fit your board and grade.</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => savePartial('subjects', { subjects: prefs.subjects })}
+              disabled={!!saving.subjects}
+              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
+            >
+              {saving.subjects ? 'Saving...' : 'Save Subjects'}
+            </button>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label htmlFor="student-board" className="mb-1 block text-sm font-medium text-slate-700">Board</label>
+              <select
+                id="student-board"
+                value={board}
+                onChange={(event) => setBoard(event.target.value)}
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              >
+                <option value="CBSE">CBSE</option>
+                <option value="ICSE">ICSE</option>
+                <option value="STATE">State Board</option>
+                <option value="COMMON_CORE">Common Core</option>
+              </select>
+            </div>
+            <div>
+              <label htmlFor="student-grade" className="mb-1 block text-sm font-medium text-slate-700">Grade</label>
+              <select
+                id="student-grade"
+                value={grade}
+                onChange={(event) => setGrade(Number(event.target.value))}
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              >
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((option) => (
+                  <option key={option} value={option}>Grade {option}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <SubjectSelector
+            board={board}
+            grade={grade}
+            value={prefs.subjects}
+            onChange={(next) => setPrefs((prev) => ({ ...prev, subjects: next }))}
+          />
         </section>
 
         <section className="rounded-2xl border border-slate-200 bg-white/95 p-6 space-y-4 shadow-sm">
