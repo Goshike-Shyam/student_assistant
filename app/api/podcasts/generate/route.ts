@@ -3,6 +3,8 @@ import { getTeacherSession } from '@/lib/teacher-auth'
 import { prisma } from '@/lib/prismaClient'
 import { hasFeatureAccess } from '@/lib/feature-access'
 import { generatePodcastScript, generateInterruptionAnswer } from '@/lib/podcast-script'
+import { checkRateLimit } from '@/lib/rate-limit'
+import { getCachedPodcastSegments, setCachedPodcastSegments } from '@/lib/cache/podcast-cache'
 import { generatePodcastSegments, generateAnswerAudio, activeProvider } from '@/lib/tts-provider'
 import { logAiCredit } from '@/lib/ai-credit-logger'
 
@@ -142,6 +144,19 @@ export async function POST(req: NextRequest) {
 
     const queryIdSafe = safeId(queryId)
 
+    // ── Redis cache check (fastest) ───────────
+    if (queryIdSafe) {
+      const redisSegments = await getCachedPodcastSegments(String(queryIdSafe)).catch(() => null)
+      if (redisSegments) {
+        return NextResponse.json({
+          segments: redisSegments,
+          durationSecs: redisSegments.length * 8,
+          cached: true,
+          cacheSource: 'redis',
+        })
+      }
+    }
+
     if (queryIdSafe !== null) {
       const existing = await prisma.podcast
         .findFirst({
@@ -164,13 +179,41 @@ export async function POST(req: NextRequest) {
           parsedSegments = []
         }
 
+        // Backfill Redis cache from DB hit
+        if (queryIdSafe) {
+          setCachedPodcastSegments(String(queryIdSafe), parsedSegments as any).catch(() => {})
+        }
+
         return NextResponse.json({
           podcastId: existing.id.toString(),
           segments: parsedSegments,
           durationSecs: existing.durationSecs ?? 0,
           cached: true,
+          cacheSource: 'db',
         })
       }
+    }
+
+    // ── Podcast rate limit ────────────────────
+    const rl = await checkRateLimit(req, 'PODCAST', userId.toString())
+
+    if (!rl.allowed) {
+      return NextResponse.json(
+        {
+          error: 'RATE_LIMIT_EXCEEDED',
+          message: rl.message,
+          feature: 'PODCAST',
+          retryAfterSecs: rl.retryAfterSecs,
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': String(rl.retryAfterSecs ?? 86400),
+            'X-RateLimit-Limit': String(rl.childLimit ?? 2),
+            'X-RateLimit-Remaining': '0',
+          },
+        }
+      )
     }
 
     const startMs = Date.now()
@@ -216,6 +259,11 @@ export async function POST(req: NextRequest) {
       completionTokens: 0,
       latencyMs: Date.now() - startMs,
     }).catch(console.error)
+
+    // Backfill Redis cache for podcast segments
+    if (queryIdForSave) {
+      setCachedPodcastSegments(String(queryIdForSave), ttsResult.segments).catch(() => {})
+    }
 
     return NextResponse.json({
       podcastId: podcast.id.toString(),

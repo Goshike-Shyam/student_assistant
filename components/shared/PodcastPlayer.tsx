@@ -133,6 +133,11 @@ export function PodcastPlayer({ queryId, userId, topic, subject, response, role 
       })
 
       const data = await res.json()
+      if (res.status === 429) {
+        setError(data.message ?? 'Daily podcast limit reached (2/day). Try again in 24 hours.')
+        setState('error')
+        return
+      }
       if (!res.ok) {
         if (data.error === 'FEATURE_NOT_ENABLED') {
           setState('locked')

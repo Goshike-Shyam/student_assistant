@@ -176,6 +176,7 @@ export default function PracticePage() {
   const [complexity, setComplexity] = useState<ComplexityLevel>('Medium');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generateError, setGenerateError] = useState<string | null>(null);
+  const [rateLimitMessage, setRateLimitMessage] = useState<string | null>(null)
 
   // Test
   const [practiceTest, setPracticeTest] = useState<PracticeTestData | null>(null);
@@ -272,6 +273,7 @@ export default function PracticePage() {
       return;
     }
     setGenerateError(null);
+    setRateLimitMessage(null)
     setIsGenerating(true);
     try {
       const res = await fetch('/api/practice/generate', {
@@ -279,6 +281,14 @@ export default function PracticePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ childId: childData.childId, subject: activeSubject, topic: topic.trim(), complexity }),
       });
+      if (res.status === 429) {
+        const data = await res.json()
+        setRateLimitMessage(
+          data.message ?? 'Daily limit reached. Try again in 24 hours.'
+        )
+        return
+      }
+
       if (!res.ok) {
         const err = await res.json();
         throw new Error(err.error || 'Failed to generate test');
@@ -856,6 +866,21 @@ export default function PracticePage() {
                   </div>
                 );
               })()}
+
+              {rateLimitMessage && (
+                <div
+                  role="alert"
+                  aria-live="polite"
+                  className="flex items-start gap-3 p-4 rounded-xl mt-4 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800"
+                >
+                  <span className="text-2xl flex-shrink-0" aria-hidden="true">⏳</span>
+                  <div>
+                    <p className="text-sm font-semibold text-amber-900 dark:text-amber-100">Daily limit reached</p>
+                    <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">{rateLimitMessage}</p>
+                    <p className="text-xs text-amber-500 dark:text-amber-400 mt-2">Your limit resets 24 hours after your first query today. In the meantime, review your Practice History for past answers.</p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Search */}

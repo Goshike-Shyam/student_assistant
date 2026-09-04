@@ -10,6 +10,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prismaClient';
 import { callGeminiWithRetry } from '@/lib/ai-with-retry';
+import { checkRateLimit } from '@/lib/rate-limit'
+import { getCachedAIResponse, setCachedAIResponse } from '@/lib/cache/ai-cache'
+import { getCachedStudentProfile, setCachedStudentProfile } from '@/lib/cache/session-cache'
 import { logAiCredit } from '@/lib/ai-credit-logger';
 
 const LLM_TIMEOUT_MS = 45000;
@@ -105,19 +108,113 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'childId, subject, topic, and complexity are required' }, { status: 400 });
     }
 
-    // Fetch child data for grade-aware prompt
-    const child = await prisma.user.findUnique({
-      where: { id: childId },
-      select: { grade: true, curriculum: true, name: true },
-    });
+    // Fetch child data for grade-aware prompt (session cache first)
+    const cached = await getCachedStudentProfile(childId).catch(() => null)
+    let child: any = null
+    if (cached) {
+      child = cached
+    } else {
+      child = await prisma.user.findUnique({
+        where: { id: childId },
+        select: { grade: true, curriculum: true, name: true },
+      });
+      if (child) {
+        // Backfill short-lived session cache (fire-and-forget)
+        setCachedStudentProfile(childId, {
+          id: childId,
+          name: child.name ?? '',
+          grade: String(child.grade ?? '10'),
+          board: String(child.curriculum ?? 'CBSE'),
+          subjects: [],
+          subscriptionStatus: 'ACTIVE',
+          gamificationOn: true,
+          dashboardTheme: 'classic',
+          comicTheme: 'none',
+          loginStreak: 0,
+        }).catch(() => {})
+      }
+    }
 
     if (!child) {
       return NextResponse.json({ error: 'Child not found' }, { status: 404 });
     }
 
-    const grade = child.grade ?? 10;
-    const board = child.curriculum ?? 'CBSE';
+    const grade = child?.grade ?? 10;
+    const board = child?.curriculum ?? 'CBSE';
     const prompt = buildPracticePrompt(String(board), grade, subject, topic, complexity);
+
+    // ── Rate limit check ──────────────────────
+    const rl = await checkRateLimit(request, 'RESEARCH', childId)
+    if (!rl.allowed) {
+      return NextResponse.json(
+        {
+          error: 'RATE_LIMIT_EXCEEDED',
+          message: rl.message,
+          feature: 'RESEARCH',
+          retryAfterSecs: rl.retryAfterSecs,
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': String(rl.retryAfterSecs ?? 86400),
+            'X-RateLimit-Limit': String(rl.childLimit ?? 5),
+            'X-RateLimit-Remaining': '0',
+          },
+        },
+      )
+    }
+
+    // ── AI response cache check ─────────────────
+    const cachedResponse = await getCachedAIResponse(
+      topic,
+      String(grade),
+      String(board ?? 'CBSE'),
+      subject,
+    ).catch(() => null)
+
+    if (cachedResponse) {
+      try {
+        const stripped = cachedResponse.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim();
+        const jsonMatch = stripped.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          const parsed = JSON.parse(jsonMatch[0]);
+          if (parsed.title && parsed.topic && Array.isArray(parsed.questions) && parsed.questions.length > 0) {
+            parsed.questions = parsed.questions.map((q: any) => ({ ...q, type: normaliseQuestionType(q.type) }));
+
+            const totalMarks: number = parsed.questions.reduce((sum: number, q: any) => sum + (q.marks || 0), 0);
+
+            const saved = await prisma.practiceTest.create({
+              data: {
+                childId,
+                subject,
+                topic: parsed.topic,
+                complexity,
+                questionsJson: JSON.stringify(parsed.questions),
+                totalMarks,
+                durationMins: parsed.duration_mins ?? 15,
+              },
+            });
+
+            const clientQuestions = parsed.questions.map((q: any) => {
+              const { correct_answer, hint, ...clientQ } = q;
+              return clientQ;
+            });
+
+            return NextResponse.json({
+              practiceTestId: saved.id.toString(),
+              title: parsed.title,
+              topic: parsed.topic,
+              questions: clientQuestions,
+              totalMarks,
+              durationMins: saved.durationMins,
+              cached: true,
+            });
+          }
+        }
+      } catch (e) {
+        // fallthrough to live generation on any parse error
+      }
+    }
 
     let testData: any = null;
     let lastError = '';
