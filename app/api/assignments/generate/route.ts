@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prismaClient';
 import { callGeminiWithRetry } from '@/lib/ai-with-retry';
+import { checkRateLimit } from '@/lib/rate-limit'
 import { logAiCredit } from '@/lib/ai-credit-logger';
 import { AssignmentGenerateRequest } from '@/types/assignments';
 
@@ -131,6 +132,27 @@ export async function POST(request: NextRequest) {
     }
 
     const prompt = buildGeneratePrompt(board, grade as number, subject, topic, complexity);
+
+    // ── Rate limit check ──────────────────────
+    const rl = await checkRateLimit(request, 'RESEARCH', child_id)
+    if (!rl.allowed) {
+      return NextResponse.json(
+        {
+          error: 'RATE_LIMIT_EXCEEDED',
+          message: rl.message,
+          feature: 'RESEARCH',
+          retryAfterSecs: rl.retryAfterSecs,
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': String(rl.retryAfterSecs ?? 86400),
+            'X-RateLimit-Limit': String(rl.childLimit ?? 5),
+            'X-RateLimit-Remaining': '0',
+          },
+        },
+      )
+    }
 
     let assignmentData: any = null;
     let lastError = '';

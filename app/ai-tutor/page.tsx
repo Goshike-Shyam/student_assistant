@@ -8,8 +8,125 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { useState, useRef, useEffect } from 'react';
 
 export default function AiTutorPage() {
+  const [query, setQuery] = useState('')
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null)
+  const [childData, setChildData] = useState<{ childId: string; grade: number; board: string } | null>(null)
+  const [grade, setGrade] = useState('Grade 9')
+  const [board, setBoard] = useState('CBSE')
+  const [subject, setSubject] = useState('Mathematics')
+  const [format, setFormat] = useState('Summary')
+  const [depth, setDepth] = useState('Medium')
+  const [loading, setLoading] = useState(false)
+  const [aiResponse, setAiResponse] = useState<string | null>(null)
+
+  useEffect(() => {
+    const childId = localStorage.getItem('userId')
+    const g = localStorage.getItem('userGrade')
+    const b = localStorage.getItem('userBoard')
+    if (!childId) { return }
+    setChildData({ childId, grade: parseInt(g ?? '10', 10), board: b ?? 'CBSE' })
+    if (g) setGrade(`Grade ${parseInt(g, 10)}`)
+    if (b) setBoard(b)
+  }, [])
+
+  async function postGenerate(payload: any) {
+    setLoading(true)
+    setAiResponse('')
+    try {
+      const res = await fetch('/api/practice/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+
+      if (res.status === 429) {
+        setAiResponse('Rate limit reached. Please try again later.')
+        return
+      }
+
+      if (!res.ok) {
+        // Read error body and show message
+        const txt = await res.text().catch(() => 'Request failed')
+        try {
+          const json = JSON.parse(txt)
+          setAiResponse(json.error ?? json.message ?? txt)
+        } catch {
+          setAiResponse(txt)
+        }
+        return
+      }
+
+      if (!res.body) {
+        const txt = await res.text()
+        try {
+          const json = JSON.parse(txt)
+          setAiResponse(json.answer ?? json.data ?? JSON.stringify(json))
+        } catch {
+          setAiResponse(txt)
+        }
+        return
+      }
+
+      const reader = res.body.getReader()
+      const decoder = new TextDecoder()
+      let done = false
+      let full = ''
+      while (!done) {
+        const { value, done: d } = await reader.read()
+        done = !!d
+        if (value) {
+          const chunk = decoder.decode(value, { stream: true })
+          full += chunk
+          setAiResponse((prev) => (prev ?? '') + chunk)
+        }
+      }
+
+      // try to parse final payload as JSON and extract answer if present
+      try {
+        const json = JSON.parse(full)
+        setAiResponse(json.answer ?? json.data ?? full)
+      } catch {
+        // leave streamed text as-is
+      }
+    } catch (err: any) {
+      setAiResponse('Request failed. ' + (err?.message ?? ''))
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleSubmit() {
+    if (!childData) {
+      // try to init from localStorage
+      const childId = localStorage.getItem('userId')
+      const g = localStorage.getItem('userGrade')
+      const b = localStorage.getItem('userBoard')
+      if (!childId) { window.location.href = '/login'; return }
+      setChildData({ childId, grade: parseInt(g ?? '10', 10), board: b ?? 'CBSE' })
+      return
+    }
+
+    if (!query.trim() || !subject) {
+      setAiResponse('Please enter a topic and select a subject.')
+      return
+    }
+
+    const complexityMap: Record<string, string> = { Simple: 'Easy', Medium: 'Medium', Detailed: 'Hard' }
+    const complexity = complexityMap[depth] ?? 'Medium'
+
+    const payload = {
+      childId: childData.childId,
+      subject,
+      topic: query.trim(),
+      complexity,
+    }
+
+    await postGenerate(payload)
+  }
+
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-[1480px] space-y-8">
@@ -20,8 +137,7 @@ export default function AiTutorPage() {
               <h1 className="mt-3 text-3xl font-semibold text-slate-900 sm:text-4xl">Compose a homework question</h1>
             </div>
             <div className="flex flex-wrap items-center gap-3">
-              <Button className="rounded-full bg-slate-950 px-5 py-3 text-sm text-white hover:bg-slate-800">Submit query</Button>
-              <Button className="rounded-full border border-slate-300 bg-white px-5 py-3 text-sm text-slate-900 hover:bg-slate-50">Regenerate</Button>
+              {/* actions moved into Quick Actions */}
             </div>
           </div>
         </section>
@@ -34,12 +150,19 @@ export default function AiTutorPage() {
             </CardHeader>
 
             <div className="space-y-5">
-              <Textarea placeholder="Describe your problem, paste text, or drop a screenshot here." />
+              <Textarea
+                ref={textareaRef}
+                id="ai-tutor-query"
+                aria-label="AI tutor query"
+                placeholder="Describe your problem, paste text, or drop a screenshot here."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
 
               <div className="grid gap-4 sm:grid-cols-3">
                 <div>
                   <Label htmlFor="grade">Grade</Label>
-                  <Select id="grade" defaultValue="Grade 9" className="mt-2">
+                  <Select id="grade" value={grade} onChange={(e) => setGrade(e.target.value)} className="mt-2">
                     <option>Grade 9</option>
                     <option>Grade 10</option>
                     <option>Grade 11</option>
@@ -47,7 +170,7 @@ export default function AiTutorPage() {
                 </div>
                 <div>
                   <Label htmlFor="board">Board</Label>
-                  <Select id="board" defaultValue="CBSE" className="mt-2">
+                  <Select id="board" value={board} onChange={(e) => setBoard(e.target.value)} className="mt-2">
                     <option>CBSE</option>
                     <option>ICSE</option>
                     <option>State Board</option>
@@ -55,7 +178,7 @@ export default function AiTutorPage() {
                 </div>
                 <div>
                   <Label htmlFor="subject">Subject</Label>
-                  <Select id="subject" defaultValue="Mathematics" className="mt-2">
+                  <Select id="subject" value={subject} onChange={(e) => setSubject(e.target.value)} className="mt-2">
                     <option>Mathematics</option>
                     <option>Science</option>
                     <option>English</option>
@@ -69,7 +192,13 @@ export default function AiTutorPage() {
                   <div className="mt-3 space-y-2 text-sm text-slate-700">
                     {['Summary', 'Step-by-step', 'Flashcards'].map((option) => (
                       <label key={option} className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-2">
-                        <input type="radio" name="format" className="h-4 w-4 accent-cyan-600" />
+                        <input
+                          type="radio"
+                          name="format"
+                          className="h-4 w-4 accent-cyan-600"
+                          checked={format === option}
+                          onChange={() => setFormat(option)}
+                        />
                         {option}
                       </label>
                     ))}
@@ -79,10 +208,16 @@ export default function AiTutorPage() {
                 <div className="rounded-3xl border border-slate-200/80 bg-slate-50 p-4">
                   <p className="text-sm font-medium text-slate-900">Explanation depth</p>
                   <div className="mt-3 space-y-2 text-sm text-slate-700">
-                    {['Simple', 'Medium', 'Detailed'].map((depth) => (
-                      <label key={depth} className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-2">
-                        <input type="radio" name="depth" className="h-4 w-4 accent-cyan-600" />
-                        {depth}
+                    {['Simple', 'Medium', 'Detailed'].map((d) => (
+                      <label key={d} className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-2">
+                        <input
+                          type="radio"
+                          name="depth"
+                          className="h-4 w-4 accent-cyan-600"
+                          checked={depth === d}
+                          onChange={() => setDepth(d)}
+                        />
+                        {d}
                       </label>
                     ))}
                   </div>
@@ -94,8 +229,20 @@ export default function AiTutorPage() {
                     {['Include diagrams', 'Show steps', 'Cite sources'].map((label) => (
                       <Button key={label} className="rounded-full bg-white px-4 py-3 text-sm text-slate-900 shadow-sm shadow-slate-200 hover:bg-slate-100">{label}</Button>
                     ))}
+
+                    {/* Submit moved below quick-actions */}
                   </div>
                 </div>
+              </div>
+
+              <div className="mt-4 flex justify-end">
+                <Button
+                  onClick={handleSubmit}
+                  disabled={loading || !query.trim()}
+                  className="rounded-full bg-slate-950 px-6 py-3 text-sm text-white hover:bg-slate-800"
+                >
+                  {loading ? 'Running…' : 'Submit'}
+                </Button>
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
@@ -130,9 +277,13 @@ export default function AiTutorPage() {
               </div>
 
               <div className="mt-6 space-y-4 text-sm leading-7 text-slate-700">
-                <p>1. Factor the quadratic: (x - 2)(x - 3) = 0.</p>
-                <p>2. Set each factor to zero: x = 2 or x = 3.</p>
-                <p>3. Verify by substitution: 2^2 - 5*2 + 6 = 0.</p>
+                {loading ? (
+                  <p>Generating response…</p>
+                ) : aiResponse ? (
+                  <pre className="whitespace-pre-wrap text-sm leading-7 text-slate-700">{aiResponse}</pre>
+                ) : (
+                  <p className="text-slate-500">No response yet. Submit a query to see results.</p>
+                )}
               </div>
 
               <div className="mt-6 rounded-3xl border border-slate-200 bg-white p-4">

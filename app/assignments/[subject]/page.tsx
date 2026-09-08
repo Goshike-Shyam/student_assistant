@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { getSubjectLabel } from '@/lib/subjects/config'
 import { AssignmentResponse, ComplexityLevel, FeedbackResult } from '@/types/assignments';
 import QuestionCard from '@/components/assignments/QuestionCard';
 import AssignmentToolbar from '@/components/assignments/AssignmentToolbar';
@@ -168,7 +169,7 @@ export default function SubjectAssignmentPage() {
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-8 text-center space-y-4">
               <h2 className="text-2xl font-bold text-amber-900">Subject Not Registered</h2>
               <p className="text-amber-800">
-                You haven't registered <strong>{subject}</strong> as one of your subjects.
+                You haven't registered <strong>{getSubjectLabel(subject) ?? subject}</strong> as one of your subjects.
               </p>
               <Link
                 href="/profile"
@@ -189,7 +190,7 @@ export default function SubjectAssignmentPage() {
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Header */}
           <div className="space-y-2">
-            <h1 className="text-4xl font-bold text-slate-900">{subject}</h1>
+            <h1 className="text-4xl font-bold text-slate-900">{getSubjectLabel(subject) ?? subject}</h1>
             <div className="flex gap-2">
               <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">
                 Grade {childData.grade}

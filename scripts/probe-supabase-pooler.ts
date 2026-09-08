@@ -1,5 +1,6 @@
 import 'dotenv/config'
 import { PrismaClient } from '@prisma/client'
+import { getPrismaDatabaseUrl } from '../lib/prismaClient'
 
 const projectRef = 'gwkfegybtmmcdxnfnkyj'
 const password = 'C%40li4nia%242016'
@@ -42,18 +43,36 @@ async function testUrl(url: string): Promise<string> {
 }
 
 async function main() {
+  const workingUrls: string[] = []
+
+  // If runtime already resolves a DB URL (env or configured), test it first.
+  const resolved = getPrismaDatabaseUrl()
+  if (resolved) {
+    const res = await testUrl(resolved)
+    console.log(`RESOLVED | ${resolved} | ${res}`)
+    if (res === 'OK') workingUrls.push(resolved)
+  }
+
   for (const clusterPrefix of clusterPrefixes) {
     for (const region of regions) {
       for (const user of users) {
         const url = buildUrl(clusterPrefix, region, user)
         const result = await testUrl(url)
         console.log(`${clusterPrefix}-${region} | ${user} | ${result}`)
-        if (result === 'OK') {
-          console.log(`\nWORKING_URL=${url}`)
-          return
+        if (result === 'OK' && !workingUrls.includes(url)) {
+          workingUrls.push(url)
         }
       }
     }
+  }
+
+  if (workingUrls.length > 0) {
+    console.log('\nFOUND WORKING URLS:')
+    for (const u of workingUrls) {
+      console.log(`WORKING_URL=${u}`)
+    }
+  } else {
+    console.log('\nNo working URLs found')
   }
 }
 

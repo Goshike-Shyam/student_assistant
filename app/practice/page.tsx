@@ -35,6 +35,7 @@ import { Label } from '@/components/ui/label';
 import QuestionCard from '@/components/assignments/QuestionCard';
 import { Question } from '@/types/assignments';
 import { useTheme } from '@/lib/theme';
+import { getSubjectLabel } from '@/lib/subjects/config'
 
 // --- Types --------------------------------------------------------------------
 
@@ -176,6 +177,7 @@ export default function PracticePage() {
   const [complexity, setComplexity] = useState<ComplexityLevel>('Medium');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generateError, setGenerateError] = useState<string | null>(null);
+  const [rateLimitMessage, setRateLimitMessage] = useState<string | null>(null)
 
   // Test
   const [practiceTest, setPracticeTest] = useState<PracticeTestData | null>(null);
@@ -272,6 +274,7 @@ export default function PracticePage() {
       return;
     }
     setGenerateError(null);
+    setRateLimitMessage(null)
     setIsGenerating(true);
     try {
       const res = await fetch('/api/practice/generate', {
@@ -279,6 +282,14 @@ export default function PracticePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ childId: childData.childId, subject: activeSubject, topic: topic.trim(), complexity }),
       });
+      if (res.status === 429) {
+        const data = await res.json()
+        setRateLimitMessage(
+          data.message ?? 'Daily limit reached. Try again in 24 hours.'
+        )
+        return
+      }
+
       if (!res.ok) {
         const err = await res.json();
         throw new Error(err.error || 'Failed to generate test');
@@ -549,7 +560,7 @@ export default function PracticePage() {
                 <tbody>
                   {history.map((item) => (
                     <tr key={item.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                      <td className="px-4 py-3 text-slate-900 dark:text-slate-100 font-medium">{item.test.subject}</td>
+                      <td className="px-4 py-3 text-slate-900 dark:text-slate-100 font-medium">{getSubjectLabel(String(item.test.subject)) ?? item.test.subject}</td>
                       <td className="px-4 py-3 text-slate-700 dark:text-slate-300 max-w-[200px] truncate">{item.test.topic}</td>
                       <td className="px-4 py-3">
                         <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${complexityBadge(item.test.complexity)}`}>
@@ -704,7 +715,7 @@ export default function PracticePage() {
               {metrics && metrics.subjectBreakdown.length > 0 ? (
                 <div role="img" aria-label="Performance by subject bar chart � average scores per subject">
                   <ResponsiveContainer width="100%" height={160}>
-                    <BarChart data={metrics.subjectBreakdown}>
+                    <BarChart data={metrics.subjectBreakdown.map((d) => ({ ...d, subject: getSubjectLabel(String(d.subject)) ?? d.subject }))}>
                       <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#334155' : '#e5e7eb'} />
                       <XAxis dataKey="subject" tick={{ fill: isDark ? '#cbd5e1' : '#374151', fontSize: 11 }} />
                       <YAxis domain={[0, 100]} tick={{ fill: isDark ? '#cbd5e1' : '#374151', fontSize: 11 }} />
@@ -856,6 +867,21 @@ export default function PracticePage() {
                   </div>
                 );
               })()}
+
+              {rateLimitMessage && (
+                <div
+                  role="alert"
+                  aria-live="polite"
+                  className="flex items-start gap-3 p-4 rounded-xl mt-4 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800"
+                >
+                  <span className="text-2xl flex-shrink-0" aria-hidden="true">⏳</span>
+                  <div>
+                    <p className="text-sm font-semibold text-amber-900 dark:text-amber-100">Daily limit reached</p>
+                    <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">{rateLimitMessage}</p>
+                    <p className="text-xs text-amber-500 dark:text-amber-400 mt-2">Your limit resets 24 hours after your first query today. In the meantime, review your Practice History for past answers.</p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Search */}
@@ -900,7 +926,7 @@ export default function PracticePage() {
                         className="w-40 focus-visible:ring-2 focus-visible:ring-blue-500"
                       >
                         <option value="all">All Subjects</option>
-                        {subjects.map((s) => <option key={s} value={s}>{s}</option>)}
+                        {subjects.map((s) => <option key={s} value={s}>{getSubjectLabel(String(s)) ?? s}</option>)}
                       </Select>
                     </div>
                     <div>
@@ -951,7 +977,7 @@ export default function PracticePage() {
                           <div key={r.id} className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-4">
                             <div className="flex items-start justify-between mb-2">
                               <div>
-                                <p className="text-xs font-semibold text-blue-700 uppercase tracking-wide">{r.subject}</p>
+                                <p className="text-xs font-semibold text-blue-700 uppercase tracking-wide">{getSubjectLabel(String(r.subject)) ?? r.subject}</p>
                                 <p className="font-semibold text-slate-900 dark:text-slate-100 mt-0.5">{r.topic}</p>
                               </div>
                               <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${complexityBadge(r.complexity)}`}>

@@ -14,6 +14,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
 import type { Route } from 'next';
 import { NotificationPanel } from '@/components/shared/NotificationPanel';
+import { UserCircle } from 'lucide-react'
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { AppLogo } from '@/components/ui/app-logo';
 
@@ -173,6 +174,10 @@ export function SiteHeader() {
                 <p className="font-semibold text-sm text-slate-900 dark:text-slate-100">{userName}</p>
                 <p className="text-xs text-[#374151] dark:text-slate-400">{userGrade} · {userRole}</p>
               </div>
+              <a href="/profile/edit" role="menuitem" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-[#0b1c30] dark:text-slate-200 hover:bg-[#eff4ff] dark:hover:bg-slate-800 transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-inset">
+                <UserCircle size={16} aria-hidden="true" className="text-gray-400" />
+                Edit Profile
+              </a>
 
               <a
                 href="/parent-portal"

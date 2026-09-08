@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prismaClient'
+import bcrypt from 'bcryptjs'
 
 type SignupBody = {
   name?: string
@@ -47,11 +48,13 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    const passwordHash = await bcrypt.hash(password, 12)
+
     const created = await prisma.user.create({
       data: {
         name,
         email,
-        password,
+        password: passwordHash,
         role,
         grade,
         curriculum: board,

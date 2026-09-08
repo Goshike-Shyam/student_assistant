@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { ArrowLeft, Bell, Download, RefreshCw } from 'lucide-react'
+import { getSubjectLabel } from '@/lib/subjects/config'
 
 interface StudentStatus {
   submissionId: string
@@ -160,7 +161,7 @@ export default function AssignmentStatusPage() {
         </button>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">{assignment?.topic}</h1>
-          <p className="text-gray-600 text-sm">{assignment?.subject} · Due {assignment ? new Date(assignment.dueDate).toLocaleDateString() : ''} · {assignment?.totalMarks} marks</p>
+          <p className="text-gray-600 text-sm">{getSubjectLabel(String(assignment?.subject ?? '')) ?? assignment?.subject} · Due {assignment ? new Date(assignment.dueDate).toLocaleDateString() : ''} · {assignment?.totalMarks} marks</p>
         </div>
       </div>
 

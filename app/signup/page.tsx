@@ -1,13 +1,14 @@
 'use client';
 
-import { FormEvent, useState, useEffect } from 'react';
+import { FormEvent, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
-import { getSubjectsByBoardAndGrade } from '@/lib/subjects-seed';
 import { AppLogo } from '@/components/ui/app-logo';
+import { SubjectSelector } from '@/components/shared/SubjectSelector';
+import { getGradeBand } from '@/lib/subjects/config';
 
 const roleMap: Record<string, string> = {
   Student: 'STUDENT',
@@ -40,31 +41,20 @@ export default function SignupPage() {
   const [grade, setGrade] = useState('Grade 9');
   const [board, setBoard] = useState('CBSE');
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
-  const [availableSubjects, setAvailableSubjects] = useState<string[]>([]);
+  const [subjectError, setSubjectError] = useState('');
   const [termsChecked, setTermsChecked] = useState(false);
   const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const labelClassName = 'text-sm font-medium text-gray-900 dark:text-slate-100';
   const fieldClassName = 'w-full rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2.5 text-sm text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-cyan-500';
-
-  // Update available subjects when grade or board changes
-  useEffect(() => {
-    const gradeNum = parseInt(grade.replace('Grade ', ''), 10);
-    const boardMap: Record<string, string> = {
-      'CBSE': 'CBSE',
-      'ICSE': 'ICSE',
-      'State Board': 'STATE_BOARD',
-    };
-    const subjects = getSubjectsByBoardAndGrade(boardMap[board] || 'CBSE', gradeNum);
-    setAvailableSubjects(subjects);
-    setSelectedSubjects([]); // Reset selection when board/grade changes
-  }, [grade, board]);
-
-  const toggleSubject = (subject: string) => {
-    setSelectedSubjects((prev) =>
-      prev.includes(subject) ? prev.filter((s) => s !== subject) : [...prev, subject]
-    );
+  const boardMap: Record<string, string> = {
+    CBSE: 'CBSE',
+    ICSE: 'ICSE',
+    'State Board': 'STATE',
+    'Common Core': 'COMMON_CORE',
   };
+
+  const gradeNumber = Number(grade.replace('Grade ', '').trim()) || 9;
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -86,6 +76,7 @@ export default function SignupPage() {
     }
 
     if (selectedSubjects.length === 0) {
+      setSubjectError('Please select at least one subject.');
       setStatus({ type: 'error', message: 'Please select at least one subject.' });
       return;
     }
@@ -93,12 +84,7 @@ export default function SignupPage() {
     setIsSubmitting(true);
 
     try {
-      const gradeNum = parseInt(grade.replace('Grade ', ''), 10);
-      const boardMap: Record<string, string> = {
-        'CBSE': 'CBSE',
-        'ICSE': 'ICSE',
-        'State Board': 'STATE_BOARD',
-      };
+      const gradeNum = gradeNumber;
 
       const response = await fetch('/api/auth/signup', {
         method: 'POST',
@@ -241,10 +227,15 @@ export default function SignupPage() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <Label htmlFor="board" className={labelClassName}>Education Board</Label>
-                <Select id="board" className={fieldClassName} value={board} onChange={(event) => setBoard(event.target.value)}>
+                <Select id="board" className={fieldClassName} value={board} onChange={(event) => {
+                  setBoard(event.target.value)
+                  setSelectedSubjects([])
+                  setSubjectError('')
+                }}>
                   <option>CBSE</option>
                   <option>ICSE</option>
                   <option>State Board</option>
+                  <option>Common Core</option>
                 </Select>
               </div>
               <div className="flex items-center gap-3 rounded-3xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-4">
@@ -253,30 +244,22 @@ export default function SignupPage() {
               </div>
             </div>
 
-            {/* Subjects Selection */}
             <div>
               <Label className={`mb-3 block ${labelClassName}`}>Select Your Subjects</Label>
-              <div className="grid gap-2 sm:grid-cols-2">
-                {availableSubjects.length > 0 ? (
-                  availableSubjects.map((subject) => (
-                    <button
-                      key={subject}
-                      type="button"
-                      onClick={() => toggleSubject(subject)}
-                      className={`rounded-lg border-2 px-4 py-3 text-sm font-medium transition ${
-                        selectedSubjects.includes(subject)
-                          ? 'border-cyan-600 bg-cyan-50 text-cyan-900'
-                          : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-500'
-                      }`}
-                    >
-                      <span className={`mr-2 ${selectedSubjects.includes(subject) ? '✓' : '○'}`}></span>
-                      {subject}
-                    </button>
-                  ))
-                ) : (
-                  <p className="text-sm text-gray-600 dark:text-slate-400">Select grade and board to see available subjects</p>
-                )}
-              </div>
+              {board && grade ? (
+                <SubjectSelector
+                  board={boardMap[board] ?? 'CBSE'}
+                  grade={gradeNumber}
+                  value={selectedSubjects}
+                  onChange={(ids) => {
+                    setSelectedSubjects(ids)
+                    setSubjectError(ids.length === 0 ? 'Please select at least one subject.' : '')
+                  }}
+                  error={subjectError}
+                />
+              ) : (
+                <p className="text-sm text-gray-600 dark:text-slate-400">Select board and grade to see available subjects</p>
+              )}
               {selectedSubjects.length > 0 && (
                 <p className="mt-3 text-sm text-gray-600 dark:text-slate-400">
                   Selected: {selectedSubjects.length} subject{selectedSubjects.length !== 1 ? 's' : ''}
