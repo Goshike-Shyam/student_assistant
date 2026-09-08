@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeft, Sparkles, Send } from 'lucide-react'
 import { getSubjectsByBoardAndGrade } from '@/lib/subjects-seed'
+import { getSubjectLabel } from '@/lib/subjects/config'
 
 interface ClassData {
   id: string
@@ -242,7 +243,7 @@ export default function CreateAssignmentPage() {
             className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-gray-900 focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none disabled:opacity-60"
           >
             <option value="">Select subject…</option>
-            {availableSubjects.map((s) => <option key={s} value={s}>{s}</option>)}
+            {availableSubjects.map((s) => <option key={s} value={s}>{getSubjectLabel(String(s)) ?? s}</option>)}
           </select>
         </div>
 

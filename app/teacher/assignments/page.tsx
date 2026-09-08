@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { getSubjectLabel } from '@/lib/subjects/config'
 import { Plus, Clock, CheckCircle, BookOpen, Eye } from 'lucide-react'
 
 interface AssignmentData {
@@ -115,7 +116,7 @@ export default function TeacherAssignmentsPage() {
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <h2 className="font-bold text-gray-900 dark:text-slate-100">{a.topic}</h2>
-                    <p className="text-gray-600 dark:text-slate-300 text-sm">{a.subject} · {a.className} (Grade {a.grade})</p>
+                    <p className="text-gray-600 dark:text-slate-300 text-sm">{getSubjectLabel(a.subject) ?? a.subject} · {a.className} (Grade {a.grade})</p>
                   </div>
                   <span className={`text-xs px-2 py-1 rounded-full font-medium shrink-0 ${
                     a.complexity === 'Easy' ? 'bg-green-50 text-green-700' :

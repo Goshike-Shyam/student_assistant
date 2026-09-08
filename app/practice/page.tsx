@@ -35,6 +35,7 @@ import { Label } from '@/components/ui/label';
 import QuestionCard from '@/components/assignments/QuestionCard';
 import { Question } from '@/types/assignments';
 import { useTheme } from '@/lib/theme';
+import { getSubjectLabel } from '@/lib/subjects/config'
 
 // --- Types --------------------------------------------------------------------
 
@@ -559,7 +560,7 @@ export default function PracticePage() {
                 <tbody>
                   {history.map((item) => (
                     <tr key={item.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                      <td className="px-4 py-3 text-slate-900 dark:text-slate-100 font-medium">{item.test.subject}</td>
+                      <td className="px-4 py-3 text-slate-900 dark:text-slate-100 font-medium">{getSubjectLabel(String(item.test.subject)) ?? item.test.subject}</td>
                       <td className="px-4 py-3 text-slate-700 dark:text-slate-300 max-w-[200px] truncate">{item.test.topic}</td>
                       <td className="px-4 py-3">
                         <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${complexityBadge(item.test.complexity)}`}>
@@ -714,7 +715,7 @@ export default function PracticePage() {
               {metrics && metrics.subjectBreakdown.length > 0 ? (
                 <div role="img" aria-label="Performance by subject bar chart � average scores per subject">
                   <ResponsiveContainer width="100%" height={160}>
-                    <BarChart data={metrics.subjectBreakdown}>
+                    <BarChart data={metrics.subjectBreakdown.map((d) => ({ ...d, subject: getSubjectLabel(String(d.subject)) ?? d.subject }))}>
                       <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#334155' : '#e5e7eb'} />
                       <XAxis dataKey="subject" tick={{ fill: isDark ? '#cbd5e1' : '#374151', fontSize: 11 }} />
                       <YAxis domain={[0, 100]} tick={{ fill: isDark ? '#cbd5e1' : '#374151', fontSize: 11 }} />
@@ -925,7 +926,7 @@ export default function PracticePage() {
                         className="w-40 focus-visible:ring-2 focus-visible:ring-blue-500"
                       >
                         <option value="all">All Subjects</option>
-                        {subjects.map((s) => <option key={s} value={s}>{s}</option>)}
+                        {subjects.map((s) => <option key={s} value={s}>{getSubjectLabel(String(s)) ?? s}</option>)}
                       </Select>
                     </div>
                     <div>
@@ -976,7 +977,7 @@ export default function PracticePage() {
                           <div key={r.id} className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-4">
                             <div className="flex items-start justify-between mb-2">
                               <div>
-                                <p className="text-xs font-semibold text-blue-700 uppercase tracking-wide">{r.subject}</p>
+                                <p className="text-xs font-semibold text-blue-700 uppercase tracking-wide">{getSubjectLabel(String(r.subject)) ?? r.subject}</p>
                                 <p className="font-semibold text-slate-900 dark:text-slate-100 mt-0.5">{r.topic}</p>
                               </div>
                               <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${complexityBadge(r.complexity)}`}>

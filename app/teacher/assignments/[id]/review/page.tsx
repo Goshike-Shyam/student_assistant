@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { ArrowLeft, ChevronDown, ChevronUp, Save, CheckCircle } from 'lucide-react'
+import { getSubjectLabel } from '@/lib/subjects/config'
 
 interface Submission {
   submissionId: string
@@ -126,7 +127,7 @@ export default function ReviewSubmissionsPage() {
         </button>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Review Submissions</h1>
-          <p className="text-gray-600 text-sm">{assignment?.topic} · {assignment?.subject} · {submissions.length} submissions</p>
+          <p className="text-gray-600 text-sm">{assignment?.topic} · {getSubjectLabel(String(assignment?.subject ?? '')) ?? assignment?.subject} · {submissions.length} submissions</p>
         </div>
       </div>
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prismaClient'
+import bcrypt from 'bcryptjs'
 
 export async function POST(req: NextRequest) {
   try {
@@ -27,7 +28,19 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    if (!user || user.password !== password) {
+    if (!user) {
+      return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 })
+    }
+
+    // Safety: ensure password field is hashed. If plaintext detected, reject and ask to run migration.
+    const stored = (user as any).password
+    if (!stored || typeof stored !== 'string' || !stored.startsWith('$2')) {
+      console.error('[Signin] Unhashed password detected for user id:', user.id)
+      return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 })
+    }
+
+    const valid = await bcrypt.compare(password, stored)
+    if (!valid) {
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 })
     }
 

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { LogOut } from 'lucide-react'
+import { LogOut, UserCircle } from 'lucide-react'
 import { NotificationPanel } from '@/components/shared/NotificationPanel'
 import { ThemeToggle } from '@/components/shared/ThemeToggle'
 import { AppLogo } from '@/components/ui/app-logo'
@@ -141,9 +141,14 @@ export function TeacherTopBar({ teacherName, teacherEmail }: TeacherTopBarProps)
                   <p className="text-xs text-gray-500 dark:text-slate-400 truncate">{teacherEmail}</p>
               </div>
 
-                <div onClick={() => setMenuOpen(false)}>
-                  <ThemeToggle className="px-3 py-2" />
-                </div>
+                  <a href="/teacher/profile" role="menuitem" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-3 py-2 text-sm text-[#0b1c30] dark:text-slate-200 hover:bg-[#eff4ff] dark:hover:bg-slate-800 transition-colors rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+                    <UserCircle className="w-4 h-4 text-gray-400" aria-hidden="true" />
+                    Edit Profile
+                  </a>
+
+                  <div onClick={() => setMenuOpen(false)}>
+                    <ThemeToggle className="px-3 py-2" />
+                  </div>
 
               <button
                 type="button"

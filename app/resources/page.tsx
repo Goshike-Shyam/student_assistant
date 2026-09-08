@@ -7,6 +7,7 @@ import { Select } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { PodcastPlayer } from '@/components/shared/PodcastPlayer';
 import { cn } from '@/lib/utils';
+import { getSubjectLabel } from '@/lib/subjects/config'
 import type { ResearchHistoryItem, ResearchSource } from '@/types/research';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
@@ -408,7 +409,7 @@ export default function ResourcesPage() {
                         className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-900 p-3 text-left text-sm text-slate-700 dark:text-slate-200 transition-colors hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100"
                       >
                         <p className="font-medium">{search.query}</p>
-                        {search.subject && <p className="mt-1 text-xs text-slate-500">{search.subject}</p>}
+                        {search.subject && <p className="mt-1 text-xs text-slate-500">{getSubjectLabel(String(search.subject)) ?? search.subject}</p>}
                       </button>
                     ))}
                   </div>
@@ -420,9 +421,9 @@ export default function ResourcesPage() {
               {searchResponses.map((response) => (
                 <div key={response.id} className="space-y-3">
                   <div className="flex justify-end">
-                    <div className="max-w-xs rounded-2xl rounded-tr-none bg-cyan-600 px-4 py-3 text-white lg:max-w-md">
+                      <div className="max-w-xs rounded-2xl rounded-tr-none bg-cyan-600 px-4 py-3 text-white lg:max-w-md">
                       <p className="break-words text-sm font-medium">{response.query}</p>
-                      {response.subject && <p className="mt-2 text-xs text-cyan-100">📚 {response.subject}</p>}
+                      {response.subject && <p className="mt-2 text-xs text-cyan-100">📚 {getSubjectLabel(String(response.subject)) ?? response.subject}</p>}
                     </div>
                   </div>
 
@@ -519,7 +520,7 @@ export default function ResourcesPage() {
               >
                 <option value="">Select subject...</option>
                 {subjects.map((subject) => (
-                  <option key={subject} value={subject}>{subject}</option>
+                  <option key={subject} value={subject}>{getSubjectLabel(String(subject)) ?? subject}</option>
                 ))}
               </Select>
             </div>
@@ -696,7 +697,7 @@ export default function ResourcesPage() {
                       className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-gray-50 dark:hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500"
                     >
                       <span className="shrink-0 whitespace-nowrap rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
-                        {item.subject}
+                        {getSubjectLabel(String(item.subject)) ?? item.subject}
                       </span>
 
                       <span className="min-w-0 flex-1">
