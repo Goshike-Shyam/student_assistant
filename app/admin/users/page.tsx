@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, Settings } from 'lucide-react';
+import { Link as LinkIcon, Search, Settings } from 'lucide-react';
 import { NotificationPanel } from '@/components/shared/NotificationPanel';
 
 interface User {
@@ -248,6 +248,13 @@ export default function AdminUsersPage() {
               <h1 className="qs font-bold text-[32px] text-[#0b1c30] dark:text-slate-100 leading-none mb-2">User Management</h1>
               <p className="text-[#3d4a3d] dark:text-slate-300 text-sm">Review and manage identities across the platform.</p>
             </div>
+            <Link
+              href="/admin/link-parent"
+              className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+            >
+              <LinkIcon size={16} aria-hidden="true" />
+              Link Parent-Child
+            </Link>
           </div>
 
           {/* Tabs */}
