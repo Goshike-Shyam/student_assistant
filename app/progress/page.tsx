@@ -14,6 +14,7 @@ import {
   Bar,
 } from 'recharts'
 import { useTheme } from '@/lib/theme'
+import { getSubjectLabel } from '@/lib/subjects/config'
 
 interface ProgressResponse {
   rangeDays: number
@@ -249,7 +250,10 @@ export default function ProgressPage() {
                 <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">Subject comparison bars</h2>
                 {data.charts.subjectBreakdown.length > 0 ? (
                   <ResponsiveContainer width="100%" height={240}>
-                    <BarChart data={data.charts.subjectBreakdown}>
+                    <BarChart data={data.charts.subjectBreakdown.map((item) => ({
+                      ...item,
+                      subject: getSubjectLabel(String(item.subject)) || item.subject,
+                    }))}>
                       <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#334155' : '#e5e7eb'} />
                       <XAxis dataKey="subject" tick={{ fill: isDark ? '#cbd5e1' : '#475569', fontSize: 11 }} />
                       <YAxis domain={[0, 100]} tick={{ fill: isDark ? '#cbd5e1' : '#475569', fontSize: 11 }} />
@@ -279,7 +283,7 @@ export default function ProgressPage() {
                   <div className="space-y-3">
                     {data.weakTopics.map((t) => (
                       <div key={t.subject} className="rounded-lg border border-amber-200 dark:border-amber-900/70 bg-amber-50 dark:bg-amber-950/35 p-3">
-                        <p className="text-sm font-semibold text-amber-900">{t.subject} ({t.avgScore}%)</p>
+                        <p className="text-sm font-semibold text-amber-900">{getSubjectLabel(String(t.subject)) || t.subject} ({t.avgScore}%)</p>
                         <p className="text-xs text-amber-800 mt-1">{t.recommendation}</p>
                       </div>
                     ))}

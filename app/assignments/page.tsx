@@ -15,6 +15,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, Send, CheckCircle } from 'lucide-react';
+import { getSubjectLabel } from '@/lib/subjects/config';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -275,25 +276,29 @@ export default function AssignmentsPage() {
 
                 {subjects.length > 0 && (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {subjects.map((subject) => (
-                      <Link
-                        key={subject}
-                        href={`/assignments/${encodeURIComponent(subject)}`}
-                        className="group"
-                      >
-                        <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-6 hover:shadow-lg hover:border-blue-300 dark:hover:border-cyan-500 transition-all cursor-pointer">
-                          <div className="flex items-center justify-between mb-3">
-                            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-300">
-                              {subject}
-                            </h3>
-                            <span className="text-blue-600 opacity-0 group-hover:opacity-100" aria-hidden="true">→</span>
+                    {subjects.map((subject) => {
+                      const label = getSubjectLabel(String(subject)) || String(subject)
+
+                      return (
+                        <Link
+                          key={subject}
+                          href={`/assignments/${encodeURIComponent(subject)}`}
+                          className="group"
+                        >
+                          <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-6 hover:shadow-lg hover:border-blue-300 dark:hover:border-cyan-500 transition-all cursor-pointer">
+                            <div className="flex items-center justify-between mb-3">
+                              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-300">
+                                {label}
+                              </h3>
+                              <span className="text-blue-600 opacity-0 group-hover:opacity-100" aria-hidden="true">→</span>
+                            </div>
+                            <p className="text-sm text-slate-600 dark:text-slate-300">
+                              Generate practice assignments on any topic
+                            </p>
                           </div>
-                          <p className="text-sm text-slate-600 dark:text-slate-300">
-                            Generate practice assignments on any topic
-                          </p>
-                        </div>
-                      </Link>
-                    ))}
+                        </Link>
+                      )
+                    })}
                   </div>
                 )}
 
@@ -349,7 +354,7 @@ export default function AssignmentsPage() {
                       <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 mb-6">
                         <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1">{openedAssignment.topic}</h2>
                         <p className="text-slate-600 dark:text-slate-300 text-sm">
-                          {openedAssignment.subject} · {openedAssignment.className} · Teacher: {openedAssignment.teacherName}
+                          {getSubjectLabel(String(openedAssignment.subject)) || openedAssignment.subject} · {openedAssignment.className} · Teacher: {openedAssignment.teacherName}
                         </p>
                         <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">
                           Due: {new Date(openedAssignment.dueDate).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}

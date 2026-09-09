@@ -763,21 +763,25 @@ export default function PracticePage() {
                 </p>
               ) : (
                 <nav className="py-2" aria-label="Practice subjects">
-                  {subjects.map((s) => (
-                    <button
-                      key={s}
-                      onClick={() => setActiveSubject(s)}
-                      className={`w-full text-left px-4 py-2.5 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:outline-none ${
-                        activeSubject === s
-                          ? 'bg-blue-50 text-blue-900 font-medium border-l-4 border-blue-600'
+                  {subjects.map((s) => {
+                    const label = getSubjectLabel(String(s)) || s
+
+                    return (
+                      <button
+                        key={s}
+                        onClick={() => setActiveSubject(s)}
+                        className={`w-full text-left px-4 py-2.5 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:outline-none ${
+                          activeSubject === s
+                            ? 'bg-blue-50 text-blue-900 font-medium border-l-4 border-blue-600'
                             : 'text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 border-l-4 border-transparent'
-                      }`}
-                      aria-current={activeSubject === s ? 'true' : undefined}
-                      aria-label={`Select ${s} as practice subject`}
-                    >
-                      {s}
-                    </button>
-                  ))}
+                        }`}
+                        aria-current={activeSubject === s ? 'true' : undefined}
+                        aria-label={`Select ${label} as practice subject`}
+                      >
+                        {label}
+                      </button>
+                    )
+                  })}
                 </nav>
               )}
             </div>
@@ -790,7 +794,7 @@ export default function PracticePage() {
               <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
                 Generate New Practice Test
                 {activeSubject && (
-                  <span className="ml-2 text-blue-700 font-medium text-base">� {activeSubject}</span>
+                  <span className="ml-2 text-blue-700 font-medium text-base">• {getSubjectLabel(String(activeSubject)) || activeSubject}</span>
                 )}
               </h2>
 

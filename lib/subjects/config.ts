@@ -184,8 +184,79 @@ export function getSubjectsFor(board: string, grade: string | number): SubjectGr
   return result
 }
 
+const SUBJECT_ALIASES: Record<string, string> = {
+  math: 'Mathematics',
+  mathematics: 'Mathematics',
+  science: 'Science',
+  'social science': 'Social Science',
+  'social studies': 'Social Studies',
+  'environmental studies': 'Environmental Studies',
+  english: 'English',
+  'english language arts': 'English Language Arts',
+  hindi: 'Hindi',
+  history: 'History',
+  geography: 'Geography',
+  economics: 'Economics',
+  'computer science': 'Computer Science',
+  physics: 'Physics',
+  chemistry: 'Chemistry',
+  biology: 'Biology',
+  'civics / political science': 'Civics / Political Science',
+  civics: 'Civics / Political Science',
+  'political science': 'Political Science',
+  sociology: 'Sociology',
+  psychology: 'Psychology',
+  business: 'Business Studies',
+  'business studies': 'Business Studies',
+  commerce: 'Commerce',
+  accountancy: 'Accountancy',
+  'physical education': 'Physical Education',
+}
+
+function normalizeSubjectKey(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[_-]+/g, ' ')
+    .replace(/[^a-z0-9\s]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function titleCaseSubject(value: string): string {
+  return value
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => {
+      const lower = part.toLowerCase()
+      const smallWords = new Set(['and', 'or', 'of', 'the', 'a', 'an', 'in', 'on', 'to', 'for'])
+      if (smallWords.has(lower)) return lower
+      return lower.charAt(0).toUpperCase() + lower.slice(1)
+    })
+    .join(' ')
+}
+
 export function getSubjectLabel(id: string): string {
-  return SUBJECT_CATALOGUE.find((subject) => subject.id === id)?.label ?? id
+  const value = String(id ?? '').trim()
+  if (!value) return ''
+
+  const directMatch = SUBJECT_CATALOGUE.find((subject) => subject.id === value)
+  if (directMatch) return directMatch.label
+
+  const normalized = normalizeSubjectKey(value)
+  const aliasMatch = SUBJECT_ALIASES[normalized]
+  if (aliasMatch) return aliasMatch
+
+  const labelMatch = SUBJECT_CATALOGUE.find((subject) => {
+    const candidateA = normalizeSubjectKey(subject.id)
+    const candidateB = normalizeSubjectKey(subject.label)
+    return candidateA === normalized || candidateB === normalized
+  })
+
+  if (labelMatch) return labelMatch.label
+
+  return titleCaseSubject(value)
 }
 
 export function validateSubjectIds(ids: string[], board: string, grade: string | number): string[] {
