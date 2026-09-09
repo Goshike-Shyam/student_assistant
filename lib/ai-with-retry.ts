@@ -21,9 +21,9 @@ const RETRYABLE_PATTERNS = [
 
 // Model chain — primary first, fallbacks in order
 const MODEL_CHAIN = [
-  'gemini-2.5-flash', // primary — fastest, highest capacity
-  'gemini-1.5-flash', // fallback 1 — stable, widely available
-  'gemini-1.5-pro',   // fallback 2 — slower but reliable
+  'gemini-3.5-flash-lite', // primary — fastest, highest capacity
+  'gemini-1.5-flash',      // fallback 1 — stable, widely available
+  'gemini-1.5-pro',        // fallback 2 — slower but reliable
 ];
 
 export interface AICallResult {

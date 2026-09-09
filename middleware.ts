@@ -91,6 +91,7 @@ export function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     '/teacher/dashboard/:path*',
+    '/teacher/profile/:path*',
     '/teacher/classes/:path*',
     '/teacher/assignments/:path*',
     '/teacher/students/:path*',

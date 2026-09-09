@@ -217,7 +217,7 @@ export default function CreateAssignmentPage() {
             onChange={(e) => setForm((f) => ({ ...f, classId: e.target.value }))}
             required
             aria-required="true"
-            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-gray-900 focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none"
+            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder:text-gray-500 focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none"
           >
             <option value="">Select class…</option>
             {classes.map((c) => (
@@ -240,7 +240,7 @@ export default function CreateAssignmentPage() {
             required
             aria-required="true"
             disabled={!form.classId}
-            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-gray-900 focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none disabled:opacity-60"
+            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder:text-gray-500 focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none disabled:opacity-60"
           >
             <option value="">Select subject…</option>
             {availableSubjects.map((s) => <option key={s} value={s}>{getSubjectLabel(String(s)) ?? s}</option>)}
@@ -259,7 +259,7 @@ export default function CreateAssignmentPage() {
             onChange={(e) => setForm((f) => ({ ...f, topic: e.target.value }))}
             required
             aria-required="true"
-            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-gray-900 focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none"
+            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder:text-gray-500 focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none"
             placeholder="e.g. Photosynthesis, Fractions, World War II"
           />
         </div>
@@ -301,7 +301,7 @@ export default function CreateAssignmentPage() {
             required
             aria-required="true"
             min={minDate}
-            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-gray-900 focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none"
+            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder:text-gray-500 focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none"
           />
         </div>
 
@@ -315,7 +315,7 @@ export default function CreateAssignmentPage() {
             value={form.instructions}
             onChange={(e) => setForm((f) => ({ ...f, instructions: e.target.value }))}
             rows={3}
-            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-gray-900 focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none resize-none"
+            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder:text-gray-500 focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:outline-none resize-none"
             placeholder="Any specific instructions for students…"
           />
         </div>
