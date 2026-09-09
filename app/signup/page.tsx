@@ -12,7 +12,7 @@ import { getGradeBand } from '@/lib/subjects/config';
 
 const roleMap: Record<string, string> = {
   Student: 'STUDENT',
-  Parent: 'STUDENT',
+  Parent: 'PARENT',
   Teacher: 'INSTRUCTOR',
 };
 
@@ -59,6 +59,11 @@ export default function SignupPage() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setStatus(null);
+
+    if (role === 'Parent') {
+      window.location.assign('/parent/register');
+      return;
+    }
 
     if (!termsChecked) {
       setStatus({ type: 'error', message: 'You must agree to the Terms of Use and Privacy Policy.' });
@@ -139,7 +144,13 @@ export default function SignupPage() {
               <button
                 key={option}
                 type="button"
-                onClick={() => setRole(option)}
+                onClick={() => {
+                  if (option === 'Parent') {
+                    window.location.assign('/parent/register');
+                    return;
+                  }
+                  setRole(option);
+                }}
                 className={`rounded-3xl border px-5 py-5 text-left text-sm transition ${role === option ? 'border-cyan-600 bg-cyan-50 dark:bg-cyan-950/40 text-cyan-900 dark:text-cyan-200' : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
                 <p className="font-semibold">{option}</p>
                 <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Personalized setup and progress options.</p>
@@ -173,7 +184,18 @@ export default function SignupPage() {
               </div>
               <div>
                 <Label htmlFor="role" className={labelClassName}>Role</Label>
-                <Select id="role" className={fieldClassName} value={role} onChange={(event) => setRole(event.target.value)}>
+                <Select
+                  id="role"
+                  className={fieldClassName}
+                  value={role}
+                  onChange={(event) => {
+                    if (event.target.value === 'Parent') {
+                      window.location.assign('/parent/register');
+                      return;
+                    }
+                    setRole(event.target.value);
+                  }}
+                >
                   <option>Student</option>
                   <option>Parent</option>
                   <option>Teacher</option>
@@ -193,21 +215,23 @@ export default function SignupPage() {
               </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <Label htmlFor="parentEmail" className={labelClassName}>Parent Email</Label>
-                <Input
-                  id="parentEmail"
-                  className={fieldClassName}
-                  type="email"
-                  value={parentEmail}
-                  onChange={(event) => setParentEmail(event.target.value)}
-                  placeholder="parent@example.com"
-                />
-                <p className="mt-1 text-xs text-gray-600 dark:text-slate-400">Required for student accounts so teachers can contact parents.</p>
+            {role === 'Student' ? (
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <Label htmlFor="parentEmail" className={labelClassName}>Parent Email</Label>
+                  <Input
+                    id="parentEmail"
+                    className={fieldClassName}
+                    type="email"
+                    value={parentEmail}
+                    onChange={(event) => setParentEmail(event.target.value)}
+                    placeholder="parent@example.com"
+                  />
+                  <p className="mt-1 text-xs text-gray-600 dark:text-slate-400">Required for student accounts so teachers can contact parents.</p>
+                </div>
+                <div />
               </div>
-              <div />
-            </div>
+            ) : null}
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div>

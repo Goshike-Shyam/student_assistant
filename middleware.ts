@@ -27,6 +27,7 @@ export function middleware(req: NextRequest) {
     '/login', '/sign-in', '/register',
     '/teacher/login', '/teacher/register',
     '/admin/login',
+    '/parent/login',
   ]
   if (authPages.some(p => pathname.startsWith(p))) {
     const res = NextResponse.next()
@@ -79,6 +80,17 @@ export function middleware(req: NextRequest) {
     return res
   }
 
+  // ── Parent route guard ─────────────────────────────────────────────────────
+  if (pathname.startsWith('/parent') && !pathname.startsWith('/parent/login')) {
+    const parentSession = req.cookies.get('sa-parent-session')?.value
+    if (!parentSession) {
+      return NextResponse.redirect(new URL('/parent/login', req.url))
+    }
+    const res = NextResponse.next()
+    res.headers.set('x-pathname', pathname)
+    return res
+  }
+
   return NextResponse.next();
 }
 
@@ -98,6 +110,10 @@ export const config = {
     '/teacher/analytics/:path*',
     '/teacher/settings/:path*',
     '/teacher/question-bank/:path*',
+    '/parent/dashboard/:path*',
+    '/parent/child/:path*',
+    '/parent/progress/:path*',
+    '/parent/settings/:path*',
     '/admin/dashboard/:path*',
     '/admin/users/:path*',
     '/admin/credits/:path*',

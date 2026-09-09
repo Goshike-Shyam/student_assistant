@@ -12,6 +12,7 @@ enum UserRole {
   STUDENT
   INSTRUCTOR
   ADMIN
+  PARENT
 }
 
 enum AssignmentStatus {
@@ -60,6 +61,7 @@ model User {
   generatedAssignments       GeneratedAssignment[]
   practiceTests              PracticeTest[]
   practiceAttempts           PracticeAttempt[]
+  parentSessions             ParentSession[]                @relation("ParentSessions")
   // Teacher-role relations (student side)
   classEnrollments           ClassEnrollment[]              @relation("StudentEnrollments")
   teacherSubmissions         TeacherAssignmentSubmission[]  @relation("StudentSubmissions")
@@ -134,6 +136,8 @@ model SearchQuery {
   conversationId      String?
   attachmentIds       String[] @default([]) // Array of SearchAttachment IDs
   voiceInput          Boolean  @default(false)
+  isFlagged           Boolean  @default(false) @map("is_flagged")
+  flagReason          String?  @map("flag_reason") @db.VarChar(200)
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
@@ -538,6 +542,19 @@ model ParentCommunicationLog {
 
   @@index([teacherId, childId], name: "idx_pcl_teacher_child")
   @@map("parent_communication_logs")
+}
+
+model ParentSession {
+  id          BigInt   @id @default(autoincrement()) @db.BigInt
+  parentId    String   @map("parent_id") @db.VarChar(64)
+  loggedInAt  DateTime @default(now()) @map("logged_in_at")
+  ipAddress   String?  @map("ip_address") @db.VarChar(100)
+  userAgent   String?  @map("user_agent") @db.VarChar(500)
+
+  parent      User     @relation("ParentSessions", fields: [parentId], references: [id], onDelete: Cascade)
+
+  @@index([parentId], name: "idx_parent_session_parent")
+  @@map("parent_sessions")
 }
 
 enum NotificationUserRole {

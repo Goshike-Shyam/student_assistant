@@ -20,6 +20,7 @@ export function AdminSidebar() {
     { id: 'progress', label: 'Student Progress', icon: 'trending_up', href: '/admin/progress' as Route },
     { id: 'financials', label: 'Financials', icon: 'account_balance_wallet', href: '/admin/financials' as Route },
     { id: 'users', label: 'User Management', icon: 'manage_accounts', href: '/admin/users' as Route },
+    { id: 'link-parent', label: 'Link Parent-Child', icon: 'link', href: '/admin/link-parent' as Route },
     { id: 'podcast-access', label: 'Podcast Access', icon: <Volume2 size={18} aria-hidden="true" />, href: '/admin/features/podcast' as Route },
     { id: 'credits', label: 'Credit Tracking', icon: 'bolt', href: '/admin/credits' as Route },
     { id: 'content', label: 'Content Library', icon: 'library_books', href: '/admin/content' as Route },
