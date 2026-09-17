@@ -2,6 +2,7 @@
 import { usePathname } from 'next/navigation'
 import { Sidebar } from './sidebar'
 import { ThemeApplier } from '@/components/gamification/ThemeApplier'
+import { StickyFooterBar } from '@/components/shared/StickyFooterBar'
 
 /** Paths that show the student sidebar */
 const STUDENT_SIDEBAR_PATHS = [
@@ -32,7 +33,10 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-[calc(100vh-64px)]">
       <ThemeApplier />
       <Sidebar />
-      <div className="flex-1 overflow-x-hidden">{children}</div>
+      <div className="flex min-h-[calc(100vh-64px)] flex-1 flex-col overflow-hidden">
+        <div className="flex-1 overflow-x-hidden overflow-y-auto">{children}</div>
+        <StickyFooterBar />
+      </div>
     </div>
   )
 }

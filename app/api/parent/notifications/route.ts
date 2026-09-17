@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prismaClient'
+import { prisma } from '@/lib/prisma'
 import { createNotification, getUserNotifications } from '@/lib/notifications'
 
 export const dynamic = 'force-dynamic'
@@ -152,3 +152,4 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to load notifications' }, { status: 500 })
   }
 }
+

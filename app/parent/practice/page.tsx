@@ -1,8 +1,9 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
 import { getSubjectLabel } from '@/lib/subjects/config'
+import { useChildData } from '@/hooks/useParentData'
+import { ChildSwitcher } from '@/components/parent/ChildSwitcher'
 
 function getTone(score: number) {
   if (score >= 75) {
@@ -15,42 +16,30 @@ function getTone(score: number) {
 }
 
 export default function PracticePage() {
-  const params = useSearchParams()
-  const [children, setChildren] = useState<Array<{ id: string; name: string }>>([])
-  const [selectedChild, setSelectedChild] = useState('')
-  const [attempts, setAttempts] = useState<Array<{ id: string; subject: string; score: number; totalQuestions: number; createdAt: string; timeTakenSecs: number }>>([])
+  const {
+    children,
+    selectedChildId,
+    setSelectedChildId,
+    childData,
+    loading,
+    error,
+  } = useChildData<{
+    attempts?: Array<{
+      id: string
+      subject: string
+      score: number
+      totalQuestions: number
+      createdAt: string
+      timeTakenSecs: number
+    }>
+  }>('practice')
   const [selectedSubject, setSelectedSubject] = useState('all')
-  const [loading, setLoading] = useState(true)
+
+  const attempts = childData?.attempts ?? []
 
   useEffect(() => {
-    fetch('/api/parent/dashboard', { cache: 'no-store' })
-      .then((response) => response.json())
-      .then((data) => {
-        const kids = data.children ?? []
-        setChildren(kids)
-        const childFromParam = params.get('child')
-        setSelectedChild(childFromParam ?? kids[0]?.id ?? '')
-      })
-      .catch((error) => {
-        console.error('[parent/practice] dashboard fetch failed', error)
-      })
-  }, [params])
-
-  useEffect(() => {
-    if (!selectedChild) return
-
-    setLoading(true)
-    fetch(`/api/parent/child/${selectedChild}/practice`, { cache: 'no-store' })
-      .then((response) => response.json())
-      .then((payload) => {
-        setAttempts(payload.attempts ?? [])
-      })
-      .catch((error) => {
-        console.error('[parent/practice] practice fetch failed', error)
-        setAttempts([])
-      })
-      .finally(() => setLoading(false))
-  }, [selectedChild])
+    setSelectedSubject('all')
+  }, [selectedChildId])
 
   const filteredAttempts = useMemo(() => {
     if (selectedSubject === 'all') return attempts
@@ -62,7 +51,7 @@ export default function PracticePage() {
     ? filteredAttempts.reduce((sum, attempt) => sum + attempt.score, 0) / filteredAttempts.length
     : 0
 
-  const selectedChildName = children.find((child) => child.id === selectedChild)?.name ?? 'Your child'
+  const selectedChildName = children.find((child) => child.id === selectedChildId)?.name ?? 'Your child'
 
   return (
     <div className="mx-auto max-w-5xl p-6">
@@ -73,21 +62,6 @@ export default function PracticePage() {
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row">
-          {children.length > 1 && (
-            <select
-              value={selectedChild}
-              onChange={(event) => setSelectedChild(event.target.value)}
-              className="min-h-[44px] rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100"
-              aria-label="Select child"
-            >
-              {children.map((child) => (
-                <option key={child.id} value={child.id}>
-                  {child.name}
-                </option>
-              ))}
-            </select>
-          )}
-
           {subjectOptions.length > 0 && (
             <select
               value={selectedSubject}
@@ -106,7 +80,13 @@ export default function PracticePage() {
         </div>
       </div>
 
-      {loading ? (
+      <ChildSwitcher children={children} selectedChildId={selectedChildId} onChange={setSelectedChildId} />
+
+      {error ? (
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-200">
+          {error}
+        </div>
+      ) : loading ? (
         <div className="rounded-2xl bg-gray-100 p-6 text-sm text-gray-500 dark:bg-slate-700 dark:text-gray-400">
           Loading practice attempts…
         </div>

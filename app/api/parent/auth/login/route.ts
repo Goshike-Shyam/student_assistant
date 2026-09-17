@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
-import { prisma } from '@/lib/prismaClient'
+import { prisma } from '@/lib/prisma'
 import { createParentSession } from '@/lib/parent-auth'
 
 function getClientIP(request: NextRequest): string {
@@ -67,3 +67,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Login failed. Please try again.' }, { status: 500 })
   }
 }
+

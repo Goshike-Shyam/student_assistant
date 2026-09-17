@@ -17,6 +17,7 @@ export default function ParentRegisterPage() {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [familyCode, setFamilyCode] = useState('')
 
   const validate = () => {
     const next: Record<string, string> = {}
@@ -68,7 +69,7 @@ export default function ParentRegisterPage() {
         }),
       })
 
-      const payload = await response.json().catch(() => ({})) as { error?: string }
+      const payload = await response.json().catch(() => ({})) as { error?: string; familyCode?: string }
 
       if (!response.ok) {
         if (response.status === 409) {
@@ -79,6 +80,7 @@ export default function ParentRegisterPage() {
         return
       }
 
+      setFamilyCode(payload.familyCode ?? '')
       setSuccess(true)
     } catch {
       setErrors({ general: 'Network error. Please try again.' })
@@ -98,14 +100,40 @@ export default function ParentRegisterPage() {
           <p className="mb-2 text-sm text-gray-600 dark:text-gray-400">
             Your parent account has been created successfully.
           </p>
+          <div className="my-5 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-5 dark:border-emerald-700 dark:bg-emerald-950">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-emerald-700 dark:text-emerald-300">
+              Your Family Code
+            </p>
+            <p
+              className="mb-3 font-mono text-4xl font-bold tracking-widest text-emerald-800 dark:text-emerald-200"
+              aria-label={`Family code: ${familyCode}`}
+            >
+              {familyCode}
+            </p>
+            <p className="text-sm text-emerald-700 dark:text-emerald-300">
+              Share this code with your child when they register on Student Assistant. They will enter it during sign up to link to your account.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                void navigator.clipboard?.writeText(familyCode)
+              }}
+              className="mt-3 text-xs font-medium text-emerald-600 hover:underline dark:text-emerald-400"
+            >
+              Copy code
+            </button>
+          </div>
           <p className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-400">
-            📋 Your child's account will be linked by the school administrator. You will see your child's progress once the link is active.
+            Keep this family code safe. Your child will use it during account linking, and existing admin-based linking continues to work as before.
+          </p>
+          <p className="mb-5 text-xs text-gray-500 dark:text-gray-400">
+            You can find this code again later from your parent dashboard.
           </p>
           <a
             href="/parent/login"
             className="inline-block w-full rounded-xl bg-emerald-600 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
           >
-            Go to Login
+            Continue to Login
           </a>
         </div>
       </div>

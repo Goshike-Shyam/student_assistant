@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prismaClient'
+import { prisma } from '@/lib/prisma'
 
 export async function POST(request: NextRequest) {
   const parentId = request.nextUrl.searchParams.get('userId') || request.headers.get('x-user-id')
@@ -31,3 +31,4 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ ok: true })
 }
+

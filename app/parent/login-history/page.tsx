@@ -1,77 +1,50 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { cn } from '@/lib/utils'
+import { useChildData } from '@/hooks/useParentData'
+import { ChildSwitcher } from '@/components/parent/ChildSwitcher'
 
 export default function LoginHistoryPage() {
-  const params = useSearchParams()
-  const [children, setChildren] = useState<Array<{ id: string; name: string }>>([])
-  const [selectedChild, setSelectedChild] = useState('')
-  const [history, setHistory] = useState<{ logins: Array<{ date: string; active: boolean }>; currentStreak: number; longestStreak: number; activeDayCount: number } | null>(null)
-  const [loading, setLoading] = useState(true)
+  const {
+    children,
+    selectedChildId,
+    setSelectedChildId,
+    childData,
+    loading,
+    error,
+  } = useChildData<{
+    loginDates?: string[]
+    currentStreak?: number
+    longestStreak?: number
+    lastLogin?: string | null
+    activeDaysThisMonth?: number
+  }>('login-history')
 
-  useEffect(() => {
-    fetch('/api/parent/dashboard', { cache: 'no-store' })
-      .then((response) => response.json())
-      .then((data) => {
-        const kids = data.children ?? []
-        setChildren(kids)
-        const childFromParam = params.get('child')
-        setSelectedChild(childFromParam ?? kids[0]?.id ?? '')
-      })
-      .catch((error) => {
-        console.error('[parent/login-history] dashboard fetch failed', error)
-      })
-  }, [params])
-
-  useEffect(() => {
-    if (!selectedChild) return
-
-    setLoading(true)
-    fetch(`/api/parent/child/${selectedChild}/login-history`, { cache: 'no-store' })
-      .then((response) => response.json())
-      .then((payload) => {
-        setHistory(payload)
-      })
-      .catch((error) => {
-        console.error('[parent/login-history] login history fetch failed', error)
-        setHistory(null)
-      })
-      .finally(() => setLoading(false))
-  }, [selectedChild])
+  const activeDays = childData?.activeDaysThisMonth ?? 0
+  const last30Days = Array.from({ length: 30 }, (_, index) => {
+    const date = new Date()
+    date.setDate(date.getDate() - (29 - index))
+    return date.toISOString().slice(0, 10)
+  })
+  const loginSet = new Set(childData?.loginDates ?? [])
 
   const consistencyMessage =
-    (history?.activeDayCount ?? 0) >= 20
-      ? 'Amazing consistency!'
-      : (history?.activeDayCount ?? 0) >= 10
-        ? 'Great habit forming!'
-        : 'Building the daily habit — every day counts!'
+    activeDays >= 20 ? 'Amazing consistency!' : activeDays >= 10 ? 'Great habit forming!' : 'Building the daily habit!'
 
   return (
     <div className="mx-auto max-w-4xl p-6">
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Login History</h1>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Last 30 days of learning activity</p>
-        </div>
-
-        {children.length > 1 && (
-          <select
-            value={selectedChild}
-            onChange={(event) => setSelectedChild(event.target.value)}
-            className="min-h-[44px] rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100"
-            aria-label="Select child"
-          >
-            {children.map((child) => (
-              <option key={child.id} value={child.id}>
-                {child.name}
-              </option>
-            ))}
-          </select>
-        )}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Login History</h1>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Last 30 days of learning activity</p>
       </div>
 
-      {loading ? (
+      <ChildSwitcher children={children} selectedChildId={selectedChildId} onChange={setSelectedChildId} />
+
+      {error ? (
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-200">
+          {error}
+        </div>
+      ) : loading ? (
         <div className="rounded-2xl bg-gray-100 p-6 text-sm text-gray-500 dark:bg-slate-700 dark:text-gray-400">
           Loading activity calendar…
         </div>
@@ -80,15 +53,15 @@ export default function LoginHistoryPage() {
           <div className="grid gap-4 md:grid-cols-3">
             <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
               <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Current streak</p>
-              <p className="mt-3 text-3xl font-bold text-gray-900 dark:text-gray-100">{history?.currentStreak ?? 0}</p>
+              <p className="mt-3 text-3xl font-bold text-gray-900 dark:text-gray-100">{childData?.currentStreak ?? 0}</p>
             </div>
             <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
               <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Longest streak</p>
-              <p className="mt-3 text-3xl font-bold text-gray-900 dark:text-gray-100">{history?.longestStreak ?? 0}</p>
+              <p className="mt-3 text-3xl font-bold text-gray-900 dark:text-gray-100">{childData?.longestStreak ?? 0}</p>
             </div>
             <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
               <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Active days</p>
-              <p className="mt-3 text-3xl font-bold text-gray-900 dark:text-gray-100">{history?.activeDayCount ?? 0}</p>
+              <p className="mt-3 text-3xl font-bold text-gray-900 dark:text-gray-100">{activeDays}</p>
             </div>
           </div>
 
@@ -98,28 +71,25 @@ export default function LoginHistoryPage() {
               <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">{consistencyMessage}</span>
             </div>
 
-            <div className="grid grid-cols-7 gap-2 sm:gap-3">
-              {history?.logins.map((entry) => {
-                const date = new Date(entry.date)
-                const label = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-
-                return (
-                  <div key={entry.date} className="flex flex-col items-center gap-2">
-                    <span className="text-[10px] text-gray-400 dark:text-gray-500">{label}</span>
-                    <div
-                      className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-semibold ${
-                        entry.active
-                          ? 'border-emerald-500 bg-emerald-500 text-white'
-                          : 'border-gray-300 bg-gray-100 text-gray-400 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-500'
-                      }`}
-                      aria-label={entry.active ? `Active on ${label}` : `Inactive on ${label}`}
-                    >
-                      {entry.active ? '●' : '○'}
-                    </div>
-                  </div>
-                )
-              })}
+            <div className="grid grid-cols-7 gap-2">
+              {last30Days.map((date) => (
+                <div
+                  key={date}
+                  title={date}
+                  aria-label={`${date}: ${loginSet.has(date) ? 'active' : 'inactive'}`}
+                  className={cn(
+                    'flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium',
+                    loginSet.has(date) ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-400 dark:bg-slate-700',
+                  )}
+                >
+                  {new Date(date).getDate()}
+                </div>
+              ))}
             </div>
+
+            <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
+              Last login: {childData?.lastLogin ? new Date(childData.lastLogin).toLocaleDateString('en-IN') : 'No login recorded yet'}
+            </p>
           </div>
         </div>
       )}

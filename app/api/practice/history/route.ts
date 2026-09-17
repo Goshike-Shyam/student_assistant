@@ -36,12 +36,14 @@ export async function GET(request: NextRequest) {
           timeTakenSecs: true,
           completedAt: true,
           feedbackJson: true,
+          answersJson: true,
           test: {
             select: {
               subject: true,
               topic: true,
               complexity: true,
               totalMarks: true,
+              questionsJson: true,
             },
           },
         },
@@ -52,6 +54,35 @@ export async function GET(request: NextRequest) {
     ]);
 
     const items = attempts.map((a) => {
+      const questions = (() => {
+        try {
+          const raw = a.test.questionsJson;
+          return Array.isArray(JSON.parse(raw)) ? JSON.parse(raw) : [];
+        } catch {
+          return [];
+        }
+      })();
+
+      const answers = (() => {
+        try {
+          const parsed = JSON.parse(a.answersJson);
+          if (Array.isArray(parsed)) {
+            return parsed.reduce<Record<string, string>>((acc, entry, idx) => {
+              const key = String(entry?.questionId ?? idx);
+              acc[key] = String(entry?.answer ?? '');
+              return acc;
+            }, {});
+          }
+          return parsed && typeof parsed === 'object'
+            ? Object.fromEntries(
+                Object.entries(parsed as Record<string, unknown>).map(([k, v]) => [k, String(v ?? '')]),
+              )
+            : {};
+        } catch {
+          return {};
+        }
+      })();
+
       const fb = a.feedbackJson ? (() => {
         try { return JSON.parse(a.feedbackJson!); } catch { return null; }
       })() : null;
@@ -67,6 +98,8 @@ export async function GET(request: NextRequest) {
         gradeLabel: fb?.grade_label ?? null,
         gradeEmoji: fb?.grade_emoji ?? null,
         feedbackJson: a.feedbackJson,
+        questions,
+        answers,
         test: a.test,
       };
     });

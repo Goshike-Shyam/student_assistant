@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prismaClient'
+import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
 
@@ -66,3 +66,4 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ ok: true, gamificationDisabled: body.gamificationDisabled })
 }
+

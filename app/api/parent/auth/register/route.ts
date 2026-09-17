@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs'
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prismaClient'
+import { prisma } from '@/lib/prisma'
+import { generateFamilyCode } from '@/lib/family-code'
 
 export async function POST(request: NextRequest) {
   try {
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest) {
 
     const passwordHash = await bcrypt.hash(password, 12)
 
-    await prisma.user.create({
+    const parent = await prisma.user.create({
       data: {
         name,
         email,
@@ -62,8 +63,12 @@ export async function POST(request: NextRequest) {
       select: { id: true },
     })
 
+    const familyCode = await generateFamilyCode(parent.id)
+
+    console.log(`[Parent/Register] New parent ${parent.id} family code: ${familyCode}`)
+
     return NextResponse.json(
-      { ok: true, message: 'Account created' },
+      { ok: true, familyCode, message: 'Account created' },
       { status: 201 },
     )
   } catch (error) {
@@ -74,3 +79,4 @@ export async function POST(request: NextRequest) {
     )
   }
 }
+

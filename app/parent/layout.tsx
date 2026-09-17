@@ -5,10 +5,15 @@ import { getParentSession } from '@/lib/parent-auth'
 import { ParentSidebar } from '@/components/parent/ParentSidebar'
 import { ParentTopBar } from '@/components/parent/ParentTopBar'
 
+const PUBLIC_PARENT_PATHS = [
+  '/parent/login',
+  '/parent/register',
+]
+
 export default async function ParentLayout({ children }: { children: ReactNode }) {
   const reqHeaders = await headers()
-  const pathname = reqHeaders.get('x-pathname') ?? reqHeaders.get('next-url') ?? ''
-  const isPublicParentRoute = pathname.includes('/parent/login') || pathname.includes('/parent/register')
+  const pathname = reqHeaders.get('x-pathname') ?? ''
+  const isPublicParentRoute = !pathname || PUBLIC_PARENT_PATHS.some((path) => pathname.startsWith(path))
 
   if (isPublicParentRoute) {
     return <>{children}</>

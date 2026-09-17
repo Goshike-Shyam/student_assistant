@@ -14,6 +14,8 @@ import { checkRateLimit } from '@/lib/rate-limit'
 import { getCachedAIResponse, setCachedAIResponse } from '@/lib/cache/ai-cache'
 import { getCachedStudentProfile, setCachedStudentProfile } from '@/lib/cache/session-cache'
 import { logAiCredit } from '@/lib/ai-credit-logger';
+import { getSubjectLabel } from '@/lib/subjects/config'
+import { buildStudentPrompt, normaliseGrade } from '@/lib/ai-prompt-builder'
 
 const LLM_TIMEOUT_MS = 45000;
 
@@ -48,50 +50,6 @@ function normaliseQuestionType(raw: string): string {
   };
   if (!raw) return 'SHORT_ANSWER';
   return map[raw.trim()] ?? map[raw.trim().toLowerCase()] ?? 'SHORT_ANSWER';
-}
-
-function buildPracticePrompt(
-  board: string,
-  grade: number,
-  subject: string,
-  topic: string,
-  complexity: string,
-): string {
-  const questionCount =
-    complexity === 'Easy' ? 5 : complexity === 'Medium' ? 8 : 10;
-
-  return `You are a ${board} Grade ${grade} ${subject} teacher.
-Generate a practice test on "${topic}" with complexity "${complexity}".
-Return ONLY valid JSON, no markdown or extra text:
-{
-  "title": "string — descriptive test title",
-  "topic": "${topic}",
-  "duration_mins": number,
-  "questions": [
-    {
-      "id": 1,
-      "type": "MCQ",
-      "question": "Question text",
-      "options": ["A", "B", "C", "D"],
-      "marks": 1,
-      "correct_answer": "A",
-      "hint": "Brief hint to help if stuck"
-    }
-  ],
-  "total_marks": number
-}
-RULES:
-- Generate exactly ${questionCount} questions (${complexity === 'Mixed' ? 'mix of all types' : `all ${complexity} difficulty`})
-- MCQ: 4 options, single correct answer
-- TRUE_FALSE: options ["True","False"]
-- FILL_BLANK: options null, correct_answer is the word/phrase
-- SHORT_ANSWER: options null, 2-3 marks
-- LONG_ANSWER: options null, 4-5 marks
-- LONG_ANSWER: only include for Hard or Mixed complexity
-- "type" MUST be exactly one of: "MCQ","SHORT_ANSWER","LONG_ANSWER","FILL_BLANK","TRUE_FALSE"
-- Language appropriate for Grade ${grade} ${board} curriculum
-- No violent, political, or inappropriate content
-- Each question has a brief hint`;
 }
 
 export async function POST(request: NextRequest) {
@@ -141,7 +99,22 @@ export async function POST(request: NextRequest) {
 
     const grade = child?.grade ?? 10;
     const board = child?.curriculum ?? 'CBSE';
-    const prompt = buildPracticePrompt(String(board), grade, subject, topic, complexity);
+    const subjectLabel = getSubjectLabel(String(subject)) ?? String(subject ?? 'General');
+    const difficulty = String(complexity ?? 'medium').toLowerCase();
+    const questionCount =
+      (body as any).questionCount ??
+      (body as any).numQuestions ??
+      (complexity === 'Easy' ? 5 : complexity === 'Medium' ? 8 : 10);
+
+    const prompt = buildStudentPrompt({
+      grade: normaliseGrade(grade),
+      board: String(board),
+      subject: subjectLabel,
+      topic: String(topic ?? subjectLabel),
+      taskType: 'PRACTICE',
+      difficulty: difficulty === 'easy' || difficulty === 'hard' ? difficulty : 'medium',
+      questionCount,
+    });
 
     // ── Rate limit check ──────────────────────
     const rl = await checkRateLimit(request, 'RESEARCH', childId)
@@ -222,7 +195,7 @@ export async function POST(request: NextRequest) {
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
         const result = await Promise.race([
-          callGeminiWithRetry(prompt, 2048),
+          callGeminiWithRetry(prompt, 3000),
           new Promise<never>((_, reject) =>
             setTimeout(() => reject(new Error('LLM timeout')), LLM_TIMEOUT_MS),
           ),

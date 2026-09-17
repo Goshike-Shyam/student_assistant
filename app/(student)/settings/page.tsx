@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import { CheckCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { AvatarBuilder, DEFAULT_AVATAR, type AvatarConfig } from '@/components/gamification/AvatarBuilder'
 import { BadgeShelf } from '@/components/gamification/BadgeShelf'
@@ -25,11 +26,100 @@ const DEFAULT_PREFS: Prefs = {
   subjects: [],
 }
 
+function LinkParentSection({ isLinked, onLinked }: { isLinked: boolean; onLinked: () => void }) {
+  const [code, setCode] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [result, setResult] = useState<{ ok: boolean; msg: string } | null>(null)
+
+  if (isLinked) {
+    return (
+      <section aria-labelledby="link-parent-heading" className="rounded-2xl border border-slate-200 bg-white/95 p-6 shadow-sm">
+        <h2 id="link-parent-heading" className="mb-3 text-lg font-semibold text-slate-900">Link to Parent Account</h2>
+        <div className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
+          <CheckCircle size={16} aria-hidden="true" />
+          Your account is linked to a parent account
+        </div>
+      </section>
+    )
+  }
+
+  const handleLink = async () => {
+    if (!code.trim()) return
+    setSaving(true)
+    setResult(null)
+
+    try {
+      const res = await fetch('/api/student/link-parent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ familyCode: code.trim() }),
+      })
+      const data = await res.json().catch(() => ({})) as { message?: string; error?: string }
+      const ok = res.ok
+      setResult({ ok, msg: ok ? data.message ?? 'Successfully linked.' : data.error ?? 'Link failed.' })
+      if (ok) {
+        setCode('')
+        onLinked()
+      }
+    } catch {
+      setResult({ ok: false, msg: 'Network error. Please try again.' })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <section aria-labelledby="link-parent-heading" className="rounded-2xl border border-slate-200 bg-white/95 p-6 shadow-sm">
+      <h2 id="link-parent-heading" className="mb-3 text-lg font-semibold text-slate-900">Link to Parent Account</h2>
+      <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-800">
+        <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+          Enter the Family Code from your parent's account to link your progress reports.
+        </p>
+
+        {result && (
+          <div
+            className={`mb-4 rounded-xl border p-3 text-sm ${result.ok ? 'border-green-200 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300' : 'border-red-200 bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300'}`}
+            role="alert"
+          >
+            {result.msg}
+          </div>
+        )}
+
+        <div className="flex gap-3">
+          <input
+            type="text"
+            value={code}
+            onChange={(event) => setCode(
+              event.target.value
+                .toUpperCase()
+                .replace(/[^A-Z0-9]/g, '')
+                .slice(0, 8),
+            )}
+            placeholder="e.g. VDA4K9M"
+            maxLength={8}
+            className="min-h-[44px] flex-1 rounded-xl border border-gray-300 bg-white px-4 py-2.5 font-mono text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100"
+            aria-label="Family code"
+          />
+          <button
+            type="button"
+            onClick={() => void handleLink()}
+            disabled={saving || !code.trim()}
+            className="min-h-[44px] rounded-xl bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          >
+            {saving ? 'Linking...' : 'Link'}
+          </button>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 export default function StudentSettingsPage() {
   const [childId, setChildId] = useState<string | null>(null)
   const [prefs, setPrefs] = useState<Prefs>(DEFAULT_PREFS)
   const [board, setBoard] = useState('CBSE')
   const [grade, setGrade] = useState(9)
+  const [isLinked, setIsLinked] = useState(false)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState<Record<string, boolean>>({})
 
@@ -42,17 +132,20 @@ export default function StudentSettingsPage() {
 
     setChildId(uid)
 
-    fetch(`/api/student/preferences?childId=${encodeURIComponent(uid)}`)
-      .then((r) => r.json())
-      .then((d) => {
+    Promise.all([
+      fetch(`/api/student/preferences?childId=${encodeURIComponent(uid)}`).then((r) => r.json()),
+      fetch('/api/student/profile', { cache: 'no-store' }).then((r) => r.json()),
+    ])
+      .then(([prefsData, profileData]) => {
         setPrefs({
-          dashboardTheme: d.dashboardTheme ?? 'classic',
-          comicTheme: d.comicTheme ?? 'none',
-          avatarJson: d.avatarJson ?? DEFAULT_AVATAR,
-          gamificationOn: d.gamificationOn ?? true,
-          subjects: Array.isArray(d.subjects) ? d.subjects : [],
+          dashboardTheme: prefsData.dashboardTheme ?? 'classic',
+          comicTheme: prefsData.comicTheme ?? 'none',
+          avatarJson: prefsData.avatarJson ?? DEFAULT_AVATAR,
+          gamificationOn: prefsData.gamificationOn ?? true,
+          subjects: Array.isArray(prefsData.subjects) ? prefsData.subjects : [],
         })
-        document.documentElement.setAttribute('data-gtheme', d.dashboardTheme ?? 'classic')
+        setIsLinked(!!profileData.parentLinked)
+        document.documentElement.setAttribute('data-gtheme', prefsData.dashboardTheme ?? 'classic')
       })
       .catch(() => {
         toast.error('Could not load your settings')
@@ -292,6 +385,8 @@ export default function StudentSettingsPage() {
             <BadgeShelf childId={childId} />
           </section>
         )}
+
+        <LinkParentSection isLinked={isLinked} onLinked={() => setIsLinked(true)} />
       </div>
     </main>
   )

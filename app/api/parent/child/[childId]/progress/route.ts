@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getParentSession } from '@/lib/parent-auth'
-import { prisma } from '@/lib/prismaClient'
+import { prisma } from '@/lib/prisma'
+import { getOwnedChildAccess } from '@/lib/parent-child-guard'
+import { getSubjectLabel } from '@/lib/subjects/config'
 
 export const dynamic = 'force-dynamic'
 
@@ -9,81 +10,172 @@ export async function GET(
   { params }: { params: Promise<{ childId: string }> },
 ) {
   const { childId } = await params
-  const session = await getParentSession()
+  const access = await getOwnedChildAccess(childId)
 
-  if (!session) {
+  if (access.unauthorized) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const parent = await prisma.user.findUnique({
-    where: { id: session.parentId },
-    select: { id: true, email: true },
-  })
-
-  if (!parent) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  const child = await prisma.user.findFirst({
-    where: {
-      id: childId,
-      role: 'STUDENT',
-      parentEmail: parent.email,
-    },
-    select: { id: true },
-  })
-
+  const child = access.child
   if (!child) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
-  const attempts = await prisma.practiceAttempt.findMany({
-    where: {
-      childId: child.id,
-      completedAt: { not: null },
-    },
-    orderBy: { completedAt: 'desc' },
-    take: 200,
-    include: {
-      test: {
-        select: { subject: true },
+  console.log('[Progress] Child:', child.name, 'subjects:', child.subjects)
+
+  try {
+    const practiceAttempts = await prisma.practiceAttempt.findMany({
+      where: {
+        childId: child.id,
+        completedAt: { not: null },
       },
-    },
-  })
-
-  const perSubject = new Map<string, number[]>()
-
-  for (const attempt of attempts) {
-    const subject = attempt.test?.subject ?? 'Unknown'
-    const score = typeof attempt.score === 'number' ? attempt.score : 0
-    const list = perSubject.get(subject) ?? []
-    list.push(score)
-    perSubject.set(subject, list)
-  }
-
-  const subjects = Array.from(perSubject.entries())
-    .map(([subjectId, scores]) => {
-      const ordered = [...scores].slice(0, 5).reverse()
-      const average = ordered.length
-        ? ordered.reduce((sum, value) => sum + value, 0) / ordered.length
-        : 0
-
-      let trend: 'up' | 'down' | 'stable' = 'stable'
-      if (ordered.length >= 2) {
-        const last = ordered[ordered.length - 1]
-        const previous = ordered[ordered.length - 2]
-        if (last > previous) trend = 'up'
-        else if (last < previous) trend = 'down'
-      }
-
-      return {
-        subjectId,
-        avg: Number(average.toFixed(1)),
-        trend,
-        scores: ordered.map((score) => ({ score: Number(score.toFixed(1)) })),
-      }
+      select: {
+        score: true,
+        createdAt: true,
+        completedAt: true,
+        test: {
+          select: {
+            subject: true,
+          },
+        },
+      },
+      orderBy: { completedAt: 'desc' },
+      take: 100,
     })
-    .sort((a, b) => b.avg - a.avg)
 
-  return NextResponse.json({ subjects })
+    console.log('[Progress] Practice attempts:', practiceAttempts.length)
+
+    const teacherScores = await prisma.teacherAssignmentSubmission.findMany({
+      where: { childId: child.id },
+      select: {
+        score: true,
+        updatedAt: true,
+        assignment: {
+          select: { subject: true },
+        },
+      },
+      orderBy: { updatedAt: 'desc' },
+      take: 50,
+    })
+
+    console.log('[Progress] Teacher scores:', teacherScores.length)
+
+    const selfAssignments = await prisma.generatedAssignment.findMany({
+      where: { childId: child.id },
+      select: {
+        subject: true,
+        score: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+    })
+
+    const subjectMap: Record<string, { score: number; date: Date }[]> = {}
+
+    const addScore = (subject: string | null | undefined, score: number, date: Date) => {
+      const subjectId = String(subject ?? '').trim()
+      if (!subjectId) return
+
+      if (!subjectMap[subjectId]) {
+        subjectMap[subjectId] = []
+      }
+
+      subjectMap[subjectId].push({ score, date })
+    }
+
+    for (const attempt of practiceAttempts) {
+      addScore(
+        attempt.test?.subject,
+        attempt.score ?? 0,
+        attempt.completedAt ?? attempt.createdAt,
+      )
+    }
+
+    for (const submission of teacherScores) {
+      if (submission.score == null) continue
+      addScore(
+        submission.assignment.subject,
+        Number(submission.score),
+        submission.updatedAt,
+      )
+    }
+
+    for (const assignment of selfAssignments) {
+      addScore(
+        assignment.subject,
+        assignment.score ?? 0,
+        assignment.createdAt,
+      )
+    }
+
+    const allSubjectIds = new Set<string>([
+      ...Object.keys(subjectMap),
+      ...(child.subjects ?? []),
+    ])
+
+    const subjects = Array.from(allSubjectIds)
+      .map((subjectId) => {
+        const last5 = [...(subjectMap[subjectId] ?? [])]
+          .sort((a, b) => b.date.getTime() - a.date.getTime())
+          .slice(0, 5)
+          .reverse()
+
+        const avg = last5.length
+          ? last5.reduce((sum, entry) => sum + entry.score, 0) / last5.length
+          : 0
+
+        const trend = last5.length >= 2
+          ? last5[last5.length - 1].score > last5[0].score
+            ? 'up'
+            : last5[last5.length - 1].score < last5[0].score
+              ? 'down'
+              : 'stable'
+          : 'stable'
+
+        return {
+          subjectId,
+          subjectLabel: getSubjectLabel(subjectId) ?? subjectId,
+          scores: last5.map((entry) => ({
+            score: Number(entry.score.toFixed(1)),
+            date: entry.date.toISOString(),
+          })),
+          avg: Math.round(avg),
+          trend,
+          trafficLight: avg >= 75 ? 'green' : avg >= 50 ? 'amber' : 'red',
+          encouragement:
+            avg >= 75
+              ? '🌟 Outstanding! Keep shining!'
+              : avg >= 50
+                ? '👍 Good progress — keep going!'
+                : last5.length === 0
+                  ? '📚 No tests yet — start practising!'
+                  : '💪 More practice = better results!',
+          hasData: last5.length > 0,
+        }
+      })
+      .sort((a, b) => Number(b.hasData) - Number(a.hasData))
+
+    console.log(
+      '[Progress] Subjects total:',
+      subjects.length,
+      'with data:',
+      subjects.filter((subject) => subject.hasData).length,
+    )
+
+    return NextResponse.json({ childName: child.name, subjects })
+  } catch (error: any) {
+    console.error('[Progress] Error:', error)
+    return NextResponse.json(
+      {
+        error: 'Progress failed to load',
+        code: error?.code,
+        hint:
+          error?.code === 'P2024'
+            ? 'Connection pool issue. Verify DATABASE_URL connection_limit is at least 5.'
+            : undefined,
+      },
+      { status: 500 },
+    )
+  }
 }

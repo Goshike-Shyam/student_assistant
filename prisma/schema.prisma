@@ -48,6 +48,9 @@ model User {
   curriculum           CurriculumType?
   location             String?
   parentEmail          String?
+  familyCode           String?           @unique @map("family_code") @db.VarChar(10)
+  familyCodeActive     Boolean           @default(true) @map("family_code_active")
+  linkedAt             DateTime?         @map("linked_at")
   subscriptionPlan     SubscriptionPlan @default(FREE)
 
   courses                    Course[]       @relation("InstructorCourses")

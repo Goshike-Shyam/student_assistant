@@ -9,6 +9,51 @@ import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useState, useRef, useEffect } from 'react';
+import { cn } from '@/lib/utils';
+
+type TutorFormat = 'summary' | 'step-by-step' | 'flashcards'
+type TutorDepth = 'simple' | 'medium' | 'detailed'
+type TutorTab = 'solution' | 'examples' | 'practice'
+
+function FlashCard({ front, back, index }: { front: string; back: string; index: number }) {
+  const [flipped, setFlipped] = useState(false)
+
+  return (
+    <div
+      className="cursor-pointer overflow-hidden rounded-xl border border-gray-200 transition-all hover:shadow-md dark:border-slate-700"
+      onClick={() => setFlipped((value) => !value)}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          setFlipped((value) => !value)
+        }
+      }}
+      tabIndex={0}
+      role="button"
+      aria-pressed={flipped}
+      aria-label={`Flashcard ${index} - click to flip`}
+    >
+      <div className="border-b border-gray-200 bg-blue-50 px-4 py-3 dark:border-slate-700 dark:bg-blue-950">
+        <div className="mb-1 flex items-center justify-between">
+          <span className="text-xs font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-400">
+            Card {index} - Front
+          </span>
+          <span className="text-xs text-gray-400">{flipped ? 'Hide' : 'Reveal'}</span>
+        </div>
+        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{front}</p>
+      </div>
+
+      {flipped && (
+        <div className="bg-white px-4 py-3 dark:bg-slate-800">
+          <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-emerald-600 dark:text-emerald-400">
+            Back
+          </span>
+          <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">{back}</p>
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default function AiTutorPage() {
   const [query, setQuery] = useState('')
@@ -17,10 +62,16 @@ export default function AiTutorPage() {
   const [grade, setGrade] = useState('Grade 9')
   const [board, setBoard] = useState('CBSE')
   const [subject, setSubject] = useState('Mathematics')
-  const [format, setFormat] = useState('Summary')
-  const [depth, setDepth] = useState('Medium')
+  const [format, setFormat] = useState<TutorFormat>('summary')
+  const [depth, setDepth] = useState<TutorDepth>('medium')
+  const [selectedTab, setSelectedTab] = useState<TutorTab>('solution')
+  const [quickActions, setQuickActions] = useState<Array<'diagrams' | 'steps' | 'sources'>>([])
   const [loading, setLoading] = useState(false)
-  const [aiResponse, setAiResponse] = useState<string | null>(null)
+  const [responseText, setResponseText] = useState('')
+  const [responseHeader, setResponseHeader] = useState('')
+  const [confidence, setConfidence] = useState<number | null>(null)
+  const [flashcards, setFlashcards] = useState<Array<{ front: string; back: string }>>([])
+  const [sources, setSources] = useState<string[]>([])
 
   useEffect(() => {
     const childId = localStorage.getItem('userId')
@@ -32,73 +83,76 @@ export default function AiTutorPage() {
     if (b) setBoard(b)
   }, [])
 
-  async function postGenerate(payload: any) {
+  function buildHeader(nextFormat: TutorFormat, nextQuery: string): string {
+    const labels: Record<TutorFormat, string> = {
+      summary: 'Summary',
+      'step-by-step': 'Step-by-step Solution',
+      flashcards: 'Flashcards',
+    }
+    const title = labels[nextFormat] ?? 'AI Response'
+    const trimmed = nextQuery.trim()
+    const snippet = trimmed.slice(0, 60)
+    return `${title}: ${snippet}${trimmed.length > 60 ? '...' : ''}`
+  }
+
+  function toggleAction(action: 'diagrams' | 'steps' | 'sources') {
+    setQuickActions((prev) =>
+      prev.includes(action) ? prev.filter((item) => item !== action) : [...prev, action],
+    )
+  }
+
+  async function requestTutorResponse(overrideTab?: TutorTab) {
+    const activeTab = overrideTab ?? selectedTab
     setLoading(true)
-    setAiResponse('')
+    setResponseText('')
+    setConfidence(null)
+    setFlashcards([])
+    setSources([])
     try {
-      const res = await fetch('/api/practice/generate', {
+      const res = await fetch('/api/ai-tutor', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          query: query.trim(),
+          grade,
+          board,
+          subject,
+          format,
+          depth,
+          includeDiagrams: quickActions.includes('diagrams'),
+          showSteps: quickActions.includes('steps'),
+          citeSources: quickActions.includes('sources'),
+          activeTab,
+        }),
       })
 
-      if (res.status === 429) {
-        setAiResponse('Rate limit reached. Please try again later.')
-        return
+      const data = await res.json().catch(() => ({})) as {
+        error?: string
+        text?: string
+        confidence?: number
+        flashcards?: Array<{ front: string; back: string }>
+        sources?: string[]
       }
 
       if (!res.ok) {
-        // Read error body and show message
-        const txt = await res.text().catch(() => 'Request failed')
-        try {
-          const json = JSON.parse(txt)
-          setAiResponse(json.error ?? json.message ?? txt)
-        } catch {
-          setAiResponse(txt)
-        }
-        return
+        throw new Error(data.error ?? 'AI tutor request failed')
       }
 
-      if (!res.body) {
-        const txt = await res.text()
-        try {
-          const json = JSON.parse(txt)
-          setAiResponse(json.answer ?? json.data ?? JSON.stringify(json))
-        } catch {
-          setAiResponse(txt)
-        }
-        return
-      }
-
-      const reader = res.body.getReader()
-      const decoder = new TextDecoder()
-      let done = false
-      let full = ''
-      while (!done) {
-        const { value, done: d } = await reader.read()
-        done = !!d
-        if (value) {
-          const chunk = decoder.decode(value, { stream: true })
-          full += chunk
-          setAiResponse((prev) => (prev ?? '') + chunk)
-        }
-      }
-
-      // try to parse final payload as JSON and extract answer if present
-      try {
-        const json = JSON.parse(full)
-        setAiResponse(json.answer ?? json.data ?? full)
-      } catch {
-        // leave streamed text as-is
-      }
+      setResponseText(data.text ?? '')
+      setConfidence(typeof data.confidence === 'number' ? data.confidence : null)
+      setFlashcards(Array.isArray(data.flashcards) ? data.flashcards : [])
+      setSources(Array.isArray(data.sources) ? data.sources : [])
     } catch (err: any) {
-      setAiResponse('Request failed. ' + (err?.message ?? ''))
+      setResponseText('Failed to get response. Try again.')
+      setConfidence(null)
+      setFlashcards([])
+      setSources([])
     } finally {
       setLoading(false)
     }
   }
 
-  async function handleSubmit() {
+  async function handleSubmit(overrideTab?: TutorTab) {
     if (!childData) {
       // try to init from localStorage
       const childId = localStorage.getItem('userId')
@@ -110,21 +164,18 @@ export default function AiTutorPage() {
     }
 
     if (!query.trim() || !subject) {
-      setAiResponse('Please enter a topic and select a subject.')
+      setResponseText('Please enter a topic and select a subject.')
       return
     }
 
-    const complexityMap: Record<string, string> = { Simple: 'Easy', Medium: 'Medium', Detailed: 'Hard' }
-    const complexity = complexityMap[depth] ?? 'Medium'
+    setResponseHeader(buildHeader(format, query))
+    await requestTutorResponse(overrideTab)
+  }
 
-    const payload = {
-      childId: childData.childId,
-      subject,
-      topic: query.trim(),
-      complexity,
-    }
-
-    await postGenerate(payload)
+  async function handleTabChange(tab: TutorTab) {
+    setSelectedTab(tab)
+    if (!query.trim()) return
+    await handleSubmit(tab)
   }
 
   return (
@@ -190,16 +241,20 @@ export default function AiTutorPage() {
                 <div className="rounded-3xl border border-slate-200/80 bg-slate-50 p-4">
                   <p className="text-sm font-medium text-slate-900">Answer format</p>
                   <div className="mt-3 space-y-2 text-sm text-slate-700">
-                    {['Summary', 'Step-by-step', 'Flashcards'].map((option) => (
-                      <label key={option} className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-2">
+                    {[
+                      { label: 'Summary', value: 'summary' as TutorFormat },
+                      { label: 'Step-by-step', value: 'step-by-step' as TutorFormat },
+                      { label: 'Flashcards', value: 'flashcards' as TutorFormat },
+                    ].map((option) => (
+                      <label key={option.value} className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-2">
                         <input
                           type="radio"
                           name="format"
                           className="h-4 w-4 accent-cyan-600"
-                          checked={format === option}
-                          onChange={() => setFormat(option)}
+                          checked={format === option.value}
+                          onChange={() => setFormat(option.value)}
                         />
-                        {option}
+                        {option.label}
                       </label>
                     ))}
                   </div>
@@ -208,16 +263,20 @@ export default function AiTutorPage() {
                 <div className="rounded-3xl border border-slate-200/80 bg-slate-50 p-4">
                   <p className="text-sm font-medium text-slate-900">Explanation depth</p>
                   <div className="mt-3 space-y-2 text-sm text-slate-700">
-                    {['Simple', 'Medium', 'Detailed'].map((d) => (
-                      <label key={d} className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-2">
+                    {[
+                      { label: 'Simple', value: 'simple' as TutorDepth },
+                      { label: 'Medium', value: 'medium' as TutorDepth },
+                      { label: 'Detailed', value: 'detailed' as TutorDepth },
+                    ].map((option) => (
+                      <label key={option.label} className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-2">
                         <input
                           type="radio"
                           name="depth"
                           className="h-4 w-4 accent-cyan-600"
-                          checked={depth === d}
-                          onChange={() => setDepth(d)}
+                          checked={depth === option.value}
+                          onChange={() => setDepth(option.value)}
                         />
-                        {d}
+                        {option.label}
                       </label>
                     ))}
                   </div>
@@ -226,8 +285,25 @@ export default function AiTutorPage() {
                 <div className="rounded-3xl border border-slate-200/80 bg-slate-50 p-4">
                   <p className="text-sm font-medium text-slate-900">Quick actions</p>
                   <div className="mt-3 flex flex-col gap-3">
-                    {['Include diagrams', 'Show steps', 'Cite sources'].map((label) => (
-                      <Button key={label} className="rounded-full bg-white px-4 py-3 text-sm text-slate-900 shadow-sm shadow-slate-200 hover:bg-slate-100">{label}</Button>
+                    {[
+                      { label: 'Include diagrams', value: 'diagrams' as const },
+                      { label: 'Show steps', value: 'steps' as const },
+                      { label: 'Cite sources', value: 'sources' as const },
+                    ].map((item) => (
+                      <button
+                        key={item.value}
+                        type="button"
+                        onClick={() => toggleAction(item.value)}
+                        aria-pressed={quickActions.includes(item.value)}
+                        className={cn(
+                          'rounded-full border px-4 py-3 text-sm transition-colors',
+                          quickActions.includes(item.value)
+                            ? 'border-cyan-300 bg-cyan-50 text-cyan-800'
+                            : 'border-slate-200 bg-white text-slate-900 hover:bg-slate-100',
+                        )}
+                      >
+                        {item.label}
+                      </button>
                     ))}
 
                     {/* Submit moved below quick-actions */}
@@ -237,7 +313,7 @@ export default function AiTutorPage() {
 
               <div className="mt-4 flex justify-end">
                 <Button
-                  onClick={handleSubmit}
+                  onClick={() => void handleSubmit()}
                   disabled={loading || !query.trim()}
                   className="rounded-full bg-slate-950 px-6 py-3 text-sm text-white hover:bg-slate-800"
                 >
@@ -260,40 +336,87 @@ export default function AiTutorPage() {
             </CardHeader>
 
             <div className="grid gap-4 sm:grid-cols-3">
-              {['Solution Steps', 'Worked Examples', 'Practice Questions'].map((tab) => (
-                <button key={tab} className="rounded-full border border-slate-200 bg-slate-100 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50">
-                  {tab}
+              {(['solution', 'examples', 'practice'] as const).map((tab) => {
+                const labels: Record<TutorTab, string> = {
+                  solution: 'Solution Steps',
+                  examples: 'Worked Examples',
+                  practice: 'Practice Questions',
+                }
+                return (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => handleTabChange(tab)}
+                  aria-pressed={selectedTab === tab}
+                  className={cn(
+                    'min-h-[36px] rounded-full px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500',
+                    selectedTab === tab
+                      ? 'bg-white text-gray-900 shadow-sm dark:bg-slate-700 dark:text-gray-100'
+                      : 'border border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-50',
+                  )}
+                >
+                  {labels[tab]}
                 </button>
-              ))}
+                )
+              })}
             </div>
 
             <div className="rounded-[1.75rem] border border-slate-200/80 bg-slate-50 p-6">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">Step-by-step solution: Solving quadratic equation x^2 - 5x + 6 = 0</p>
-                  <p className="mt-2 text-sm text-slate-600">Showing medium-depth steps with brief explanation and citations.</p>
+              {loading ? (
+                <div className="flex items-center gap-3 p-6" role="status" aria-busy="true" aria-live="polite">
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600" aria-hidden="true" />
+                  <span className="text-sm text-gray-500">Generating response...</span>
                 </div>
-                <div className="rounded-3xl bg-white px-4 py-2 text-sm font-semibold text-cyan-700">Confidence 91%</div>
-              </div>
+              ) : responseText ? (
+                <div className="p-1">
+                  {format === 'step-by-step' && responseHeader ? (
+                    <div className="mb-4 rounded-xl bg-yellow-400 px-4 py-3 text-sm font-semibold text-yellow-900">
+                      {responseHeader}
+                    </div>
+                  ) : null}
 
-              <div className="mt-6 space-y-4 text-sm leading-7 text-slate-700">
-                {loading ? (
-                  <p>Generating response…</p>
-                ) : aiResponse ? (
-                  <pre className="whitespace-pre-wrap text-sm leading-7 text-slate-700">{aiResponse}</pre>
-                ) : (
-                  <p className="text-slate-500">No response yet. Submit a query to see results.</p>
-                )}
-              </div>
+                  {confidence !== null ? (
+                    <div className="mb-3 flex justify-end">
+                      <span className="rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-600">
+                        Confidence {confidence}%
+                      </span>
+                    </div>
+                  ) : null}
 
-              <div className="mt-6 rounded-3xl border border-slate-200 bg-white p-4">
-                <p className="text-sm font-semibold text-slate-900">Citations & resources</p>
-                <div className="mt-4 grid gap-3">
-                  {['Khan Academy – Factoring Quadratics', 'Algebra Textbook PDF – Quadratics (pg 112)'].map((item) => (
-                    <div key={item} className="rounded-3xl border border-slate-200 px-4 py-3 text-sm text-slate-700">{item}</div>
-                  ))}
+                  {format === 'flashcards' && flashcards.length > 0 ? (
+                    <div className="space-y-3">
+                      {flashcards.map((card, index) => (
+                        <FlashCard key={`${card.front}-${index}`} front={card.front} back={card.back} index={index + 1} />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="whitespace-pre-wrap text-sm leading-relaxed text-gray-800 dark:text-gray-200">
+                      {responseText}
+                    </div>
+                  )}
+
+                  {quickActions.includes('sources') && sources.length > 0 ? (
+                    <div className="mt-4 border-t border-gray-200 pt-4 dark:border-slate-700">
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                        Sources and Further Reading
+                      </p>
+                      <ul className="space-y-2 text-xs text-gray-600 dark:text-gray-400">
+                        {sources.map((item, index) => (
+                          <li key={`${item}-${index}`} className="rounded-lg border border-slate-200 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
                 </div>
-              </div>
+              ) : (
+                <div className="flex h-48 flex-col items-center justify-center px-6 text-center">
+                  <p className="text-sm text-gray-400 dark:text-gray-500">
+                    Your AI response will appear here after you submit a question
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">

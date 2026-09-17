@@ -34,6 +34,8 @@ export async function GET() {
     schoolName: user.location ?? '',
     grade: user.grade?.toString() ?? '10',
     board: user.curriculum ?? 'CBSE',
+    parentEmail: user.parentEmail ?? null,
+    parentLinked: !!user.parentEmail?.trim(),
     subjects,
   })
 }
