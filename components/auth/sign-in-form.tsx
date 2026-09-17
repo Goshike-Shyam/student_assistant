@@ -13,6 +13,20 @@ interface User {
   role?: string;
 }
 
+function roleLabel(role?: string): string {
+  if (role === 'PARENT') return 'Parent';
+  if (role === 'INSTRUCTOR' || role === 'TEACHER') return 'Teacher';
+  if (role === 'ADMIN' || role === 'SUPER_ADMIN') return 'Admin';
+  return 'Student';
+}
+
+function roleHomePath(role?: string): string {
+  if (role === 'PARENT') return '/parent/dashboard';
+  if (role === 'INSTRUCTOR' || role === 'TEACHER') return '/teacher/dashboard';
+  if (role === 'ADMIN' || role === 'SUPER_ADMIN') return '/admin';
+  return '/dashboard';
+}
+
 export default function SignInForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -42,10 +56,10 @@ export default function SignInForm() {
       localStorage.setItem('userName', data.user?.name || 'User');
       localStorage.setItem('userGrade', data.user?.grade ? String(data.user.grade) : '9');
       localStorage.setItem('userBoard', data.user?.curriculum || 'CBSE');
-      localStorage.setItem('userRole', data.user?.role ? (data.user.role === 'STUDENT' ? 'Student' : data.user.role === 'INSTRUCTOR' ? 'Teacher' : 'Admin') : 'Student');
+      localStorage.setItem('userRole', roleLabel(data.user?.role));
       
       // Hard redirect ensures browser state is fully committed before protected page load.
-      window.location.replace('/dashboard');
+      window.location.replace(roleHomePath(data.user?.role));
     } catch (error) {
       setStatus(error instanceof Error ? error.message : 'Sign in failed. Please try again.');
     }

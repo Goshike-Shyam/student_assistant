@@ -48,10 +48,6 @@ export function Sidebar() {
       </nav>
 
       {/* Subjects are selected within each feature page, not from sidebar navigation */}
-
-      <button className="mt-4 w-full btn-3d-green bg-[#ff8e4d] text-white rounded-xl py-3 text-sm font-bold qs hover:bg-[#f07030] dark:hover:bg-[#ff9f6b] transition-colors flex items-center justify-center gap-1.5 min-h-[44px]">
-        <span className="mat text-lg" aria-hidden="true">bolt</span>Start Daily Quest
-      </button>
     </aside>
   );
 }

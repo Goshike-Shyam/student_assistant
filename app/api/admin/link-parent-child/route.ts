@@ -79,30 +79,33 @@ export async function GET(request: NextRequest) {
   const children = await prisma.user.findMany({
     where: {
       role: 'STUDENT',
-      AND: [
-        {
-          OR: [
-            { parentEmail: null },
-            { parentEmail: '' },
-          ],
-        },
-        ...(query
-          ? [{ name: containsQuery(query) }]
-          : []),
-      ],
+      ...(query
+        ? {
+            OR: [
+              { name: containsQuery(query) },
+              { email: containsQuery(query) },
+            ],
+          }
+        : {}),
     },
     select: {
       id: true,
       name: true,
+      email: true,
+      parentEmail: true,
       grade: true,
       curriculum: true,
     },
-    take: 20,
+    take: 100,
     orderBy: { name: 'asc' },
   })
 
+  const unlinkedChildren = children
+    .filter((child) => !child.parentEmail || child.parentEmail.trim().length === 0)
+    .slice(0, 20)
+
   return NextResponse.json({
-    results: children.map((child) => ({
+    results: unlinkedChildren.map((child) => ({
       id: child.id,
       name: child.name,
       grade: child.grade,

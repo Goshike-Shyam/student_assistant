@@ -57,9 +57,6 @@ export default function DashboardPage() {
                     Let's Start Learning <span className="mat text-xl">rocket_launch</span>
                   </button>
                 </a>
-                <button className="px-7 py-3.5 border-2 border-[#bccbb9] dark:border-slate-600 text-[#3d4a3d] dark:text-slate-200 qs font-bold rounded-xl hover:bg-[#e5eeff] dark:hover:bg-slate-800 hover:border-[#adc6ff] dark:hover:border-slate-500 transition-all text-[15px]">
-                  View Curriculum
-                </button>
               </div>
             </div>
             {/* Right illustration */}

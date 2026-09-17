@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getParentSession } from '@/lib/parent-auth'
-import { prisma } from '@/lib/prismaClient'
+import { prisma } from '@/lib/prisma'
+import { getOwnedChildAccess } from '@/lib/parent-child-guard'
 
 export const dynamic = 'force-dynamic'
 
@@ -9,32 +9,16 @@ export async function GET(
   { params }: { params: Promise<{ childId: string }> },
 ) {
   const { childId } = await params
-  const session = await getParentSession()
+  const access = await getOwnedChildAccess(childId)
 
-  if (!session) {
+  if (access.unauthorized) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const parent = await prisma.user.findUnique({
-    where: { id: session.parentId },
-    select: { id: true, email: true },
-  })
-
-  if (!parent) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  const child = await prisma.user.findFirst({
-    where: {
-      id: childId,
-      role: 'STUDENT',
-      parentEmail: parent.email,
-    },
-    select: { id: true },
-  })
+  const child = access.child
 
   if (!child) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
   const warnings = await prisma.searchQuery.findMany({
@@ -55,9 +39,10 @@ export async function GET(
   return NextResponse.json({
     warnings: warnings.map((warning) => ({
       id: warning.id,
-      text: warning.query,
-      reason: warning.flagReason ?? 'Sensitive content blocked',
-      createdAt: warning.createdAt.toISOString(),
+      queryText: warning.query.slice(0, 80) + (warning.query.length > 80 ? '...' : ''),
+      flagReason: warning.flagReason ?? 'Sensitive content blocked',
+      date: warning.createdAt.toISOString(),
     })),
+    totalCount: warnings.length,
   })
 }

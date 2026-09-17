@@ -19,12 +19,24 @@
     "jsx": "react-jsx",
     "incremental": true,
     "paths": {
-      "@/*": ["./*"],
-      "@/app/*": ["./app/*"],
-      "@/components/*": ["./components/*"],
-      "@/lib/*": ["./lib/*"],
-      "@/server/*": ["./server/*"],
-      "@/prisma/*": ["./prisma/*"]
+      "@/*": [
+        "./*"
+      ],
+      "@/app/*": [
+        "./app/*"
+      ],
+      "@/components/*": [
+        "./components/*"
+      ],
+      "@/lib/*": [
+        "./lib/*"
+      ],
+      "@/server/*": [
+        "./server/*"
+      ],
+      "@/prisma/*": [
+        "./prisma/*"
+      ]
     },
     "plugins": [
       {
@@ -39,6 +51,7 @@
     "**/*.js",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
+    //".next/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

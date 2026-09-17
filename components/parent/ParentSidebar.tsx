@@ -4,11 +4,13 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   AlertTriangle,
+  BarChart2,
   BookOpen,
   ClipboardList,
   Clock,
   LayoutDashboard,
   LogOut,
+  Search,
   Settings,
   TrendingUp,
 } from 'lucide-react'
@@ -17,7 +19,9 @@ import { cn } from '@/lib/utils'
 const NAV = [
   { href: '/parent/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/parent/progress', label: 'Progress Report', icon: TrendingUp },
-  { href: '/parent/practice', label: 'Practice Tests', icon: ClipboardList },
+  { href: '/parent/research', label: 'Research Prompts', icon: Search },
+  { href: '/parent/assignments', label: 'Assignments', icon: ClipboardList },
+  { href: '/parent/practice', label: 'Practice Tests', icon: BarChart2 },
   { href: '/parent/login-history', label: 'Login History', icon: Clock },
   { href: '/parent/warnings', label: 'Warnings', icon: AlertTriangle },
   { href: '/parent/settings', label: 'Settings', icon: Settings },

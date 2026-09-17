@@ -35,6 +35,7 @@ export default function SignupPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [parentEmail, setParentEmail] = useState('');
+  const [familyCode, setFamilyCode] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('Student');
   const [phone, setPhone] = useState('');
@@ -98,6 +99,7 @@ export default function SignupPage() {
           name,
           email,
           parentEmail: role === 'Student' ? parentEmail.trim() : undefined,
+          familyCode: role === 'Student' ? familyCode.trim() || null : null,
           password,
           role: roleMap[role] ?? 'STUDENT',
           phone,
@@ -113,7 +115,16 @@ export default function SignupPage() {
         throw new Error(payload?.error || payload?.message || 'Registration failed. Please try again.');
       }
 
-      setStatus({ type: 'success', message: 'Account created successfully. Redirecting to login...' });
+      if (role === 'Student' && familyCode.trim()) {
+        if (payload?.familyLink?.ok) {
+          setStatus({ type: 'success', message: `Account created successfully. Linked to ${payload.familyLink.parentName ?? 'your parent'} and redirecting to login...` });
+        } else {
+          console.warn('[Signup] Family code not linked:', payload?.familyLink?.error);
+          setStatus({ type: 'success', message: 'Account created successfully. Family code was not recognised, and you can link later from Settings. Redirecting to login...' });
+        }
+      } else {
+        setStatus({ type: 'success', message: 'Account created successfully. Redirecting to login...' });
+      }
       
       // Hard redirect avoids stale client/router cache edge cases after auth flows.
       setTimeout(() => {
@@ -290,6 +301,37 @@ export default function SignupPage() {
                 </p>
               )}
             </div>
+
+            {role === 'Student' ? (
+              <div>
+                <label htmlFor="family-code" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Family Code
+                  <span className="ml-2 text-xs font-normal text-gray-400">
+                    (optional — from your parent's account)
+                  </span>
+                </label>
+                <input
+                  id="family-code"
+                  type="text"
+                  value={familyCode}
+                  onChange={(event) => setFamilyCode(
+                    event.target.value
+                      .toUpperCase()
+                      .replace(/[^A-Z0-9]/g, '')
+                      .slice(0, 8),
+                  )}
+                  placeholder="e.g. VDA4K9M"
+                  maxLength={8}
+                  className="min-h-[44px] w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 font-mono text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100"
+                  aria-label="Family code from parent"
+                  autoComplete="off"
+                  spellCheck={false}
+                />
+                <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                  Ask your parent for their Family Code to link your account automatically. You can also link later from Settings.
+                </p>
+              </div>
+            ) : null}
 
             {status ? (
               <div role="alert" className={`rounded-2xl border p-4 text-sm ${status.type === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-900' : 'border-red-200 bg-red-50 text-red-600'}`}>

@@ -2,11 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prismaClient'
 import bcrypt from 'bcryptjs'
+import { linkChildToParent } from '@/lib/family-code'
 
 type SignupBody = {
   name?: string
   email?: string
   parentEmail?: string
+  familyCode?: string | null
   password?: string
   role?: 'STUDENT' | 'INSTRUCTOR' | 'ADMIN'
   phone?: string
@@ -34,6 +36,7 @@ export async function POST(req: NextRequest) {
     const board = body.board ?? 'CBSE'
     const grade = Number.isFinite(body.grade) ? Number(body.grade) : 9
     const parentEmail = body.parentEmail ? String(body.parentEmail).trim().toLowerCase() : null
+    const familyCode = body.familyCode ? String(body.familyCode).trim().toUpperCase() : null
     const subjects = Array.isArray(body.subjects)
       ? body.subjects
           .map((s) => String(s).trim())
@@ -74,10 +77,19 @@ export async function POST(req: NextRequest) {
       })
     }
 
+    let familyLink: { ok: boolean; parentName?: string; error?: string } | null = null
+    if (role === 'STUDENT' && familyCode) {
+      familyLink = await linkChildToParent(created.id, familyCode).catch((error) => {
+        console.error('[Signup] Family code link failed (non-fatal):', error)
+        return { ok: false, error: 'Code link failed' }
+      })
+    }
+
     return NextResponse.json(
       {
         ok: true,
         message: 'Account created',
+        familyLink,
         user: {
           id: created.id,
           email: created.email,

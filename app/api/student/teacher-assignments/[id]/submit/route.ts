@@ -23,7 +23,7 @@ export async function POST(
   if (!childId) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
   try {
-    const { answers } = await request.json()
+    const { answers, lateSubmit } = await request.json()
     const { id } = await params
     const submissionId = BigInt(id)
 
@@ -49,6 +49,9 @@ export async function POST(
     }
 
     const now = new Date()
+    if (!lateSubmit && submission.assignment?.dueDate && now > submission.assignment.dueDate) {
+      console.log(`[teacher-submit] Late submission accepted for ${submissionId.toString()}`)
+    }
 
     // Update to SUBMITTED first
     await prisma.teacherAssignmentSubmission.update({

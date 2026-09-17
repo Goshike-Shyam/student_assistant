@@ -13,6 +13,8 @@ import { callGeminiWithRetry } from '@/lib/ai-with-retry';
 import { checkRateLimit } from '@/lib/rate-limit'
 import { logAiCredit } from '@/lib/ai-credit-logger';
 import { AssignmentGenerateRequest } from '@/types/assignments';
+import { getSubjectLabel } from '@/lib/subjects/config'
+import { buildStudentPrompt, normaliseGrade } from '@/lib/ai-prompt-builder'
 
 const LLM_TIMEOUT_MS = 45000;
 
@@ -60,68 +62,6 @@ function normaliseQuestionType(raw: string): string {
   return map[raw.trim()] ?? map[raw.trim().toLowerCase()] ?? 'SHORT_ANSWER';
 }
 
-function buildGeneratePrompt(
-  board: string,
-  grade: number,
-  subject: string,
-  topic: string,
-  complexity: string
-): string {
-  return `You are a ${board} curriculum teacher for Grade ${grade}.
-Generate a ${complexity} assignment on "${topic}" for subject "${subject}".
-Return ONLY valid JSON in this exact format, no markdown or extra text:
-{
-  "title": "Assignment Title",
-  "topic": "${topic}",
-  "instructions": "Clear instructions for the assignment",
-  "questions": [
-    {
-      "id": 1,
-      "type": "MCQ",
-      "question": "Multiple choice question text",
-      "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
-      "marks": 1,
-      "correct_answer": "Option 1"
-    },
-    {
-      "id": 2,
-      "type": "TRUE_FALSE",
-      "question": "True or false statement",
-      "options": ["True", "False"],
-      "marks": 1,
-      "correct_answer": "True"
-    },
-    {
-      "id": 3,
-      "type": "FILL_BLANK",
-      "question": "The capital of France is ___.",
-      "options": null,
-      "marks": 1,
-      "correct_answer": "Paris"
-    },
-    {
-      "id": 4,
-      "type": "SHORT_ANSWER",
-      "question": "Short answer question text",
-      "options": null,
-      "marks": 2,
-      "correct_answer": "Expected short answer"
-    },
-    {
-      "id": 5,
-      "type": "LONG_ANSWER",
-      "question": "Long answer question text",
-      "options": null,
-      "marks": 5,
-      "correct_answer": "Expected detailed answer"
-    }
-  ],
-  "total_marks": 20,
-  "estimated_minutes": 45
-}
-IMPORTANT: The "type" field MUST be exactly one of these strings: "MCQ", "SHORT_ANSWER", "LONG_ANSWER", "FILL_BLANK", "TRUE_FALSE". No spaces, no other variants.`;
-}
-
 export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as AssignmentGenerateRequest;
@@ -131,7 +71,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const prompt = buildGeneratePrompt(board, grade as number, subject, topic, complexity);
+    const subjectLabel = getSubjectLabel(String(subject)) ?? String(subject ?? 'General');
+    const prompt = buildStudentPrompt({
+      grade: normaliseGrade(grade as string | number),
+      board: String(board ?? 'CBSE'),
+      subject: subjectLabel,
+      topic: String(topic ?? subjectLabel),
+      taskType: 'ASSIGNMENT',
+      query: (body as any).additionalInstructions ?? undefined,
+      difficulty: String(complexity ?? 'medium').toLowerCase() === 'easy'
+        ? 'easy'
+        : String(complexity ?? 'medium').toLowerCase() === 'hard'
+          ? 'hard'
+          : 'medium',
+    });
 
     // ── Rate limit check ──────────────────────
     const rl = await checkRateLimit(request, 'RESEARCH', child_id)
@@ -160,7 +113,7 @@ export async function POST(request: NextRequest) {
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
         const result = await Promise.race([
-          callGeminiWithRetry(prompt, 2048),
+          callGeminiWithRetry(prompt, 3000),
           new Promise<never>((_, reject) =>
             setTimeout(() => reject(new Error('LLM timeout')), LLM_TIMEOUT_MS)
           ),
@@ -190,9 +143,25 @@ export async function POST(request: NextRequest) {
         if (!jsonMatch) { lastError = 'No JSON in response'; continue; }
 
         const parsed = JSON.parse(jsonMatch[0]);
-        if (parsed.title && parsed.topic && parsed.instructions && Array.isArray(parsed.questions)) {
+        const sectionQuestions = Array.isArray(parsed.sections)
+          ? parsed.sections.flatMap((section: any) =>
+              Array.isArray(section.questions)
+                ? section.questions.map((question: any) => ({
+                    ...question,
+                    section: section.name ?? null,
+                    sectionType: section.type ?? null,
+                  }))
+                : [],
+            )
+          : [];
+
+        const parsedQuestions = Array.isArray(parsed.questions)
+          ? parsed.questions
+          : sectionQuestions;
+
+        if (parsed.title && parsed.topic && parsed.instructions && parsedQuestions.length > 0) {
           // Normalise all question type strings before saving — safety net for AI variance
-          parsed.questions = parsed.questions.map((q: any) => ({
+          parsed.questions = parsedQuestions.map((q: any) => ({
             ...q,
             type: normaliseQuestionType(q.type),
           }));

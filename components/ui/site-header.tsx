@@ -66,6 +66,7 @@ export function SiteHeader() {
   const normalizedRole = userRole.toLowerCase();
   const isParentRole = normalizedRole === 'parent' || pathname.startsWith('/parent');
   const headerRole: 'student' | 'parent' = isParentRole ? 'parent' : 'student';
+  const userSubtitle = isParentRole ? 'Parent Account' : `${userGrade} · ${userRole}`;
 
   /**
    * USER MENU CLOSE CONTRACT
@@ -113,8 +114,8 @@ export function SiteHeader() {
     setMenuOpen((prev) => !prev);
   }, []);
 
-  // Admin and teacher pages have their own navigation — never show the student header there
-  if (pathname.startsWith('/admin') || pathname.startsWith('/teacher')) return null;
+  // Admin, teacher, and parent pages have their own navigation.
+  if (pathname.startsWith('/admin') || pathname.startsWith('/teacher') || pathname.startsWith('/parent')) return null;
 
   return (
     <nav className="sticky top-0 z-40 w-full h-16 bg-white border-b border-[#e5eeff] dark:bg-slate-900 dark:border-slate-700 flex items-center justify-between px-10"
@@ -172,23 +173,11 @@ export function SiteHeader() {
             >
               <div className="px-4 py-3 border-b border-[#f8f9ff] dark:border-slate-700">
                 <p className="font-semibold text-sm text-slate-900 dark:text-slate-100">{userName}</p>
-                <p className="text-xs text-[#374151] dark:text-slate-400">{userGrade} · {userRole}</p>
+                <p className="text-xs text-[#374151] dark:text-slate-400">{userSubtitle}</p>
               </div>
               <a href="/profile/edit" role="menuitem" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-[#0b1c30] dark:text-slate-200 hover:bg-[#eff4ff] dark:hover:bg-slate-800 transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-inset">
                 <UserCircle size={16} aria-hidden="true" className="text-gray-400" />
                 Edit Profile
-              </a>
-
-              <a
-                href="/parent-portal"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-[#0b1c30] dark:text-slate-200 hover:bg-[#eff4ff] dark:hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500"
-                onClick={() => setMenuOpen(false)}
-              >
-                <span className="text-lg" aria-hidden="true">👨‍👩‍👧</span>
-                Parent Portal
-                <span className="ml-auto" aria-label="Opens in new tab">↗</span>
               </a>
 
               {/* Only show Admin Portal link for admin role */}

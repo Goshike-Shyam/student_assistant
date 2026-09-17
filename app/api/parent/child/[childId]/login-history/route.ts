@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getParentSession } from '@/lib/parent-auth'
-import { prisma } from '@/lib/prismaClient'
+import { prisma } from '@/lib/prisma'
+import { getOwnedChildAccess } from '@/lib/parent-child-guard'
 
 export const dynamic = 'force-dynamic'
 
@@ -36,72 +36,46 @@ export async function GET(
   { params }: { params: Promise<{ childId: string }> },
 ) {
   const { childId } = await params
-  const session = await getParentSession()
+  const access = await getOwnedChildAccess(childId)
 
-  if (!session) {
+  if (access.unauthorized) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const parent = await prisma.user.findUnique({
-    where: { id: session.parentId },
-    select: { id: true, email: true },
-  })
-
-  if (!parent) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  const child = await prisma.user.findFirst({
-    where: {
-      id: childId,
-      role: 'STUDENT',
-      parentEmail: parent.email,
-    },
-    select: { id: true },
-  })
+  const child = access.child
 
   if (!child) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
-  const start = new Date()
-  start.setHours(0, 0, 0, 0)
-  start.setDate(start.getDate() - 29)
-
-  const sessions = await prisma.studentSession.findMany({
+  const xpLogs = await prisma.studentXpLog.findMany({
     where: {
       childId: child.id,
-      startedAt: { gte: start },
+      action: 'DAILY_LOGIN',
     },
-    select: { startedAt: true },
-    orderBy: { startedAt: 'asc' },
+    select: { createdAt: true },
+    orderBy: { createdAt: 'desc' },
+    take: 60,
   })
 
-  const activeDates = new Set(sessions.map((session) => dateKey(session.startedAt)))
-  const thirtyDays = Array.from({ length: 30 }, (_, index) => {
-    const date = new Date(start)
-    date.setDate(start.getDate() + index)
-    return dateKey(date)
-  })
-
-  const activeDayCount = thirtyDays.filter((day) => activeDates.has(day)).length
+  const loginDates = Array.from(new Set(xpLogs.map((log) => dateKey(log.createdAt))))
+  const activeDates = new Set(loginDates)
   const currentStreak = (() => {
     let streak = 0
     const cursor = new Date()
     cursor.setHours(0, 0, 0, 0)
-
     while (activeDates.has(dateKey(cursor))) {
       streak += 1
       cursor.setDate(cursor.getDate() - 1)
     }
-
     return streak
   })()
 
   return NextResponse.json({
-    logins: thirtyDays.map((day) => ({ date: day, active: activeDates.has(day) })),
+    loginDates,
     currentStreak,
     longestStreak: longestStreak(activeDates),
-    activeDayCount,
+    lastLogin: xpLogs[0]?.createdAt?.toISOString() ?? null,
+    activeDaysThisMonth: loginDates.filter((day) => day.startsWith(new Date().toISOString().slice(0, 7))).length,
   })
 }

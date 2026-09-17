@@ -16,6 +16,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import {
   LineChart,
   Line,
@@ -27,7 +28,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { Search } from 'lucide-react';
+import { ArrowLeft, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/select';
@@ -107,6 +108,14 @@ interface HistoryItem {
   gradeLabel: string | null;
   gradeEmoji: string | null;
   feedbackJson: string | null;
+  questions?: Array<{
+    id?: number | string;
+    question?: string;
+    options?: string[];
+    correct_answer?: string;
+    correctAnswer?: string;
+  }>;
+  answers?: Record<string, string>;
   test: { subject: string; topic: string; complexity: string; totalMarks: number };
 }
 
@@ -153,6 +162,7 @@ function scoreBannerClass(pct: number) {
 // --- Page Component -----------------------------------------------------------
 
 export default function PracticePage() {
+  const router = useRouter();
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   // Auth
@@ -194,6 +204,7 @@ export default function PracticePage() {
   // History
   const [history, setHistory]             = useState<HistoryItem[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [expandedHistoryId, setExpandedHistoryId] = useState<string | null>(null);
 
   // Search
   const [searchQuery, setSearchQuery]         = useState('');
@@ -376,6 +387,14 @@ export default function PracticePage() {
 
   const handleViewHistory = () => { setView('history'); loadHistory(); };
 
+  const handleHistoryBack = () => {
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      router.back();
+      return;
+    }
+    setView('generate');
+  };
+
   // -- Review --
   const handleReview = (item: HistoryItem) => {
     if (!item.feedbackJson) return;
@@ -525,7 +544,20 @@ export default function PracticePage() {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
         <div className="max-w-6xl mx-auto px-6 py-10 space-y-6">
           <div className="flex items-center justify-between flex-wrap gap-4">
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">Practice History</h1>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={handleHistoryBack}
+                aria-label="Go back"
+                className="flex items-center justify-center w-9 h-9 rounded-lg border border-gray-200 dark:border-slate-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 hover:text-gray-700 dark:hover:text-gray-200 transition-colors flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              >
+                <ArrowLeft size={16} aria-hidden="true" />
+              </button>
+              <div>
+                <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Practice History</h1>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Your past practice tests</p>
+              </div>
+            </div>
             <Button
               variant="outline"
               onClick={handleTryAnother}
@@ -548,54 +580,193 @@ export default function PracticePage() {
               </Button>
             </div>
           ) : (
-            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 overflow-x-auto shadow-sm">
-              <table className="w-full text-sm" aria-label="Practice attempt history">
-                <thead>
-                  <tr className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
-                    {['Subject', 'Topic', 'Complexity', 'Score', 'Grade', 'Time', 'Date', 'Action'].map((h) => (
-                      <th key={h} scope="col" className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {history.map((item) => (
-                    <tr key={item.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                      <td className="px-4 py-3 text-slate-900 dark:text-slate-100 font-medium">{getSubjectLabel(String(item.test.subject)) ?? item.test.subject}</td>
-                      <td className="px-4 py-3 text-slate-700 dark:text-slate-300 max-w-[200px] truncate">{item.test.topic}</td>
-                      <td className="px-4 py-3">
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${complexityBadge(item.test.complexity)}`}>
-                          {item.test.complexity}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 font-semibold text-slate-900 dark:text-slate-100">
-                        {item.score !== null ? `${Number(item.score).toFixed(1)}%` : '�'}
-                      </td>
-                      <td className="px-4 py-3">
-                        {item.gradeEmoji && item.gradeLabel
-                          ? <span className="font-semibold text-slate-900 dark:text-slate-100">{item.gradeEmoji} {item.gradeLabel}</span>
-                          : '�'}
-                      </td>
-                      <td className="px-4 py-3 text-slate-700 dark:text-slate-300">
-                        {item.timeTakenSecs ? formatTime(item.timeTakenSecs) : '�'}
-                      </td>
-                      <td className="px-4 py-3 text-slate-600 dark:text-slate-400">
-                        {item.completedAt ? new Date(item.completedAt).toLocaleDateString() : '�'}
-                      </td>
-                      <td className="px-4 py-3">
-                        <Button
-                          variant="outline"
-                          onClick={() => handleReview(item)}
-                          disabled={!item.feedbackJson}
-                          className="text-xs min-h-[36px] py-1 px-3 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                          aria-label={`Review ${item.test.topic} attempt`}
+            <div className="space-y-3">
+              {history.map((item) => {
+                const isExpanded = expandedHistoryId === item.id;
+                const subjectLabel = getSubjectLabel(String(item.test.subject)) ?? item.test.subject;
+                return (
+                  <div
+                    key={item.id}
+                    className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl overflow-hidden"
+                  >
+                    <div
+                      className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
+                      onClick={() => setExpandedHistoryId((prev) => (prev === item.id ? null : item.id))}
+                      role="button"
+                      tabIndex={0}
+                      aria-expanded={isExpanded}
+                      aria-controls={`paper-${item.id}`}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          setExpandedHistoryId((prev) => (prev === item.id ? null : item.id));
+                        }
+                      }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                            (item.score ?? 0) >= 75
+                              ? 'bg-green-500'
+                              : (item.score ?? 0) >= 50
+                                ? 'bg-amber-500'
+                                : 'bg-red-400'
+                          }`}
+                          aria-hidden="true"
+                        />
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{subjectLabel}</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                            {item.completedAt
+                              ? new Date(item.completedAt).toLocaleDateString('en-IN', {
+                                  day: 'numeric',
+                                  month: 'short',
+                                  year: 'numeric',
+                                })
+                              : 'Unfinished'}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <div className="text-right">
+                          <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                            {item.score != null ? Number(item.score).toFixed(1) : '-'}
+                            {item.score != null && (
+                              <span className="text-xs font-normal text-gray-400 ml-0.5">/100</span>
+                            )}
+                          </span>
+                          <p className="text-xs text-gray-400">{item.test.totalMarks} marks</p>
+                        </div>
+                        <span
+                          className={`text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+                          aria-hidden="true"
                         >
-                          Review
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                          ▼
+                        </span>
+                      </div>
+                    </div>
+
+                    {isExpanded && (
+                      <div
+                        id={`paper-${item.id}`}
+                        className="border-t border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 px-5 py-5 space-y-4"
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                            Test Paper - {subjectLabel}: {item.test.topic}
+                          </h2>
+                          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-100">
+                            Score: {item.score != null ? Number(item.score).toFixed(1) : '-'}
+                          </span>
+                        </div>
+
+                        {item.questions && item.questions.length > 0 ? (
+                          <div className="space-y-3">
+                            {item.questions.map((q, idx) => {
+                              const questionKey = String(q.id ?? idx);
+                              const studentAnswer = item.answers?.[questionKey] ?? item.answers?.[String(idx)] ?? null;
+                              const correctAnswer = q.correctAnswer ?? q.correct_answer ?? null;
+
+                              const isCorrect =
+                                studentAnswer !== null &&
+                                correctAnswer !== null &&
+                                String(studentAnswer).trim().toLowerCase() === String(correctAnswer).trim().toLowerCase();
+
+                              return (
+                                <div key={questionKey} className="rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4">
+                                  <div className="flex items-center gap-2 mb-3">
+                                    <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs font-bold flex items-center justify-center">
+                                      {idx + 1}
+                                    </span>
+                                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 leading-relaxed">
+                                      {q.question ?? 'Question unavailable'}
+                                    </p>
+                                  </div>
+
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 ml-8">
+                                    <div className="rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950 px-3 py-2.5">
+                                      <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">Your Answer</p>
+                                      <p className="text-sm text-blue-800 dark:text-blue-200">
+                                        {studentAnswer && String(studentAnswer).trim() ? String(studentAnswer) : '(no answer given)'}
+                                      </p>
+                                    </div>
+                                    <div className="rounded-lg border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950 px-3 py-2.5">
+                                      <p className="text-xs font-semibold text-green-600 dark:text-green-400 mb-1">Model Answer</p>
+                                      <p className="text-sm text-green-800 dark:text-green-200">
+                                        {correctAnswer ? String(correctAnswer) : '(not available)'}
+                                      </p>
+                                    </div>
+                                  </div>
+
+                                  {Array.isArray(q.options) && q.options.length > 0 && (
+                                    <div className="ml-8 mt-3 space-y-1.5">
+                                      {q.options.map((opt, oi) => {
+                                        const label = String.fromCharCode(65 + oi);
+                                        const selected =
+                                          String(studentAnswer ?? '').trim().toLowerCase() === String(opt).trim().toLowerCase() ||
+                                          String(studentAnswer ?? '').trim().toLowerCase() === label.toLowerCase();
+                                        const right =
+                                          String(correctAnswer ?? '').trim().toLowerCase() === String(opt).trim().toLowerCase() ||
+                                          String(correctAnswer ?? '').trim().toLowerCase() === label.toLowerCase();
+
+                                        return (
+                                          <div
+                                            key={`${questionKey}-${oi}`}
+                                            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm ${
+                                              right
+                                                ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 font-medium'
+                                                : selected
+                                                  ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
+                                                  : 'bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-300'
+                                            }`}
+                                          >
+                                            <span className="w-5 h-5 rounded-full border border-current text-xs flex items-center justify-center font-medium flex-shrink-0">
+                                              {label}
+                                            </span>
+                                            {opt}
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  )}
+
+                                  {studentAnswer !== null && correctAnswer !== null && (
+                                    <p className={`ml-8 mt-3 text-xs font-semibold ${isCorrect ? 'text-green-600 dark:text-green-300' : 'text-red-600 dark:text-red-300'}`}>
+                                      {isCorrect ? 'Correct answer' : 'Answer needs improvement'}
+                                    </p>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-gray-400 text-center py-4">Question data not available for this attempt</p>
+                        )}
+
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            onClick={() => handleReview(item)}
+                            disabled={!item.feedbackJson}
+                            className="text-xs min-h-[36px] py-1 px-3 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                            aria-label={`Review ${item.test.topic} attempt`}
+                          >
+                            Review Feedback
+                          </Button>
+                          <button
+                            type="button"
+                            onClick={() => setExpandedHistoryId(null)}
+                            className="w-full py-2 text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-lg"
+                          >
+                            ▲ Collapse
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>

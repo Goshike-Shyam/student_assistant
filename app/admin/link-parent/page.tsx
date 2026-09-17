@@ -231,7 +231,7 @@ export default function LinkParentPage() {
                   onKeyDown={(event) => {
                     if (event.key === 'Enter') void searchChildren()
                   }}
-                  placeholder="Search child by name"
+                  placeholder="Search child by name or email"
                   className="min-h-[44px] flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100"
                   aria-label="Search children"
                 />

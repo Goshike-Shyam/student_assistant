@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getParentSession } from '@/lib/parent-auth'
-import { prisma } from '@/lib/prismaClient'
+import { prisma } from '@/lib/prisma'
+import { getSubjectLabel } from '@/lib/subjects/config'
+import { getOwnedChildAccess } from '@/lib/parent-child-guard'
 
 export const dynamic = 'force-dynamic'
 
@@ -9,38 +10,22 @@ export async function GET(
   { params }: { params: Promise<{ childId: string }> },
 ) {
   const { childId } = await params
-  const session = await getParentSession()
+  const access = await getOwnedChildAccess(childId)
 
-  if (!session) {
+  if (access.unauthorized) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const parent = await prisma.user.findUnique({
-    where: { id: session.parentId },
-    select: { id: true, email: true },
-  })
-
-  if (!parent) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  const child = await prisma.user.findFirst({
-    where: {
-      id: childId,
-      role: 'STUDENT',
-      parentEmail: parent.email,
-    },
-    select: { id: true },
-  })
+  const child = access.child
 
   if (!child) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
   const attempts = await prisma.practiceAttempt.findMany({
     where: { childId: child.id },
     orderBy: { createdAt: 'desc' },
-    take: 50,
+    take: 200,
     include: {
       test: {
         select: { subject: true, totalMarks: true },
@@ -59,7 +44,7 @@ export async function GET(
 
     return {
       id: attempt.id,
-      subject: attempt.test?.subject ?? 'Unknown',
+      subject: getSubjectLabel(attempt.test?.subject ?? 'Unknown') ?? attempt.test?.subject ?? 'Unknown',
       score: typeof attempt.score === 'number' ? attempt.score : 0,
       totalQuestions,
       createdAt: attempt.createdAt.toISOString(),
@@ -67,5 +52,36 @@ export async function GET(
     }
   })
 
-  return NextResponse.json({ attempts: normalized })
+  const bySubject: Record<string, number[]> = {}
+  for (const attempt of attempts) {
+    const subject = attempt.test?.subject ?? 'Unknown'
+    if (!bySubject[subject]) {
+      bySubject[subject] = []
+    }
+    if (bySubject[subject].length < 5) {
+      bySubject[subject].push(typeof attempt.score === 'number' ? attempt.score : 0)
+    }
+  }
+
+  const subjectTrends = Object.entries(bySubject).map(([subjectId, scores]) => {
+    const avg = scores.length ? scores.reduce((sum, value) => sum + value, 0) / scores.length : 0
+    const trend = scores.length >= 2
+      ? scores[0] > scores[scores.length - 1]
+        ? 'up'
+        : scores[0] < scores[scores.length - 1]
+          ? 'down'
+          : 'stable'
+      : 'stable'
+
+    return {
+      subjectId,
+      subjectLabel: getSubjectLabel(subjectId) ?? subjectId,
+      scores,
+      avg: Math.round(avg),
+      trend,
+      trafficLight: avg >= 75 ? 'green' : avg >= 50 ? 'amber' : 'red',
+    }
+  })
+
+  return NextResponse.json({ attempts: normalized, subjectTrends })
 }
