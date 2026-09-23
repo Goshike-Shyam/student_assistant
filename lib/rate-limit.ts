@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { cacheIncr, cacheDecr, cacheExpire, cacheGet, cacheDel, KEY } from './cache/provider'
+import { cacheIncr, cacheDecr, cacheExpire, cacheGet, cacheDel, cacheSet, KEY } from './cache/provider'
 
 // ── Config — change limits here only ─────
 export const RATE_LIMITS = {
@@ -8,6 +8,12 @@ export const RATE_LIMITS = {
     perIp: 5,
     window: 86400, // 24h in seconds
     label: 'AI prompts',
+  },
+  PRACTICE: {
+    perChild: 5,
+    perIp: 5,
+    window: 86400,
+    label: 'practice tests',
   },
   PODCAST: {
     perChild: 2,
@@ -60,16 +66,30 @@ async function checkAndIncrement(key: string, limit: number, window: number): Pr
 export async function checkRateLimit(req: NextRequest, feature: RateLimitFeature, childId: string): Promise<RateLimitResult> {
   const limits = RATE_LIMITS[feature]
   const ip = extractIP(req)
+  const childRateKey = childKey(feature, childId)
+  const ipRateKey = ipKey(feature, ip)
+  const sanitisedIp = sanitiseIP(ip)
 
   try {
+    console.log(
+      '[RateLimit] Writing key:',
+      childRateKey,
+      '| childId type:',
+      typeof childId,
+      '| childId value:',
+      childId,
+    )
+
+    await cacheSet(KEY.rlChildIpMap(feature, childId), sanitisedIp, limits.window).catch(() => {})
+
     const [childResult, ipResult] = await Promise.all([
-      checkAndIncrement(childKey(feature, childId), limits.perChild, limits.window),
-      checkAndIncrement(ipKey(feature, ip), limits.perIp, limits.window),
+      checkAndIncrement(childRateKey, limits.perChild, limits.window),
+      checkAndIncrement(ipRateKey, limits.perIp, limits.window),
     ])
 
     if (!childResult.allowed) {
       // rollback ip increment best-effort
-      await cacheDecr(ipKey(feature, ip)).catch(() => {})
+      await cacheDecr(ipRateKey).catch(() => {})
       return {
         allowed: false,
         blockedBy: 'child',
@@ -118,5 +138,13 @@ export async function getRateLimitUsage(feature: RateLimitFeature, childId: stri
 }
 
 export async function resetRateLimit(feature: RateLimitFeature, childId: string): Promise<void> {
+  console.log(
+    '[RateLimit] Deleting key:',
+    KEY.rlChild(feature, childId),
+    '| childId type:',
+    typeof childId,
+    '| childId value:',
+    childId,
+  )
   await cacheDel(KEY.rlChild(feature, childId)).catch(console.error)
 }

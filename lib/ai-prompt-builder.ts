@@ -12,6 +12,27 @@
 
 export type TaskType = 'RESEARCH' | 'PRACTICE' | 'ASSIGNMENT'
 
+export const SUPPORTED_LANGUAGES: Record<string, { name: string; nativeName: string; direction: 'ltr' | 'rtl' }> = {
+  en: { name: 'English', nativeName: 'English', direction: 'ltr' },
+  hi: { name: 'Hindi', nativeName: 'हिन्दी', direction: 'ltr' },
+  te: { name: 'Telugu', nativeName: 'తెలుగు', direction: 'ltr' },
+  ta: { name: 'Tamil', nativeName: 'தமிழ்', direction: 'ltr' },
+  mr: { name: 'Marathi', nativeName: 'मराठी', direction: 'ltr' },
+  or: { name: 'Odia', nativeName: 'ଓଡ଼ିଆ', direction: 'ltr' },
+  bn: { name: 'Bengali', nativeName: 'বাংলা', direction: 'ltr' },
+  gu: { name: 'Gujarati', nativeName: 'ગુજરાતી', direction: 'ltr' },
+  pa: { name: 'Punjabi', nativeName: 'ਪੰਜਾਬੀ', direction: 'ltr' },
+  ml: { name: 'Malayalam', nativeName: 'മലയാളം', direction: 'ltr' },
+  kn: { name: 'Kannada', nativeName: 'ಕನ್ನಡ', direction: 'ltr' },
+  fr: { name: 'French', nativeName: 'Français', direction: 'ltr' },
+  de: { name: 'German', nativeName: 'Deutsch', direction: 'ltr' },
+  es: { name: 'Spanish', nativeName: 'Español', direction: 'ltr' },
+  ar: { name: 'Arabic', nativeName: 'العربية', direction: 'rtl' },
+  ur: { name: 'Urdu', nativeName: 'اردو', direction: 'rtl' },
+  sa: { name: 'Sanskrit', nativeName: 'संस्कृतम्', direction: 'ltr' },
+  zh: { name: 'Chinese (Simplified)', nativeName: '简体中文', direction: 'ltr' },
+}
+
 export interface StudentContext {
   grade: string
   board: string
@@ -21,6 +42,7 @@ export interface StudentContext {
   query?: string
   difficulty?: 'easy' | 'medium' | 'hard'
   questionCount?: number
+  responseLanguage?: string
 }
 
 function getGradeBand(grade: string): 'primary' | 'middle' | 'secondary' | 'senior' {
@@ -76,6 +98,24 @@ Use advanced academic language for a Grade ${grade} student preparing for board 
 
 function getBoardGuidance(board: string): string {
   const b = board.toUpperCase()
+
+  if (b.includes('IGCSE') || b.includes('CAMBRIDGE') || b.includes('CIE')) {
+    return `
+IGCSE/CAMBRIDGE-SPECIFIC RULES:
+- Follow Cambridge Assessment International Education (CAIE) syllabus precisely
+- Use Cambridge syllabus code terminology where relevant (e.g. 0580 for Maths)
+- IGCSE Grades 6-10: follow IGCSE syllabus
+- Grades 11-12: follow AS and A-Level syllabus depth and rigour
+- Questions aligned with Cambridge examination style:
+  * Multiple Choice (Paper 1)
+  * Short answer and structured (Paper 2/3)
+  * Extended response (Paper 4)
+- Use Cambridge mark scheme approach for practice questions
+- Include command words correctly: describe, explain, analyse, evaluate, assess, discuss, justify, suggest
+- Scientific notation and SI units
+- Cambridge-specific terminology (e.g. "learner" not "student" in content)
+- For A-Level: include synoptic links across topics where relevant`
+  }
 
   if (b.includes('CBSE')) {
     return `
@@ -133,6 +173,89 @@ CURRICULUM RULES:
 - Use terminology from approved textbooks
 - Align with standard examination patterns`
 }
+
+  function getLanguageInstruction(languageCode: string): string {
+    const selected = SUPPORTED_LANGUAGES[languageCode]
+    if (!selected || languageCode === 'en') return ''
+
+    const languageSpecificGuidance: Record<string, string> = {
+    hi: `
+  Use Devanagari script throughout.
+  Use standard Modern Standard Hindi.
+  Technical or scientific terms may be written in English in brackets where no standard Hindi equivalent exists.
+  Example: प्रकाश संश्लेषण (Photosynthesis)`,
+    te: `
+  Use Telugu script throughout.
+  Use modern standard Telugu vocabulary.
+  Technical terms may appear in English in brackets where needed.
+  Example: కిరణజన్య సంయోగక్రియ (Photosynthesis)`,
+    ta: `
+  Use Tamil script throughout.
+  Use standard modern Tamil.
+  Technical terms in English may appear in brackets where no Tamil equivalent exists.`,
+    mr: `
+  Use Devanagari script for Marathi.
+  Use standard Marathi vocabulary.
+  Technical terms in English may appear in brackets.`,
+    or: `
+  Use Odia script throughout.
+  Use standard modern Odia.
+  Technical terms in English may appear in brackets.`,
+    bn: `
+  Use Bengali script throughout.
+  Use standard modern Bengali.
+  Technical terms in English may appear in brackets.`,
+    gu: `
+  Use Gujarati script throughout.
+  Use standard modern Gujarati.
+  Technical terms in English may appear in brackets.`,
+    pa: `
+  Use Gurmukhi script throughout.
+  Use standard modern Punjabi.
+  Technical terms in English may appear in brackets.`,
+    ml: `
+  Use Malayalam script throughout.
+  Use standard modern Malayalam.
+  Technical terms in English may appear in brackets.`,
+    kn: `
+  Use Kannada script throughout.
+  Use standard modern Kannada.
+  Technical terms in English may appear in brackets.`,
+    fr: `
+  Use French throughout.
+  Technical terms may remain in English in brackets when necessary.`,
+    de: `
+  Use German throughout.
+  Technical terms may remain in English in brackets when necessary.`,
+    es: `
+  Use Spanish throughout.
+  Technical terms may remain in English in brackets when necessary.`,
+    ar: `
+  Write right-to-left in Arabic script.
+  Use Modern Standard Arabic (MSA).
+  Technical terms in English may appear in brackets.`,
+    ur: `
+  Use Urdu script right-to-left.
+  Use standard Urdu vocabulary.
+  Technical terms in English may appear in brackets.`,
+    sa: `
+  Use Devanagari script throughout.
+  Use classical Sanskrit where appropriate.
+  Technical terms in English may appear in brackets.`,
+    zh: `
+  Use Simplified Chinese throughout.
+  Technical terms in English may appear in brackets where needed.`,
+    }
+
+    return `
+  RESPONSE LANGUAGE RULE (MANDATORY):
+  You MUST write your entire response in ${selected.name} (${selected.nativeName}).
+  Every word of your explanation, headings, bullet points, examples, and encouragement must be in ${selected.name}.${languageSpecificGuidance[languageCode] ?? ''}
+  Do NOT mix languages unless quoting a specific technical term.
+  All content safety rules apply equally in ${selected.name} as they do in English.
+  Age-appropriate language rules apply.
+  Curriculum scope rules are unchanged.`
+  }
 
 function getEncouragement(grade: string): string {
   const band = getGradeBand(grade)
@@ -326,6 +449,10 @@ CONTENT RULES FOR THE JSON:
 }
 
 export function buildStudentPrompt(ctx: StudentContext): string {
+  const languageCode = ctx.responseLanguage ?? 'en'
+  const languageMeta = SUPPORTED_LANGUAGES[languageCode] ?? SUPPORTED_LANGUAGES.en
+  const languageInstruction = getLanguageInstruction(languageCode)
+
   return `
 You are Veda, an expert AI tutor for Student Assistant by Veda AI.
 You help school students master their curriculum through clear, safe,
@@ -338,6 +465,10 @@ Subject: ${ctx.subject}
 Topic:   ${ctx.topic}
 Task:    ${ctx.taskType}
 ${ctx.query ? `Query:   "${ctx.query}"` : ''}
+Response Language: ${languageMeta.name} (${languageCode})
+
+=== LANGUAGE OF RESPONSE ===
+${languageInstruction || 'Respond in clear, standard English.'}
 
 === LANGUAGE AND TONE ===
 ${getLanguageGuidance(ctx.grade, ctx.board)}
@@ -350,6 +481,7 @@ ${getCurriculumBoundary(ctx)}
 
 === CONTENT SAFETY ===
 ${SAFETY_RULES}
+NOTE: Content safety rules apply in ALL languages. A question that would be refused in English is refused in ${languageMeta.name} too.
 
 === QUALITY STANDARDS ===
 Always:
@@ -358,6 +490,7 @@ Always:
 - Give complete answers; never truncate
 - Encourage the student warmly at the end
 - Spell all subject terms correctly
+- Write exclusively in the requested response language
 
 Never:
 - Make up facts, figures, or formulas

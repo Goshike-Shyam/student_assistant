@@ -10,7 +10,18 @@ if (!url || !token) {
   )
 }
 
-export const redis = url && token ? new Redis({ url, token }) : null
+const globalForRedis = globalThis as typeof globalThis & {
+  __saRedis?: Redis | null
+}
+
+function createRedis(): Redis | null {
+  if (!url || !token) return null
+  return new Redis({ url, token })
+}
+
+export const redis: Redis | null =
+  globalForRedis.__saRedis ??
+  (globalForRedis.__saRedis = createRedis())
 
 async function safeGet<T>(key: string): Promise<T | null> {
   if (!redis) return null
@@ -81,6 +92,7 @@ export { safeDel as cacheDel }
 export const KEY = {
   rlChild: (feature: string, childId: string) => `sa:rl:${feature}:child:${childId}`,
   rlIp: (feature: string, ip: string) => `sa:rl:${feature}:ip:${ip.replace(/[^a-zA-Z0-9.:]/g, '_').slice(0,45)}`,
+  rlChildIpMap: (feature: string, childId: string) => `sa:rl:${feature}:child-ip:${childId}`,
   aiResponse: (hash: string) => `sa:ai:${hash}`,
   studentProfile: (childId: string) => `sa:sess:student:${childId}`,
   teacherProfile: (teacherId: string) => `sa:sess:teacher:${teacherId}`,

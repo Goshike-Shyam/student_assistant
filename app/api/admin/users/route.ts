@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prismaClient';
 import { getAdminSession } from '@/lib/admin-auth';
+import { RATE_LIMITS, getRateLimitUsage } from '@/lib/rate-limit';
 
 /**
  * ADMIN AUTH CONTRACT
@@ -19,6 +20,10 @@ interface AdminUsersResponse {
     subscription_status: string;
     child_count: number;
     created_at: string;
+    rate_limit_usage: {
+      RESEARCH: { childCount: number; ipCount: number; childLimit: number; ipLimit: number };
+      PODCAST: { childCount: number; ipCount: number; childLimit: number; ipLimit: number };
+    };
   }>;
   total: number;
   page: number;
@@ -74,15 +79,34 @@ export async function GET(request: NextRequest) {
 
     const total = await prisma.user.count({ where: whereClause });
 
-    const formattedUsers = users.map(user => ({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      board: user.curriculum || 'CBSE',
-      plan: user.subscriptionPlan || 'FREE',
-      subscription_status: 'Active',
-      child_count: user.childSubjects.length,
-      created_at: user.createdAt.toISOString().split('T')[0]
+    const formattedUsers = await Promise.all(users.map(async (user) => {
+      const [researchUsage, podcastUsage] = await Promise.all([
+        getRateLimitUsage('RESEARCH', user.id, request),
+        getRateLimitUsage('PODCAST', user.id, request),
+      ]);
+
+      return {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        board: user.curriculum || 'CBSE',
+        plan: user.subscriptionPlan || 'FREE',
+        subscription_status: 'Active',
+        child_count: user.childSubjects.length,
+        created_at: user.createdAt.toISOString().split('T')[0],
+        rate_limit_usage: {
+          RESEARCH: {
+            ...researchUsage,
+            childLimit: RATE_LIMITS.RESEARCH.perChild,
+            ipLimit: RATE_LIMITS.RESEARCH.perIp,
+          },
+          PODCAST: {
+            ...podcastUsage,
+            childLimit: RATE_LIMITS.PODCAST.perChild,
+            ipLimit: RATE_LIMITS.PODCAST.perIp,
+          },
+        },
+      };
     }));
 
     return NextResponse.json({

@@ -71,6 +71,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
+    const prefs = await (prisma as any).studentPreferences.findUnique({
+      where: { childId: child_id },
+      select: { responseLanguage: true },
+    })
+    const responseLanguage = typeof prefs?.responseLanguage === 'string' ? prefs.responseLanguage : 'en'
+
     const subjectLabel = getSubjectLabel(String(subject)) ?? String(subject ?? 'General');
     const prompt = buildStudentPrompt({
       grade: normaliseGrade(grade as string | number),
@@ -84,6 +90,7 @@ export async function POST(request: NextRequest) {
         : String(complexity ?? 'medium').toLowerCase() === 'hard'
           ? 'hard'
           : 'medium',
+      responseLanguage,
     });
 
     // ── Rate limit check ──────────────────────
@@ -91,7 +98,7 @@ export async function POST(request: NextRequest) {
     if (!rl.allowed) {
       return NextResponse.json(
         {
-          error: 'RATE_LIMIT_EXCEEDED',
+          error: 'RATE LIMIT EXCEEDED',
           message: rl.message,
           feature: 'RESEARCH',
           retryAfterSecs: rl.retryAfterSecs,

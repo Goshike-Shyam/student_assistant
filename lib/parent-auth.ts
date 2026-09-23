@@ -1,9 +1,8 @@
 import crypto from 'crypto'
 import { cookies } from 'next/headers'
+import { getDailySessionExpiresAt, getDailySessionMaxAge } from '@/lib/session-config'
 
 const COOKIE_NAME = 'sa-parent-session'
-const SESSION_DAYS = 7
-
 export interface ParentSessionPayload {
   parentId: string
   name: string
@@ -67,7 +66,7 @@ export async function createParentSession(parent: {
   name: string
   email: string
 }): Promise<void> {
-  const exp = Math.floor(Date.now() / 1000) + SESSION_DAYS * 24 * 60 * 60
+  const exp = getDailySessionExpiresAt()
   const token = signToken({
     parentId: parent.id,
     name: parent.name,
@@ -79,7 +78,7 @@ export async function createParentSession(parent: {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
-    maxAge: SESSION_DAYS * 24 * 60 * 60,
+    maxAge: getDailySessionMaxAge(),
     path: '/',
   })
 }

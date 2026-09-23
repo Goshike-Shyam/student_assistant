@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prismaClient'
 import bcrypt from 'bcryptjs'
+import { COOKIE_NAMES, getDailySessionExpiresAt, getDailySessionMaxAge } from '@/lib/session-config'
 
 export async function POST(req: NextRequest) {
   try {
@@ -59,12 +60,17 @@ export async function POST(req: NextRequest) {
       { status: 200 },
     )
 
-    response.cookies.set('sa-user-session', JSON.stringify({ userId: user.id, role: user.role }), {
+    response.cookies.set(COOKIE_NAMES.student, JSON.stringify({
+      userId: user.id,
+      role: 'STUDENT',
+      board: user.curriculum ?? 'CBSE',
+      exp: getDailySessionExpiresAt(),
+    }), {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
-      maxAge: 7 * 24 * 60 * 60,
+      maxAge: getDailySessionMaxAge(),
     })
 
     return response

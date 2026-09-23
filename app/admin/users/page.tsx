@@ -5,6 +5,135 @@ import Link from 'next/link';
 import { Link as LinkIcon, Search, Settings } from 'lucide-react';
 import { NotificationPanel } from '@/components/shared/NotificationPanel';
 
+type RateLimitFeature = 'RESEARCH' | 'PODCAST' | 'ALL';
+
+function RateLimitResetButtons({
+  childId,
+  childName,
+  initialUsage,
+}: {
+  childId: string;
+  childName: string;
+  initialUsage?: {
+    RESEARCH: { childCount: number; ipCount: number; childLimit: number; ipLimit: number };
+    PODCAST: { childCount: number; ipCount: number; childLimit: number; ipLimit: number };
+  };
+}) {
+  const [resetting, setResetting] = useState<RateLimitFeature | null>(null);
+  const [result, setResult] = useState<{ ok: boolean; msg: string } | null>(null);
+  const [usage, setUsage] = useState<{ research: number; podcast: number } | null>(
+    initialUsage
+      ? {
+          research: initialUsage.RESEARCH.childCount,
+          podcast: initialUsage.PODCAST.childCount,
+        }
+      : null,
+  );
+
+  const refreshUsage = async () => {
+    try {
+      const response = await fetch(`/api/admin/rate-limit/reset?childId=${encodeURIComponent(childId)}`, {
+        cache: 'no-store',
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) return;
+      const limits = (data as { limits?: Record<string, { count?: number }> }).limits ?? {};
+      setUsage({
+        research: Number(limits[`sa:rl:RESEARCH:child:${childId}`]?.count ?? 0),
+        podcast: Number(limits[`sa:rl:PODCAST:child:${childId}`]?.count ?? 0),
+      });
+    } catch {
+      // Best-effort diagnostic fetch only.
+    }
+  };
+
+  useEffect(() => {
+    void refreshUsage();
+  }, [childId]);
+
+  const handleReset = async (feature: RateLimitFeature) => {
+    if (!window.confirm(`Reset ${feature} limit for ${childName}?`)) return;
+
+    setResetting(feature);
+    setResult(null);
+
+    try {
+      const response = await fetch('/api/admin/rate-limit/reset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          childId,
+          feature: feature === 'ALL' ? undefined : feature,
+        }),
+      });
+
+      const data = await response.json().catch(() => ({}));
+      const message = (data as { message?: string; error?: string }).message
+        ?? (response.ok
+          ? 'Reset successful'
+          : (data as { error?: string }).error ?? 'Reset failed');
+
+      setResult({ ok: response.ok, msg: message });
+      await refreshUsage();
+    } catch {
+      setResult({ ok: false, msg: 'Network error' });
+    } finally {
+      setResetting(null);
+      window.setTimeout(() => setResult(null), 4000);
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-1.5 items-center">
+      <div className="flex gap-3 text-xs text-[#4B5563] dark:text-slate-400">
+        <span>Research: {usage?.research ?? 0}/5</span>
+        <span>Podcast: {usage?.podcast ?? 0}/2</span>
+      </div>
+
+      <div className="flex gap-1.5 flex-wrap justify-center">
+        <button
+          type="button"
+          disabled={resetting !== null}
+          onClick={() => void handleReset('RESEARCH')}
+          className="text-xs px-2.5 py-1 rounded-lg font-medium bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+        >
+          {resetting === 'RESEARCH' ? '...' : 'Reset Research'}
+        </button>
+
+        <button
+          type="button"
+          disabled={resetting !== null}
+          onClick={() => void handleReset('PODCAST')}
+          className="text-xs px-2.5 py-1 rounded-lg font-medium bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500"
+        >
+          {resetting === 'PODCAST' ? '...' : 'Reset Podcast'}
+        </button>
+
+        <button
+          type="button"
+          disabled={resetting !== null}
+          onClick={() => void handleReset('ALL')}
+          className="text-xs px-2.5 py-1 rounded-lg font-medium bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+        >
+          {resetting === 'ALL' ? '...' : 'Reset All'}
+        </button>
+      </div>
+
+      {result && (
+        <span
+          className={`text-xs font-medium ${
+            result.ok ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+          }`}
+          role="status"
+          aria-live="polite"
+        >
+          {result.ok ? 'OK:' : 'Error:'} {result.msg}
+        </span>
+      )}
+    </div>
+  );
+}
+
 interface User {
   id: string;
   name: string;
@@ -14,6 +143,10 @@ interface User {
   subscription_status: string;
   child_count: number;
   created_at: string;
+  rate_limit_usage?: {
+    RESEARCH: { childCount: number; ipCount: number; childLimit: number; ipLimit: number };
+    PODCAST: { childCount: number; ipCount: number; childLimit: number; ipLimit: number };
+  };
 }
 
 interface AdminUser {
@@ -330,6 +463,7 @@ export default function AdminUsersPage() {
                         <th scope="col" className="text-left p-4 text-[#374151] dark:text-slate-300 font-semibold text-sm">Status</th>
                         <th scope="col" className="text-left p-4 text-[#374151] dark:text-slate-300 font-semibold text-sm">Children</th>
                         <th scope="col" className="text-left p-4 text-[#374151] dark:text-slate-300 font-semibold text-sm">Joined</th>
+                        <th scope="col" className="text-center p-4 text-[#374151] dark:text-slate-300 font-semibold text-sm">Rate Limits</th>
                         <th scope="col" className="text-center p-4 text-[#374151] dark:text-slate-300 font-semibold text-sm">Actions</th>
                       </tr>
                     </thead>
@@ -357,7 +491,7 @@ export default function AdminUsersPage() {
                         ))
                       ) : users.length === 0 ? (
                         <tr>
-                          <td colSpan={8} className="p-8 text-center">
+                            <td colSpan={9} className="p-8 text-center">
                             <p className="text-[#374151] dark:text-slate-300">No users found</p>
                           </td>
                         </tr>
@@ -395,12 +529,21 @@ export default function AdminUsersPage() {
                               </td>
                               <td className="p-4 text-[#0b1c30] dark:text-slate-100 font-semibold text-sm">{user.child_count}</td>
                               <td className="p-4 text-[#374151] dark:text-slate-300 text-sm">{user.created_at}</td>
-                              <td className="p-4 flex items-center justify-center gap-2">
-                                <Link href={`/admin/users/${user.id}`}>
-                                  <button className="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 hover:bg-[#e5eeff] dark:hover:bg-slate-700 flex items-center justify-center text-[#0058be] dark:text-cyan-300 transition-colors" title="View Details">
-                                    <span className="mat">info</span>
-                                  </button>
-                                </Link>
+                              <td className="p-4 text-center align-middle">
+                                <RateLimitResetButtons
+                                  childId={user.id}
+                                  childName={user.name}
+                                  initialUsage={user.rate_limit_usage}
+                                />
+                              </td>
+                              <td className="p-4">
+                                <div className="flex flex-wrap items-center justify-center gap-2">
+                                  <Link href={`/admin/users/${user.id}`}>
+                                    <button className="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 hover:bg-[#e5eeff] dark:hover:bg-slate-700 flex items-center justify-center text-[#0058be] dark:text-cyan-300 transition-colors" title="View Details">
+                                      <span className="mat">info</span>
+                                    </button>
+                                  </Link>
+                                </div>
                               </td>
                             </tr>
                           );
