@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prismaClient'
+import { SUPPORTED_LANGUAGES } from '@/lib/ai-prompt-builder'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,6 +34,7 @@ export async function GET(request: NextRequest) {
     comicTheme: prefs?.comicTheme ?? 'none',
     avatarJson: prefs?.avatarJson ? JSON.parse(prefs.avatarJson) : null,
     gamificationOn: prefs?.gamificationOn ?? true,
+    responseLanguage: prefs?.responseLanguage ?? 'en',
   })
 }
 
@@ -47,9 +49,11 @@ export async function POST(request: NextRequest) {
     comicTheme?: string
     avatarJson?: unknown
     gamificationOn?: boolean
+    responseLanguage?: string
   }
 
-  const { dashboardTheme, comicTheme, avatarJson, gamificationOn } = body
+  const { dashboardTheme, comicTheme, avatarJson, gamificationOn, responseLanguage } = body
+  const validResponseLanguage = responseLanguage && SUPPORTED_LANGUAGES[responseLanguage] ? responseLanguage : 'en'
 
   await prisma.studentPreferences.upsert({
     where: { childId },
@@ -59,12 +63,14 @@ export async function POST(request: NextRequest) {
       comicTheme: comicTheme ?? 'none',
       avatarJson: sanitizeAvatarJson(avatarJson),
       gamificationOn: gamificationOn ?? true,
+      responseLanguage: validResponseLanguage,
     },
     update: {
       ...(dashboardTheme !== undefined ? { dashboardTheme } : {}),
       ...(comicTheme !== undefined ? { comicTheme } : {}),
       ...(avatarJson !== undefined ? { avatarJson: sanitizeAvatarJson(avatarJson) } : {}),
       ...(gamificationOn !== undefined ? { gamificationOn } : {}),
+      ...(responseLanguage !== undefined ? { responseLanguage: validResponseLanguage } : {}),
     },
   })
 

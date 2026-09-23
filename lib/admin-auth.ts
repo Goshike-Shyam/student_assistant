@@ -2,6 +2,7 @@ import crypto from 'crypto'
 import bcryptjs from 'bcryptjs'
 import { cookies } from 'next/headers'
 import { prisma } from '@/lib/prismaClient'
+import { getDailySessionExpiresAt, getDailySessionMaxAge } from '@/lib/session-config'
 
 const ADMIN_COOKIE_NAME = 'sa-admin-session'
 
@@ -10,6 +11,7 @@ export interface AdminSessionPayload {
   role: string
   name: string
   email: string
+  exp: number
 }
 
 /**
@@ -23,7 +25,8 @@ export async function getAdminSession(): Promise<AdminSessionPayload | null> {
 
   try {
     const parsed = JSON.parse(token) as Partial<AdminSessionPayload>
-    if (!parsed.adminId || !parsed.role || !parsed.name || !parsed.email) return null
+    if (!parsed.adminId || !parsed.role || !parsed.name || !parsed.email || !parsed.exp) return null
+    if (parsed.exp < Math.floor(Date.now() / 1000)) return null
     let adminIdBigInt: bigint
     try {
       adminIdBigInt = BigInt(parsed.adminId)
@@ -51,10 +54,35 @@ export async function getAdminSession(): Promise<AdminSessionPayload | null> {
       role: admin.role,
       name: admin.name,
       email: admin.email,
+      exp: parsed.exp,
     }
   } catch {
     return null
   }
+}
+
+export async function createAdminSession(admin: {
+  id: bigint
+  role: string
+  name: string
+  email: string
+}): Promise<void> {
+  const jar = await cookies()
+  const sessionData = JSON.stringify({
+    adminId: admin.id.toString(),
+    role: admin.role,
+    name: admin.name,
+    email: admin.email,
+    exp: getDailySessionExpiresAt(),
+  })
+
+  jar.set(ADMIN_COOKIE_NAME, sessionData, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: getDailySessionMaxAge(),
+    path: '/',
+  })
 }
 
 /**

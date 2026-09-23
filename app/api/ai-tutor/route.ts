@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { callGeminiWithRetry } from '@/lib/ai-with-retry'
+import { prisma } from '@/lib/prismaClient'
 import { getSubjectLabel } from '@/lib/subjects/config'
 import { buildStudentPrompt, normaliseGrade } from '@/lib/ai-prompt-builder'
 
@@ -60,6 +61,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as {
       query?: string
+      childId?: string
       grade?: string
       board?: string
       subject?: string
@@ -87,6 +89,15 @@ export async function POST(request: NextRequest) {
     const includeDiagrams = Boolean(body.includeDiagrams)
     const showSteps = Boolean(body.showSteps)
     const citeSources = Boolean(body.citeSources)
+
+    const childId = String(body.childId ?? request.headers.get('x-user-id') ?? '').trim()
+    const prefs = childId
+      ? await prisma.studentPreferences.findUnique({
+          where: { childId },
+          select: { responseLanguage: true },
+        })
+      : null
+    const responseLanguage = prefs?.responseLanguage ?? 'en'
 
     const subjectLabel = getSubjectLabel(subject) || subject
 
@@ -132,6 +143,7 @@ export async function POST(request: NextRequest) {
       topic: subjectLabel,
       taskType: 'RESEARCH',
       query,
+      responseLanguage,
     })
 
     const result = await callGeminiWithRetry(prompt, 2000)

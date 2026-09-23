@@ -19,6 +19,46 @@ import { buildStudentPrompt, normaliseGrade } from '@/lib/ai-prompt-builder'
 
 const LLM_TIMEOUT_MS = 45000;
 
+function extractJsonObject(raw: string): string {
+  const text = String(raw ?? '').replace(/^\uFEFF/, '').trim();
+  if (!text) throw new Error('Empty response');
+
+  const withoutFences = text
+    .replace(/^```(?:json)?\s*/i, '')
+    .replace(/\s*```\s*$/i, '')
+    .trim();
+
+  const candidates = [withoutFences, text];
+  for (const candidate of candidates) {
+    const start = candidate.search(/[\[{]/);
+    if (start === -1) continue;
+    const firstChar = candidate[start];
+    const end = candidate.lastIndexOf(firstChar === '[' ? ']' : '}');
+    if (end > start) {
+      const cleaned = candidate
+        .slice(start, end + 1)
+        .replace(/,\s*([}\]])/g, '$1')
+        .replace(/([{,]\s*)([A-Za-z0-9_]+)\s*:/g, '$1"$2":')
+        .replace(/:\s*'([^'\\]*(?:\\.[^'\\]*)*)'/g, ': "$1"')
+        .replace(/'([^'\\]*(?:\\.[^'\\]*)*)'/g, '"$1"');
+      return cleaned;
+    }
+  }
+
+  const braceStart = withoutFences.indexOf('{');
+  const braceEnd = withoutFences.lastIndexOf('}');
+  if (braceStart >= 0 && braceEnd > braceStart) {
+    return withoutFences
+      .slice(braceStart, braceEnd + 1)
+      .replace(/,\s*([}\]])/g, '$1')
+      .replace(/([{,]\s*)([A-Za-z0-9_]+)\s*:/g, '$1"$2":')
+      .replace(/:\s*'([^'\\]*(?:\\.[^'\\]*)*)'/g, ': "$1"')
+      .replace(/'([^'\\]*(?:\\.[^'\\]*)*)'/g, '"$1"');
+  }
+
+  throw new Error('No JSON object found in LLM response');
+}
+
 function normaliseQuestionType(raw: string): string {
   const map: Record<string, string> = {
     mcq: 'MCQ',
@@ -99,12 +139,17 @@ export async function POST(request: NextRequest) {
 
     const grade = child?.grade ?? 10;
     const board = child?.curriculum ?? 'CBSE';
+    const prefs = await (prisma as any).studentPreferences.findUnique({
+      where: { childId },
+      select: { responseLanguage: true },
+    })
+    const responseLanguage = typeof prefs?.responseLanguage === 'string' ? prefs.responseLanguage : 'en'
     const subjectLabel = getSubjectLabel(String(subject)) ?? String(subject ?? 'General');
     const difficulty = String(complexity ?? 'medium').toLowerCase();
     const questionCount =
       (body as any).questionCount ??
       (body as any).numQuestions ??
-      (complexity === 'Easy' ? 5 : complexity === 'Medium' ? 8 : 10);
+      (complexity === 'Easy' ? 25 : complexity === 'Medium' ? 15 : 12);
 
     const prompt = buildStudentPrompt({
       grade: normaliseGrade(grade),
@@ -114,16 +159,17 @@ export async function POST(request: NextRequest) {
       taskType: 'PRACTICE',
       difficulty: difficulty === 'easy' || difficulty === 'hard' ? difficulty : 'medium',
       questionCount,
+      responseLanguage,
     });
 
     // ── Rate limit check ──────────────────────
-    const rl = await checkRateLimit(request, 'RESEARCH', childId)
+    const rl = await checkRateLimit(request, 'PRACTICE', childId)
     if (!rl.allowed) {
       return NextResponse.json(
         {
-          error: 'RATE_LIMIT_EXCEEDED',
+          error: 'RATE LIMIT EXCEEDED',
           message: rl.message,
-          feature: 'RESEARCH',
+          feature: 'PRACTICE',
           retryAfterSecs: rl.retryAfterSecs,
         },
         {
@@ -147,42 +193,39 @@ export async function POST(request: NextRequest) {
 
     if (cachedResponse) {
       try {
-        const stripped = cachedResponse.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim();
-        const jsonMatch = stripped.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          const parsed = JSON.parse(jsonMatch[0]);
-          if (parsed.title && parsed.topic && Array.isArray(parsed.questions) && parsed.questions.length > 0) {
-            parsed.questions = parsed.questions.map((q: any) => ({ ...q, type: normaliseQuestionType(q.type) }));
+        const cleaned = extractJsonObject(cachedResponse);
+        const parsed = JSON.parse(cleaned);
+        if (parsed.title && parsed.topic && Array.isArray(parsed.questions) && parsed.questions.length > 0) {
+          parsed.questions = parsed.questions.map((q: any) => ({ ...q, type: normaliseQuestionType(q.type) }));
 
-            const totalMarks: number = parsed.questions.reduce((sum: number, q: any) => sum + (q.marks || 0), 0);
+          const totalMarks: number = parsed.questions.reduce((sum: number, q: any) => sum + (q.marks || 0), 0);
 
-            const saved = await prisma.practiceTest.create({
-              data: {
-                childId,
-                subject,
-                topic: parsed.topic,
-                complexity,
-                questionsJson: JSON.stringify(parsed.questions),
-                totalMarks,
-                durationMins: parsed.duration_mins ?? 15,
-              },
-            });
-
-            const clientQuestions = parsed.questions.map((q: any) => {
-              const { correct_answer, hint, ...clientQ } = q;
-              return clientQ;
-            });
-
-            return NextResponse.json({
-              practiceTestId: saved.id.toString(),
-              title: parsed.title,
+          const saved = await prisma.practiceTest.create({
+            data: {
+              childId,
+              subject,
               topic: parsed.topic,
-              questions: clientQuestions,
+              complexity,
+              questionsJson: JSON.stringify(parsed.questions),
               totalMarks,
-              durationMins: saved.durationMins,
-              cached: true,
-            });
-          }
+              durationMins: parsed.duration_mins ?? 15,
+            },
+          });
+
+          const clientQuestions = parsed.questions.map((q: any) => {
+            const { correct_answer, hint, ...clientQ } = q;
+            return clientQ;
+          });
+
+          return NextResponse.json({
+            practiceTestId: saved.id.toString(),
+            title: parsed.title,
+            topic: parsed.topic,
+            questions: clientQuestions,
+            totalMarks,
+            durationMins: saved.durationMins,
+            cached: true,
+          });
         }
       } catch (e) {
         // fallthrough to live generation on any parse error
@@ -213,14 +256,8 @@ export async function POST(request: NextRequest) {
           `[Practice/Generate] model=${result.modelUsed} fallback=${result.usedFallback}`,
         );
 
-        const stripped = result.text
-          .replace(/^```(?:json)?\s*/i, '')
-          .replace(/\s*```\s*$/, '')
-          .trim();
-        const jsonMatch = stripped.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) { lastError = 'No JSON in response'; continue; }
-
-        const parsed = JSON.parse(jsonMatch[0]);
+        const cleaned = extractJsonObject(result.text);
+        const parsed = JSON.parse(cleaned);
         if (parsed.title && parsed.topic && Array.isArray(parsed.questions) && parsed.questions.length > 0) {
           parsed.questions = parsed.questions.map((q: any) => ({
             ...q,

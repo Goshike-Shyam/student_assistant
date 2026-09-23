@@ -1,28 +1,26 @@
 /**
  * STABILITY CONTRACT — read before editing this file
  *
- * [admin/layout.tsx]
- * - AdminSidebar renders HERE only — not in individual admin page components
- * - Adding sidebar to a page component will cause duplication
- * - /admin/login and /admin/accept-invite are PUBLIC — sidebar is hidden there
- * - Session guard is enforced by middleware.ts (sa-admin-session cookie)
+ * AdminSidebar renders here only. Public admin pages render without the shell.
+ * Session guard is enforced here as a second layer after middleware.
  */
-'use client';
-
-import { ReactNode } from 'react';
-import { usePathname } from 'next/navigation';
-import { AdminSidebar } from '@/components/ui/admin-sidebar';
+import { headers } from 'next/headers'
+import { redirect } from 'next/navigation'
+import { ReactNode } from 'react'
+import { AdminSidebar } from '@/components/ui/admin-sidebar'
+import { getAdminSession } from '@/lib/admin-auth'
 
 interface AdminLayoutProps {
-  children: ReactNode;
+  children: ReactNode
 }
 
-export default function AdminLayout({ children }: AdminLayoutProps) {
-  const pathname = usePathname();
-  const isPublicAdminPage =
-    pathname === '/admin/login' || pathname.startsWith('/admin/accept-invite');
+const PUBLIC_ADMIN_PATHS = ['/admin/login', '/admin/accept-invite']
 
-  // Public pages (login, accept-invite) render without sidebar
+export default async function AdminLayout({ children }: AdminLayoutProps) {
+  const headerList = await headers()
+  const pathname = headerList.get('x-pathname') ?? ''
+  const isPublicAdminPage = PUBLIC_ADMIN_PATHS.some((path) => pathname.startsWith(path))
+
   if (isPublicAdminPage) {
     return (
       <>
@@ -34,7 +32,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         </a>
         <div id="main-content">{children}</div>
       </>
-    );
+    )
+  }
+
+  const session = await getAdminSession()
+  if (!session) {
+    redirect('/admin/login')
   }
 
   return (
@@ -50,5 +53,5 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         {children}
       </main>
     </div>
-  );
+  )
 }

@@ -10,6 +10,7 @@ import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/ca
 export default function ProfilePage() {
   const [session, setSession] = useState<any>(null);
   const [status, setStatus] = useState<string | null>(null);
+  const [responseLanguage, setResponseLanguage] = useState('en');
 
   useEffect(() => {
     const loadSession = async () => {
@@ -25,6 +26,19 @@ export default function ProfilePage() {
     return () => {
       listener.subscription.unsubscribe();
     };
+  }, []);
+
+  useEffect(() => {
+    const loadPreferences = async () => {
+      const childId = localStorage.getItem('userId');
+      if (!childId) return;
+
+      const response = await fetch(`/api/student/preferences?childId=${encodeURIComponent(childId)}`);
+      const data = await response.json().catch(() => ({}));
+      setResponseLanguage(data.responseLanguage ?? 'en');
+    };
+
+    loadPreferences().catch(() => {});
   }, []);
 
   const handleSignOut = async () => {
@@ -79,6 +93,12 @@ export default function ProfilePage() {
                   <p className="text-sm text-slate-500">Badges</p>
                   <p className="mt-3 text-2xl font-semibold text-slate-900">9</p>
                 </div>
+              </div>
+
+              <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                <p className="text-sm text-slate-500">Preferred response language</p>
+                <p className="mt-3 text-base font-semibold text-slate-900">{responseLanguage.toUpperCase()}</p>
+                <p className="mt-2 text-sm text-slate-600">Change this in Student Settings.</p>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">

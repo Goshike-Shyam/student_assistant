@@ -51,6 +51,7 @@ export default function SignupPage() {
   const boardMap: Record<string, string> = {
     CBSE: 'CBSE',
     ICSE: 'ICSE',
+    IGCSE: 'IGCSE',
     'State Board': 'STATE',
     'Common Core': 'COMMON_CORE',
   };
@@ -269,6 +270,7 @@ export default function SignupPage() {
                 }}>
                   <option>CBSE</option>
                   <option>ICSE</option>
+                  <option>IGCSE</option>
                   <option>State Board</option>
                   <option>Common Core</option>
                 </Select>

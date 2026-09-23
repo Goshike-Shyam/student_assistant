@@ -681,6 +681,7 @@ model StudentPreferences {
   comicTheme     String   @default("none") @map("comic_theme") @db.VarChar(30)
   avatarJson     String?  @map("avatar_json") @db.Text
   gamificationOn Boolean  @default(true) @map("gamification_on")
+  responseLanguage String   @default("en") @map("response_language") @db.VarChar(10)
   updatedAt      DateTime @updatedAt @map("updated_at")
 
   @@map("student_preferences")

@@ -8,10 +8,9 @@
  */
 import crypto from 'crypto'
 import { cookies } from 'next/headers'
+import { getDailySessionExpiresAt, getDailySessionMaxAge } from '@/lib/session-config'
 
 const COOKIE_NAME = 'sa-teacher-session'
-const SESSION_DAYS = 7
-
 export interface TeacherSessionPayload {
   teacherId: string
   name: string
@@ -77,7 +76,7 @@ export async function createTeacherSession(teacher: {
   name: string
   email: string
 }): Promise<void> {
-  const exp = Math.floor(Date.now() / 1000) + SESSION_DAYS * 24 * 60 * 60
+  const exp = getDailySessionExpiresAt()
   const token = signToken({
     teacherId: teacher.id.toString(),
     name: teacher.name,
@@ -89,7 +88,7 @@ export async function createTeacherSession(teacher: {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
-    maxAge: SESSION_DAYS * 24 * 60 * 60,
+    maxAge: getDailySessionMaxAge(),
     path: '/',
   })
 }

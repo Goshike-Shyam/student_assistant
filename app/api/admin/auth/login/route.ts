@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prismaClient'
-import { comparePassword } from '@/lib/admin-auth'
+import { comparePassword, createAdminSession } from '@/lib/admin-auth'
 
 const RATE_LIMIT_ATTEMPTS = 5
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000 // 15 minutes
@@ -117,14 +117,6 @@ export async function POST(request: NextRequest) {
       data: { lastLogin: new Date() },
     })
 
-    // Create admin session cookie
-    const sessionData = JSON.stringify({
-      adminId: admin.id.toString(),
-      role: admin.role,
-      name: admin.name,
-      email: admin.email,
-    })
-
     const response = NextResponse.json(
       {
         message: 'Login successful',
@@ -138,13 +130,11 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     )
 
-    // Set secure admin session cookie
-    response.cookies.set('sa-admin-session', sessionData, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 24 * 60 * 60, // 24 hours
-      path: '/',
+    await createAdminSession({
+      id: admin.id,
+      role: admin.role,
+      name: admin.name,
+      email: admin.email,
     })
 
     return response

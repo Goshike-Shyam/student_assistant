@@ -9,6 +9,7 @@ import { ComicBackground } from '@/components/gamification/ComicBackground'
 import { SubjectSelector } from '@/components/shared/SubjectSelector'
 import { COMIC_THEMES, DASHBOARD_THEMES, GAMIFICATION_ENABLED } from '@/lib/gamification/config'
 import type { ComicThemeId } from '@/lib/gamification/config'
+import { SUPPORTED_LANGUAGES } from '@/lib/ai-prompt-builder'
 
 interface Prefs {
   dashboardTheme: string
@@ -16,6 +17,7 @@ interface Prefs {
   avatarJson: AvatarConfig
   gamificationOn: boolean
   subjects: string[]
+  responseLanguage: string
 }
 
 const DEFAULT_PREFS: Prefs = {
@@ -24,6 +26,7 @@ const DEFAULT_PREFS: Prefs = {
   avatarJson: DEFAULT_AVATAR,
   gamificationOn: true,
   subjects: [],
+  responseLanguage: 'en',
 }
 
 function LinkParentSection({ isLinked, onLinked }: { isLinked: boolean; onLinked: () => void }) {
@@ -143,6 +146,7 @@ export default function StudentSettingsPage() {
           avatarJson: prefsData.avatarJson ?? DEFAULT_AVATAR,
           gamificationOn: prefsData.gamificationOn ?? true,
           subjects: Array.isArray(prefsData.subjects) ? prefsData.subjects : [],
+          responseLanguage: prefsData.responseLanguage ?? 'en',
         })
         setIsLinked(!!profileData.parentLinked)
         document.documentElement.setAttribute('data-gtheme', prefsData.dashboardTheme ?? 'classic')
@@ -222,6 +226,7 @@ export default function StudentSettingsPage() {
               >
                 <option value="CBSE">CBSE</option>
                 <option value="ICSE">ICSE</option>
+                <option value="IGCSE">IGCSE</option>
                 <option value="STATE">State Board</option>
                 <option value="COMMON_CORE">Common Core</option>
               </select>
@@ -315,6 +320,28 @@ export default function StudentSettingsPage() {
                 }`}
               >
                 <span className="mr-1" aria-hidden="true">{t.emoji}</span>
+
+            <section aria-labelledby="lang-heading" className="rounded-2xl border border-slate-200 bg-white/95 p-6 shadow-sm">
+              <h2 id="lang-heading" className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-gray-900 dark:text-gray-100">🌐 Response Language</h2>
+              <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-800">
+                <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">Choose the language for AI responses. You can ask questions in any language - answers will come in your chosen language.</p>
+                <label htmlFor="response-language" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Response Language</label>
+                <select
+                  id="response-language"
+                  value={prefs.responseLanguage}
+                  onChange={(event) => setPrefs((prev) => ({ ...prev, responseLanguage: event.target.value }))}
+                  className="min-h-[44px] w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100"
+                  aria-label="Choose response language"
+                >
+                  {Object.entries(SUPPORTED_LANGUAGES).map(([code, language]) => (
+                    <option key={code} value={code}>
+                      {language.nativeName} — {language.name}
+                    </option>
+                  ))}
+                </select>
+                <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">All content safety and curriculum rules apply in all languages.</p>
+              </div>
+            </section>
                 {t.label}
               </button>
             ))}

@@ -11,7 +11,7 @@ export type Stream =
   | 'LANGUAGES'
   | 'ALL'
 
-export type Board = 'CBSE' | 'ICSE' | 'STATE' | 'COMMON_CORE'
+export type Board = 'CBSE' | 'ICSE' | 'IGCSE' | 'STATE' | 'COMMON_CORE'
 
 export interface Subject {
   id: string
@@ -119,6 +119,73 @@ export const SUBJECT_CATALOGUE: Subject[] = [
   { id: 'physical_education', label: 'Physical Education', bands: ['PRIMARY', 'MIDDLE', 'SECONDARY', 'INTERMEDIATE'], boards: ['CBSE', 'ICSE', 'STATE'], streams: ['ALL'], group: 'Vocational' },
   { id: 'fine_arts_11', label: 'Fine Arts / Drawing', bands: ['SECONDARY', 'INTERMEDIATE'], boards: ['CBSE', 'ICSE', 'STATE'], streams: ['HUMANITIES'], group: 'Vocational' },
   { id: 'music_11', label: 'Music', bands: ['INTERMEDIATE'], boards: ['CBSE', 'STATE'], streams: ['HUMANITIES'], group: 'Vocational' },
+
+  { id: 'igcse_math', label: 'Mathematics', bands: ['MIDDLE', 'SECONDARY'], boards: ['IGCSE'], streams: ['ALL'], group: 'Mathematics' },
+  { id: 'igcse_extended_math', label: 'Extended Mathematics', bands: ['SECONDARY'], boards: ['IGCSE'], streams: ['ALL'], group: 'Mathematics' },
+  { id: 'igcse_add_math', label: 'Additional Mathematics', bands: ['SECONDARY'], boards: ['IGCSE'], streams: ['ALL'], group: 'Mathematics' },
+  { id: 'igcse_english_first', label: 'English as a First Language', bands: ['MIDDLE', 'SECONDARY'], boards: ['IGCSE'], streams: ['ALL'], group: 'Languages' },
+  { id: 'igcse_english_second', label: 'English as a Second Language', bands: ['MIDDLE', 'SECONDARY'], boards: ['IGCSE'], streams: ['ALL'], group: 'Languages' },
+  { id: 'igcse_physics', label: 'Physics', bands: ['MIDDLE', 'SECONDARY'], boards: ['IGCSE'], streams: ['ALL'], group: 'Science' },
+  { id: 'igcse_chemistry', label: 'Chemistry', bands: ['MIDDLE', 'SECONDARY'], boards: ['IGCSE'], streams: ['ALL'], group: 'Science' },
+  { id: 'igcse_biology', label: 'Biology', bands: ['MIDDLE', 'SECONDARY'], boards: ['IGCSE'], streams: ['ALL'], group: 'Science' },
+  { id: 'igcse_combined_science', label: 'Combined Science', bands: ['MIDDLE', 'SECONDARY'], boards: ['IGCSE'], streams: ['ALL'], group: 'Science' },
+  { id: 'igcse_coord_science', label: 'Co-ordinated Sciences', bands: ['SECONDARY'], boards: ['IGCSE'], streams: ['ALL'], group: 'Science' },
+  { id: 'igcse_history', label: 'History', bands: ['MIDDLE', 'SECONDARY'], boards: ['IGCSE'], streams: ['ALL'], group: 'Humanities' },
+  { id: 'igcse_geography', label: 'Geography', bands: ['MIDDLE', 'SECONDARY'], boards: ['IGCSE'], streams: ['ALL'], group: 'Humanities' },
+  { id: 'igcse_economics', label: 'Economics', bands: ['SECONDARY'], boards: ['IGCSE'], streams: ['ALL'], group: 'Humanities' },
+  { id: 'igcse_business', label: 'Business Studies', bands: ['SECONDARY'], boards: ['IGCSE'], streams: ['ALL'], group: 'Humanities' },
+  { id: 'igcse_accounting', label: 'Accounting', bands: ['SECONDARY'], boards: ['IGCSE'], streams: ['ALL'], group: 'Humanities' },
+  { id: 'igcse_sociology', label: 'Sociology', bands: ['SECONDARY'], boards: ['IGCSE'], streams: ['ALL'], group: 'Humanities' },
+  { id: 'igcse_computer_science', label: 'Computer Science', bands: ['MIDDLE', 'SECONDARY'], boards: ['IGCSE'], streams: ['ALL'], group: 'Science' },
+  { id: 'igcse_ict', label: 'Information & Communication Technology', bands: ['MIDDLE', 'SECONDARY'], boards: ['IGCSE'], streams: ['ALL'], group: 'Science' },
+  { id: 'igcse_art', label: 'Art & Design', bands: ['MIDDLE', 'SECONDARY'], boards: ['IGCSE'], streams: ['ALL'], group: 'Vocational' },
+  { id: 'igcse_music', label: 'Music', bands: ['MIDDLE', 'SECONDARY'], boards: ['IGCSE'], streams: ['ALL'], group: 'Vocational' },
+  { id: 'igcse_drama', label: 'Drama', bands: ['MIDDLE', 'SECONDARY'], boards: ['IGCSE'], streams: ['ALL'], group: 'Vocational' },
+  { id: 'igcse_physical_ed', label: 'Physical Education', bands: ['MIDDLE', 'SECONDARY'], boards: ['IGCSE'], streams: ['ALL'], group: 'Vocational' },
+  { id: 'igcse_environmental', label: 'Environmental Management', bands: ['SECONDARY'], boards: ['IGCSE'], streams: ['ALL'], group: 'Science' },
+  { id: 'igcse_global_perspectives', label: 'Global Perspectives', bands: ['MIDDLE', 'SECONDARY'], boards: ['IGCSE'], streams: ['ALL'], group: 'Humanities' },
+
+  { id: 'igcse_hindi', label: 'Hindi as a Foreign Language', bands: ['MIDDLE', 'SECONDARY'], boards: ['IGCSE'], streams: ['ALL'], group: 'Languages' },
+  { id: 'igcse_french', label: 'French as a Foreign Language', bands: ['MIDDLE', 'SECONDARY'], boards: ['IGCSE'], streams: ['ALL'], group: 'Languages' },
+  { id: 'igcse_telugu', label: 'Telugu as a Foreign Language', bands: ['MIDDLE', 'SECONDARY'], boards: ['IGCSE'], streams: ['ALL'], group: 'Languages' },
+  { id: 'igcse_tamil', label: 'Tamil as a Foreign Language', bands: ['MIDDLE', 'SECONDARY'], boards: ['IGCSE'], streams: ['ALL'], group: 'Languages' },
+  { id: 'igcse_spanish', label: 'Spanish as a Foreign Language', bands: ['MIDDLE', 'SECONDARY'], boards: ['IGCSE'], streams: ['ALL'], group: 'Languages' },
+  { id: 'igcse_arabic', label: 'Arabic as a Foreign Language', bands: ['MIDDLE', 'SECONDARY'], boards: ['IGCSE'], streams: ['ALL'], group: 'Languages' },
+  { id: 'igcse_chinese', label: 'Chinese as a Foreign Language', bands: ['MIDDLE', 'SECONDARY'], boards: ['IGCSE'], streams: ['ALL'], group: 'Languages' },
+
+  { id: 'alevel_math', label: 'A-Level Mathematics', bands: ['INTERMEDIATE'], boards: ['IGCSE'], streams: ['SCIENCE', 'COMMERCE'], group: 'Mathematics' },
+  { id: 'alevel_further_math', label: 'A-Level Further Mathematics', bands: ['INTERMEDIATE'], boards: ['IGCSE'], streams: ['SCIENCE'], group: 'Mathematics' },
+  { id: 'alevel_physics', label: 'A-Level Physics', bands: ['INTERMEDIATE'], boards: ['IGCSE'], streams: ['SCIENCE'], group: 'Science' },
+  { id: 'alevel_chemistry', label: 'A-Level Chemistry', bands: ['INTERMEDIATE'], boards: ['IGCSE'], streams: ['SCIENCE'], group: 'Science' },
+  { id: 'alevel_biology', label: 'A-Level Biology', bands: ['INTERMEDIATE'], boards: ['IGCSE'], streams: ['SCIENCE'], group: 'Science' },
+  { id: 'alevel_cs', label: 'A-Level Computer Science', bands: ['INTERMEDIATE'], boards: ['IGCSE'], streams: ['SCIENCE'], group: 'Science' },
+  { id: 'alevel_economics', label: 'A-Level Economics', bands: ['INTERMEDIATE'], boards: ['IGCSE'], streams: ['COMMERCE', 'HUMANITIES'], group: 'Humanities' },
+  { id: 'alevel_business', label: 'A-Level Business', bands: ['INTERMEDIATE'], boards: ['IGCSE'], streams: ['COMMERCE'], group: 'Humanities' },
+  { id: 'alevel_accounting', label: 'A-Level Accounting', bands: ['INTERMEDIATE'], boards: ['IGCSE'], streams: ['COMMERCE'], group: 'Humanities' },
+  { id: 'alevel_history', label: 'A-Level History', bands: ['INTERMEDIATE'], boards: ['IGCSE'], streams: ['HUMANITIES'], group: 'Humanities' },
+  { id: 'alevel_geography', label: 'A-Level Geography', bands: ['INTERMEDIATE'], boards: ['IGCSE'], streams: ['HUMANITIES', 'SCIENCE'], group: 'Humanities' },
+  { id: 'alevel_english_lit', label: 'A-Level English Literature', bands: ['INTERMEDIATE'], boards: ['IGCSE'], streams: ['HUMANITIES', 'LANGUAGES'], group: 'Languages' },
+  { id: 'alevel_english_lang', label: 'A-Level English Language', bands: ['INTERMEDIATE'], boards: ['IGCSE'], streams: ['HUMANITIES', 'LANGUAGES'], group: 'Languages' },
+  { id: 'alevel_psychology', label: 'A-Level Psychology', bands: ['INTERMEDIATE'], boards: ['IGCSE'], streams: ['SCIENCE', 'HUMANITIES'], group: 'Humanities' },
+  { id: 'alevel_sociology', label: 'A-Level Sociology', bands: ['INTERMEDIATE'], boards: ['IGCSE'], streams: ['HUMANITIES'], group: 'Humanities' },
+  { id: 'alevel_law', label: 'A-Level Law', bands: ['INTERMEDIATE'], boards: ['IGCSE'], streams: ['HUMANITIES'], group: 'Humanities' },
+  { id: 'alevel_art', label: 'A-Level Art & Design', bands: ['INTERMEDIATE'], boards: ['IGCSE'], streams: ['HUMANITIES'], group: 'Vocational' },
+
+  { id: 'marathi_primary', label: 'Marathi', bands: ['PRIMARY', 'MIDDLE', 'SECONDARY'], boards: ['CBSE', 'STATE'], streams: ['ALL'], group: 'Languages' },
+  { id: 'marathi_11', label: 'Marathi', bands: ['INTERMEDIATE'], boards: ['CBSE', 'STATE'], streams: ['LANGUAGES', 'HUMANITIES'], group: 'Languages' },
+  { id: 'odia_primary', label: 'Odia', bands: ['PRIMARY', 'MIDDLE', 'SECONDARY'], boards: ['CBSE', 'STATE'], streams: ['ALL'], group: 'Languages' },
+  { id: 'odia_11', label: 'Odia', bands: ['INTERMEDIATE'], boards: ['CBSE', 'STATE'], streams: ['LANGUAGES', 'HUMANITIES'], group: 'Languages' },
+  { id: 'malayalam_primary', label: 'Malayalam', bands: ['PRIMARY', 'MIDDLE', 'SECONDARY'], boards: ['CBSE', 'STATE'], streams: ['ALL'], group: 'Languages' },
+  { id: 'malayalam_11', label: 'Malayalam', bands: ['INTERMEDIATE'], boards: ['CBSE', 'STATE'], streams: ['LANGUAGES', 'HUMANITIES'], group: 'Languages' },
+  { id: 'bengali_primary', label: 'Bengali', bands: ['PRIMARY', 'MIDDLE', 'SECONDARY'], boards: ['CBSE', 'ICSE', 'STATE'], streams: ['ALL'], group: 'Languages' },
+  { id: 'bengali_11', label: 'Bengali', bands: ['INTERMEDIATE'], boards: ['CBSE', 'ICSE', 'STATE'], streams: ['LANGUAGES', 'HUMANITIES'], group: 'Languages' },
+  { id: 'gujarati_primary', label: 'Gujarati', bands: ['PRIMARY', 'MIDDLE', 'SECONDARY'], boards: ['CBSE', 'STATE'], streams: ['ALL'], group: 'Languages' },
+  { id: 'gujarati_11', label: 'Gujarati', bands: ['INTERMEDIATE'], boards: ['CBSE', 'STATE'], streams: ['LANGUAGES', 'HUMANITIES'], group: 'Languages' },
+  { id: 'punjabi_primary', label: 'Punjabi', bands: ['PRIMARY', 'MIDDLE', 'SECONDARY'], boards: ['CBSE', 'STATE'], streams: ['ALL'], group: 'Languages' },
+  { id: 'punjabi_11', label: 'Punjabi', bands: ['INTERMEDIATE'], boards: ['CBSE', 'STATE'], streams: ['LANGUAGES', 'HUMANITIES'], group: 'Languages' },
+  { id: 'french_igcse_school', label: 'French', bands: ['MIDDLE', 'SECONDARY', 'INTERMEDIATE'], boards: ['CBSE', 'ICSE', 'IGCSE'], streams: ['ALL'], group: 'Languages' },
+  { id: 'german_igcse_school', label: 'German', bands: ['MIDDLE', 'SECONDARY', 'INTERMEDIATE'], boards: ['CBSE', 'ICSE', 'IGCSE'], streams: ['ALL'], group: 'Languages' },
+  { id: 'spanish_school', label: 'Spanish', bands: ['MIDDLE', 'SECONDARY', 'INTERMEDIATE'], boards: ['CBSE', 'IGCSE'], streams: ['ALL'], group: 'Languages' },
 ]
 
 export function getGradeBand(grade: string | number): GradeBand {
@@ -132,9 +199,10 @@ export function getGradeBand(grade: string | number): GradeBand {
 
 export function normaliseBoard(board: string): Board {
   const value = board.toUpperCase().trim()
+  if (value.includes('IGCSE') || value.includes('CAMBRIDGE') || value.includes('CIE')) return 'IGCSE'
   if (value.includes('ICSE')) return 'ICSE'
-  if (value.includes('COMMON') || value.includes('CORE')) return 'COMMON_CORE'
-  if (value.includes('STATE')) return 'STATE'
+  if (value.includes('COMMON') || value.includes('CORE') || value.includes('CC')) return 'COMMON_CORE'
+  if (value.includes('STATE') || value.includes('AP') || value.includes('TS') || value.includes('MH') || value.includes('KA') || value.includes('TN')) return 'STATE'
   return 'CBSE'
 }
 
