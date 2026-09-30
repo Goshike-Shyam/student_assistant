@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Eye, EyeOff, GraduationCap } from 'lucide-react'
+import { GraduationCap } from 'lucide-react'
+import { PasswordInput } from '@/components/shared/PasswordInput'
 
 function PasswordStrengthBar({ password }: { password: string }) {
   const checks = [
@@ -49,8 +50,6 @@ export default function TeacherRegisterPage() {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirm, setShowConfirm] = useState(false)
 
   function updateField(field: string, value: string) {
     setForm((f) => ({ ...f, [field]: value }))
@@ -202,38 +201,22 @@ export default function TeacherRegisterPage() {
               <label htmlFor="t-pw" className="block text-sm font-semibold text-gray-700 mb-1.5">
                 Password <span aria-hidden="true" className="text-red-500">*</span>
               </label>
-              <div className="relative">
-                <input
-                  id="t-pw"
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete="new-password"
-                  value={form.password}
-                  onChange={(e) => updateField('password', e.target.value)}
-                  aria-required="true"
-                  aria-describedby={errors.password ? 't-pw-err' : 't-pw-hint'}
-                  aria-invalid={!!errors.password}
-                  className={`w-full px-4 py-2.5 border rounded-lg text-gray-900 pr-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006e2f] ${errors.password ? 'border-red-400' : 'border-gray-300'}`}
-                  placeholder="Min. 12 characters"
-                  disabled={loading}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((v) => !v)}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006e2f] rounded"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" aria-hidden="true" /> : <Eye className="w-4 h-4" aria-hidden="true" />}
-                </button>
-              </div>
+              <PasswordInput
+                id="t-pw"
+                autoComplete="new-password"
+                value={form.password}
+                onChange={(e) => updateField('password', e.target.value)}
+                aria-required="true"
+                aria-describedby={errors.password ? undefined : 't-pw-hint'}
+                placeholder="Min. 12 characters"
+                disabled={loading}
+                error={errors.password}
+                className={`w-full px-4 py-2.5 border rounded-lg text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006e2f] ${errors.password ? 'border-red-400' : 'border-gray-300'}`}
+              />
               <p id="t-pw-hint" className="sr-only">
                 Must be at least 12 characters with uppercase, number and symbol
               </p>
               <PasswordStrengthBar password={form.password} />
-              {errors.password && (
-                <p id="t-pw-err" role="alert" className="mt-1 text-xs text-red-600">
-                  {errors.password}
-                </p>
-              )}
             </div>
 
             {/* Confirm Password */}
@@ -241,34 +224,17 @@ export default function TeacherRegisterPage() {
               <label htmlFor="t-cpw" className="block text-sm font-semibold text-gray-700 mb-1.5">
                 Confirm Password <span aria-hidden="true" className="text-red-500">*</span>
               </label>
-              <div className="relative">
-                <input
-                  id="t-cpw"
-                  type={showConfirm ? 'text' : 'password'}
-                  autoComplete="new-password"
-                  value={form.confirmPassword}
-                  onChange={(e) => updateField('confirmPassword', e.target.value)}
-                  aria-required="true"
-                  aria-describedby={errors.confirmPassword ? 't-cpw-err' : undefined}
-                  aria-invalid={!!errors.confirmPassword}
-                  className={`w-full px-4 py-2.5 border rounded-lg text-gray-900 pr-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006e2f] ${errors.confirmPassword ? 'border-red-400' : 'border-gray-300'}`}
-                  placeholder="Re-enter password"
-                  disabled={loading}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirm((v) => !v)}
-                  aria-label={showConfirm ? 'Hide confirm password' : 'Show confirm password'}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006e2f] rounded"
-                >
-                  {showConfirm ? <EyeOff className="w-4 h-4" aria-hidden="true" /> : <Eye className="w-4 h-4" aria-hidden="true" />}
-                </button>
-              </div>
-              {errors.confirmPassword && (
-                <p id="t-cpw-err" role="alert" className="mt-1 text-xs text-red-600">
-                  {errors.confirmPassword}
-                </p>
-              )}
+              <PasswordInput
+                id="t-cpw"
+                autoComplete="new-password"
+                value={form.confirmPassword}
+                onChange={(e) => updateField('confirmPassword', e.target.value)}
+                aria-required="true"
+                placeholder="Re-enter password"
+                disabled={loading}
+                error={errors.confirmPassword}
+                className={`w-full px-4 py-2.5 border rounded-lg text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006e2f] ${errors.confirmPassword ? 'border-red-400' : 'border-gray-300'}`}
+              />
             </div>
 
             {/* School Name */}

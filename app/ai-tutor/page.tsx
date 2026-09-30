@@ -10,6 +10,7 @@ import { Select } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useState, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
+import { getSubjectLabel } from '@/lib/subjects/config';
 
 type TutorFormat = 'summary' | 'step-by-step' | 'flashcards'
 type TutorDepth = 'simple' | 'medium' | 'detailed'
@@ -72,6 +73,7 @@ export default function AiTutorPage() {
   const [confidence, setConfidence] = useState<number | null>(null)
   const [flashcards, setFlashcards] = useState<Array<{ front: string; back: string }>>([])
   const [sources, setSources] = useState<string[]>([])
+  const [relatedResources, setRelatedResources] = useState<Array<{ label: string; type: 'practice' | 'topic' | 'quiz' }>>([])
 
   useEffect(() => {
     const childId = localStorage.getItem('userId')
@@ -99,6 +101,27 @@ export default function AiTutorPage() {
     setQuickActions((prev) =>
       prev.includes(action) ? prev.filter((item) => item !== action) : [...prev, action],
     )
+  }
+
+  function generateRelatedResources(currentSubject: string, currentTopic: string, queryText: string) {
+    const subjectLabel = getSubjectLabel(currentSubject) ?? currentSubject
+    const normalizedTopic = (currentTopic || queryText || subjectLabel).trim()
+    const topicLabel = normalizedTopic || subjectLabel
+
+    setRelatedResources([
+      {
+        label: `Practice quiz: ${topicLabel}`,
+        type: 'quiz',
+      },
+      {
+        label: `Explore more: ${subjectLabel} concepts`,
+        type: 'topic',
+      },
+      {
+        label: `Test yourself on ${topicLabel}`,
+        type: 'practice',
+      },
+    ])
   }
 
   async function requestTutorResponse(overrideTab?: TutorTab) {
@@ -142,11 +165,13 @@ export default function AiTutorPage() {
       setConfidence(typeof data.confidence === 'number' ? data.confidence : null)
       setFlashcards(Array.isArray(data.flashcards) ? data.flashcards : [])
       setSources(Array.isArray(data.sources) ? data.sources : [])
+      generateRelatedResources(subject, query.trim(), query)
     } catch (err: any) {
       setResponseText('Failed to get response. Try again.')
       setConfidence(null)
       setFlashcards([])
       setSources([])
+      setRelatedResources([])
     } finally {
       setLoading(false)
     }
@@ -168,6 +193,7 @@ export default function AiTutorPage() {
       return
     }
 
+    setRelatedResources([])
     setResponseHeader(buildHeader(format, query))
     await requestTutorResponse(overrideTab)
   }
@@ -229,7 +255,15 @@ export default function AiTutorPage() {
                 </div>
                 <div>
                   <Label htmlFor="subject">Subject</Label>
-                  <Select id="subject" value={subject} onChange={(e) => setSubject(e.target.value)} className="mt-2">
+                  <Select
+                    id="subject"
+                    value={subject}
+                    onChange={(e) => {
+                      setSubject(e.target.value)
+                      setRelatedResources([])
+                    }}
+                    className="mt-2"
+                  >
                     <option>Mathematics</option>
                     <option>Science</option>
                     <option>English</option>
@@ -422,11 +456,33 @@ export default function AiTutorPage() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="rounded-[1.75rem] border border-slate-200/80 bg-slate-50 p-5">
                 <p className="text-sm font-semibold text-slate-900">Related resources</p>
-                <div className="mt-4 space-y-3">
-                  {['Solve for x: x^2 - 7x + 10 = 0', 'Practice quiz: quadratic factoring'].map((text) => (
-                    <div key={text} className="rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700">{text}</div>
-                  ))}
-                </div>
+                {relatedResources.length > 0 ? (
+                  <div className="mt-4 space-y-2">
+                    {relatedResources.map((resource, index) => (
+                      <button
+                        key={`${resource.type}-${index}`}
+                        type="button"
+                        onClick={() => {
+                          if (resource.type === 'quiz' || resource.type === 'practice') {
+                            window.location.href = '/practice'
+                            return
+                          }
+                          window.location.href = '/research'
+                        }}
+                        className="min-h-[44px] w-full rounded-lg border border-gray-200 px-3 py-2.5 text-left text-sm text-gray-700 transition-colors hover:border-blue-300 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-slate-600 dark:text-gray-300 dark:hover:border-blue-600 dark:hover:bg-slate-700"
+                        aria-label={resource.label}
+                      >
+                        {resource.label}
+                      </button>
+                    ))}
+                  </div>
+                ) : responseText ? (
+                  <div className="mt-4 rounded-xl border border-dashed border-gray-200 bg-gray-50 p-4 text-center dark:border-slate-700 dark:bg-slate-800/50">
+                    <p className="text-xs text-gray-400 dark:text-gray-500">
+                      Submit a query to see related resources
+                    </p>
+                  </div>
+                ) : null}
               </div>
               <div className="rounded-[1.75rem] border border-slate-200/80 bg-slate-50 p-5">
                 <p className="text-sm font-semibold text-slate-900">Action center</p>

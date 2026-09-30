@@ -10,7 +10,7 @@ const STUDENT_NAV = [
   { href: '/assignments', icon: 'assignment',        label: 'Assignments' },
   { href: '/practice',    icon: 'auto_stories',      label: 'Practice' },
   { href: '/progress',    icon: 'insights',          label: 'Progress' },
-  { href: '/ai-tutor',    icon: 'headphones',        label: 'Podcasts' },
+  { href: '/ai-tutor',    icon: 'headphones',        label: 'AI Tutor' },
   { href: '/settings',    icon: 'tune',              label: 'Settings' },
 ];
 

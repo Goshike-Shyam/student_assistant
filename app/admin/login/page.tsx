@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { AppLogo } from '@/components/ui/app-logo'
+import { PasswordInput } from '@/components/shared/PasswordInput'
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('')
@@ -79,15 +80,15 @@ export default function AdminLogin() {
               <label htmlFor="admin-password" className="block text-sm font-semibold text-[#0b1c30] mb-2">
                 Password
               </label>
-              <input
+              <PasswordInput
                 id="admin-password"
-                type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 className="w-full px-4 py-2.5 border border-[#e5eeff] dark:border-slate-600 bg-white dark:bg-slate-900 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0058be] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 focus-visible:border-transparent text-[#0b1c30] dark:text-slate-100"
                 required
                 disabled={loading}
+                autoComplete="current-password"
               />
             </div>
 

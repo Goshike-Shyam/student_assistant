@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
+import { PasswordInput } from '@/components/shared/PasswordInput'
 
 function PasswordConfirmModal({
   open,
@@ -31,13 +32,13 @@ function PasswordConfirmModal({
         <label htmlFor="confirm-password" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
           Current password
         </label>
-        <input
+        <PasswordInput
           id="confirm-password"
-          type="password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
           className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100"
           placeholder="Enter current password"
+          autoComplete="current-password"
         />
 
         <div className="mt-5 flex justify-end gap-3">
@@ -237,13 +238,13 @@ export default function SettingsPage() {
               <label htmlFor="parent-new-password" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 New password
               </label>
-              <input
+              <PasswordInput
                 id="parent-new-password"
-                type="password"
                 value={newPassword}
                 onChange={(event) => setNewPassword(event.target.value)}
                 placeholder="Leave blank to keep current password"
                 className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100"
+                autoComplete="new-password"
               />
             </div>
           )}

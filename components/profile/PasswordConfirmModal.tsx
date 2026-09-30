@@ -1,7 +1,8 @@
 "use client"
 import { useState, useEffect, useRef } from 'react'
-import { Eye, EyeOff, Lock, X } from 'lucide-react'
+import { Lock, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { PasswordInput } from '@/components/shared/PasswordInput'
 
 interface Props {
   isOpen: boolean
@@ -12,7 +13,6 @@ interface Props {
 
 export function PasswordConfirmModal({ isOpen, onClose, onConfirmed, title = 'Confirm your password to save changes' }: Props) {
   const [password, setPassword] = useState('')
-  const [showPw, setShowPw] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -84,27 +84,18 @@ export function PasswordConfirmModal({ isOpen, onClose, onConfirmed, title = 'Co
           </button>
         </div>
 
-        <div className="relative mb-4">
-          <input
+        <div className="mb-4">
+          <PasswordInput
             ref={inputRef}
-            type={showPw ? 'text' : 'password'}
             value={password}
             onChange={(e) => { setPassword(e.target.value); setError('') }}
             onKeyDown={(e) => { if (e.key === 'Enter') handleConfirm() }}
             placeholder="Enter your password"
             autoComplete="current-password"
-            className={cn('w-full px-4 py-2.5 pr-11 border rounded-xl text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500', error ? 'border-red-400' : 'border-gray-300 dark:border-slate-600')}
-            aria-describedby={error ? 'pw-error' : undefined}
-            aria-invalid={!!error}
+            className={cn('w-full px-4 py-2.5 border rounded-xl text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500', error ? 'border-red-400' : 'border-gray-300 dark:border-slate-600')}
+            error={error}
           />
-          <button type="button" onClick={() => setShowPw((s) => !s)} aria-label={showPw ? 'Hide password' : 'Show password'} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded">
-            {showPw ? <EyeOff size={16} aria-hidden="true" /> : <Eye size={16} aria-hidden="true" />}
-          </button>
         </div>
-
-        {error && (
-          <p id="pw-error" className="text-xs text-red-600 dark:text-red-400 mb-4 -mt-2" role="alert">{error}</p>
-        )}
 
         <div className="flex gap-3">
           <button type="button" onClick={onClose} className="flex-1 px-4 py-2.5 rounded-xl border text-sm font-medium min-h-[44px] border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">Cancel</button>

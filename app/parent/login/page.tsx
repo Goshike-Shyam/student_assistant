@@ -1,12 +1,12 @@
 'use client'
 
-import { Eye, EyeOff, BookOpen } from 'lucide-react'
+import { BookOpen } from 'lucide-react'
 import { useState } from 'react'
+import { PasswordInput } from '@/components/shared/PasswordInput'
 
 export default function ParentLoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [showPw, setShowPw] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -77,25 +77,14 @@ export default function ParentLoginPage() {
               <label htmlFor="parent-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                 Password
               </label>
-              <div className="relative">
-                <input
-                  id="parent-password"
-                  type={showPw ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  autoComplete="current-password"
-                  required
-                  className="w-full px-4 py-2.5 pr-11 rounded-xl border text-sm min-h-[44px] bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPw((s) => !s)}
-                  aria-label={showPw ? 'Hide password' : 'Show password'}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded"
-                >
-                  {showPw ? <EyeOff size={16} aria-hidden="true" /> : <Eye size={16} aria-hidden="true" />}
-                </button>
-              </div>
+              <PasswordInput
+                id="parent-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+                required
+                className="w-full px-4 py-2.5 rounded-xl border text-sm min-h-[44px] bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              />
             </div>
 
             <button

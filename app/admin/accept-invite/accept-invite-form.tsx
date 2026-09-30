@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { PasswordInput } from '@/components/shared/PasswordInput'
 
 function getPasswordStrengthLevel(password: string): 'weak' | 'medium' | 'strong' {
   const hasUpper = /[A-Z]/.test(password)
@@ -88,14 +89,12 @@ export function AcceptInviteForm({ token }: AcceptInviteFormProps) {
     e.preventDefault()
     setError('')
 
-    // Validate password
     const errors = validatePassword(password)
     setPasswordErrors(errors)
     if (errors.length > 0) {
       return
     }
 
-    // Validate passwords match
     if (password !== confirmPassword) {
       setError('Passwords do not match')
       return
@@ -119,9 +118,8 @@ export function AcceptInviteForm({ token }: AcceptInviteFormProps) {
       }
 
       setSuccess(true)
-      // Redirect to dashboard after 2 seconds
       setTimeout(() => router.push('/admin/dashboard'), 2000)
-    } catch (err) {
+    } catch {
       setError('An unexpected error occurred')
       setSubmitting(false)
     }
@@ -193,7 +191,6 @@ export function AcceptInviteForm({ token }: AcceptInviteFormProps) {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f8f9ff] to-[#e5eeff] px-4">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-lg p-8 border border-[#e5eeff]">
-          {/* Header */}
           <div className="mb-8">
             <h1 className="qs font-bold text-2xl text-[#0b1c30] mb-1">Accept Invite</h1>
             <p className="text-[#6d7b6c] text-sm">
@@ -201,7 +198,6 @@ export function AcceptInviteForm({ token }: AcceptInviteFormProps) {
             </p>
           </div>
 
-          {/* Invite Details */}
           <div className="mb-6 p-4 bg-[#f8f9ff] rounded-lg border border-[#e5eeff]">
             <div className="space-y-2 text-sm">
               <div>
@@ -223,9 +219,7 @@ export function AcceptInviteForm({ token }: AcceptInviteFormProps) {
             </div>
           </div>
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Name Field */}
             <div>
               <label htmlFor="invite-name" className="block text-sm font-semibold text-[#0b1c30] mb-2">
                 Full Name
@@ -242,23 +236,21 @@ export function AcceptInviteForm({ token }: AcceptInviteFormProps) {
               />
             </div>
 
-            {/* Password Field */}
             <div>
               <label htmlFor="invite-password" className="block text-sm font-semibold text-[#0b1c30] mb-2">
                 Password
               </label>
-              <input
+              <PasswordInput
                 id="invite-password"
-                type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 className="w-full px-4 py-2.5 border border-[#e5eeff] rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0058be] focus-visible:ring-offset-2 focus-visible:border-transparent text-[#0b1c30]"
                 required
                 disabled={submitting}
+                autoComplete="new-password"
               />
 
-              {/* Password Strength Indicator */}
               {password && (
                 <div className="mt-3 space-y-2">
                   <div className="flex items-center gap-2">
@@ -272,13 +264,12 @@ export function AcceptInviteForm({ token }: AcceptInviteFormProps) {
                     </span>
                   </div>
 
-                  {/* Requirements */}
                   {passwordErrors.length > 0 && (
                     <div className="text-xs space-y-1 bg-red-50 p-2 rounded border border-red-200">
-                      {passwordErrors.map((error) => (
-                    <div key={error} className="text-red-800 flex items-start gap-1">
+                      {passwordErrors.map((passwordError) => (
+                        <div key={passwordError} className="text-red-800 flex items-start gap-1">
                           <span>•</span>
-                          <span>{error}</span>
+                          <span>{passwordError}</span>
                         </div>
                       ))}
                     </div>
@@ -287,31 +278,28 @@ export function AcceptInviteForm({ token }: AcceptInviteFormProps) {
               )}
             </div>
 
-            {/* Confirm Password Field */}
             <div>
               <label htmlFor="invite-confirm-password" className="block text-sm font-semibold text-[#0b1c30] mb-2">
                 Confirm Password
               </label>
-              <input
+              <PasswordInput
                 id="invite-confirm-password"
-                type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
                 className="w-full px-4 py-2.5 border border-[#e5eeff] rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0058be] focus-visible:ring-offset-2 focus-visible:border-transparent text-[#0b1c30]"
                 required
                 disabled={submitting}
+                autoComplete="new-password"
               />
             </div>
 
-            {/* Error Message */}
             {error && (
               <div role="alert" className="p-3 bg-red-50 border border-red-200 rounded-lg">
                 <p className="text-sm text-red-800">{error}</p>
               </div>
             )}
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={submitting || passwordErrors.length > 0}
@@ -322,7 +310,6 @@ export function AcceptInviteForm({ token }: AcceptInviteFormProps) {
           </form>
         </div>
 
-        {/* Info Box */}
         <div className="mt-6 p-4 bg-white/50 rounded-lg border border-[#e5eeff] text-center">
           <p className="text-xs text-[#6d7b6c]">
             Your invite expires on{' '}

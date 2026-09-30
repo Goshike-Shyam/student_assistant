@@ -1,61 +1,103 @@
-/**
- * SESSION TRACKER CONTRACT
- * Tracks time from page load to unload.
- * Sends duration to /api/sessions/end on:
- *   - beforeunload (tab close / navigate away)
- *   - visibilitychange to hidden (tab switch)
- * Uses sendBeacon for reliability on unload.
- * sessionId stored in sessionStorage — not localStorage.
- * Never blocks page load or navigation.
- * Sessions < 5 seconds are NOT recorded (noise filter).
- */
+const SESSION_ID_KEY = 'sa_session_id'
+const SESSION_START_KEY = 'sa_session_start'
 
-let startTime = Date.now()
+let startTime = 0
 let pageViews = 1
 let currentSessionId: string | null = null
+let currentChildId: string | null = null
 let listenerRegistered = false
+let endSent = false
 
-export function initSessionTracker(sessionId: string) {
+function registerListeners() {
+  if (listenerRegistered || typeof window === 'undefined') return
+
+  window.addEventListener('pagehide', sendSessionEnd)
+  window.addEventListener('beforeunload', sendSessionEnd)
+  listenerRegistered = true
+}
+
+function resetSessionState(sessionId: string, childId: string) {
   currentSessionId = sessionId
+  currentChildId = childId
   startTime = Date.now()
   pageViews = 1
+  endSent = false
 
-  if (typeof window !== 'undefined') {
-    sessionStorage.setItem('sa_session_id', sessionId)
-    sessionStorage.setItem('sa_session_start', String(startTime))
+  sessionStorage.setItem(SESSION_ID_KEY, sessionId)
+  sessionStorage.setItem(SESSION_START_KEY, String(startTime))
+}
+
+export async function startSession(childId: string): Promise<void> {
+  if (typeof window === 'undefined') return
+
+  const normalizedChildId = childId.trim()
+  if (!normalizedChildId) return
+
+  registerListeners()
+
+  const existingSessionId = sessionStorage.getItem(SESSION_ID_KEY)
+  const existingSessionStart = Number(sessionStorage.getItem(SESSION_START_KEY) ?? '0')
+
+  if (existingSessionId && Number.isFinite(existingSessionStart) && existingSessionStart > 0) {
+    currentSessionId = existingSessionId
+    currentChildId = normalizedChildId
+    startTime = existingSessionStart
+    endSent = false
+    return
   }
 
-  if (!listenerRegistered && typeof window !== 'undefined') {
-    window.addEventListener('beforeunload', sendSessionEnd)
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'hidden') sendSessionEnd()
+  try {
+    const response = await fetch('/api/sessions/start', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-id': normalizedChildId,
+      },
+      body: JSON.stringify({ childId: normalizedChildId }),
+      keepalive: true,
     })
-    listenerRegistered = true
+
+    if (!response.ok) return
+
+    const payload = await response.json().catch(() => null)
+    if (typeof payload?.sessionId === 'string' && payload.sessionId) {
+      resetSessionState(payload.sessionId, normalizedChildId)
+    }
+  } catch {
+    // Silent fail: session tracking must not affect navigation.
   }
 }
 
 export function trackPageView() {
-  pageViews++
+  if (!currentSessionId && typeof window !== 'undefined') {
+    currentSessionId = sessionStorage.getItem(SESSION_ID_KEY)
+  }
+  if (currentSessionId) pageViews += 1
+}
+
+export async function endSession(): Promise<void> {
+  sendSessionEnd()
 }
 
 function sendSessionEnd() {
-  const id =
-    currentSessionId ?? sessionStorage.getItem('sa_session_id')
-  const start = Number(
-    sessionStorage.getItem('sa_session_start') ?? startTime,
-  )
-  const duration = Math.floor((Date.now() - start) / 1000)
+  if (typeof window === 'undefined' || endSent) return
 
-  // Ignore very short sessions (noise)
-  if (!id || duration < 5) return
+  const sessionId = currentSessionId ?? sessionStorage.getItem(SESSION_ID_KEY)
+  const storedStart = Number(sessionStorage.getItem(SESSION_START_KEY) ?? String(startTime || 0))
+  const durationSecs = Math.floor((Date.now() - storedStart) / 1000)
+
+  if (!sessionId || !Number.isFinite(storedStart) || storedStart <= 0 || durationSecs < 5) {
+    return
+  }
+
+  endSent = true
 
   const payload = JSON.stringify({
-    sessionId: id,
-    durationSecs: duration,
+    sessionId,
+    durationSecs,
     pageViews,
   })
 
-  // sendBeacon is fire-and-forget and works reliably on page close
   if (navigator.sendBeacon) {
     navigator.sendBeacon('/api/sessions/end', payload)
   } else {
@@ -67,8 +109,8 @@ function sendSessionEnd() {
     }).catch(() => {})
   }
 
-  // Clear storage after send so duplicate sends don't occur
-  sessionStorage.removeItem('sa_session_id')
-  sessionStorage.removeItem('sa_session_start')
+  sessionStorage.removeItem(SESSION_ID_KEY)
+  sessionStorage.removeItem(SESSION_START_KEY)
   currentSessionId = null
+  currentChildId = null
 }

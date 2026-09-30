@@ -1,8 +1,10 @@
 'use client'
 import { usePathname } from 'next/navigation'
+import { useEffect, useRef } from 'react'
 import { Sidebar } from './sidebar'
 import { ThemeApplier } from '@/components/gamification/ThemeApplier'
 import { StickyFooterBar } from '@/components/shared/StickyFooterBar'
+import { startSession, trackPageView } from '@/lib/session-tracker'
 
 /** Paths that show the student sidebar */
 const STUDENT_SIDEBAR_PATHS = [
@@ -23,9 +25,33 @@ const STUDENT_SIDEBAR_PATHS = [
  */
 export function StudentShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const lastTrackedPath = useRef<string | null>(null)
   const showSidebar = STUDENT_SIDEBAR_PATHS.some(
     (p) => pathname === p || pathname.startsWith(p + '/'),
   )
+
+  useEffect(() => {
+    if (!showSidebar) return
+
+    const childId = window.localStorage.getItem('userId')?.trim() ?? ''
+    if (!childId) return
+
+    startSession(childId).catch(() => {})
+  }, [showSidebar])
+
+  useEffect(() => {
+    if (!showSidebar || !pathname) return
+
+    if (lastTrackedPath.current === null) {
+      lastTrackedPath.current = pathname
+      return
+    }
+
+    if (lastTrackedPath.current !== pathname) {
+      trackPageView()
+      lastTrackedPath.current = pathname
+    }
+  }, [pathname, showSidebar])
 
   if (!showSidebar) return <>{children}</>
 
