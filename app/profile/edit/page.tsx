@@ -1,9 +1,10 @@
 "use client"
 import { useEffect, useState } from 'react'
-import { User, Book, Lock, School, Eye, EyeOff } from 'lucide-react'
+import { User, Book, Lock, School } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { getSubjectLabel } from '@/lib/subjects/config'
 import { SubjectSelector } from '@/components/shared/SubjectSelector'
+import { PasswordInput } from '@/components/shared/PasswordInput'
 import { PasswordConfirmModal } from '@/components/profile/PasswordConfirmModal'
 
 export default function StudentProfileEditPage() {
@@ -13,8 +14,6 @@ export default function StudentProfileEditPage() {
   const [isEditing, setIsEditing] = useState(false)
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [showNewPw, setShowNewPw] = useState(false)
-  const [showConfirmPw, setShowConfirmPw] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [saving, setSaving] = useState(false)
   const [errors, setErrors] = useState<Record<string,string>>({})
@@ -188,20 +187,27 @@ export default function StudentProfileEditPage() {
           <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-5 space-y-4">
             <div>
               <label htmlFor="new-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">New Password</label>
-              <div className="relative">
-                <input id="new-password" type={showNewPw ? 'text' : 'password'} value={newPassword} onChange={e=>{setNewPassword(e.target.value); setErrors(er=>({...er,newPassword:''}))}} placeholder="Min. 8 characters" autoComplete="new-password" className={cn('w-full px-4 py-2.5 pr-11 border rounded-xl text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500', errors.newPassword ? 'border-red-400' : 'border-gray-300 dark:border-slate-600')} aria-invalid={!!errors.newPassword} />
-                <button type="button" onClick={()=>setShowNewPw(s=>!s)} aria-label={showNewPw ? 'Hide password' : 'Show password'} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded">{showNewPw ? <EyeOff size={16} aria-hidden="true"/> : <Eye size={16} aria-hidden="true"/>}</button>
-              </div>
-              {errors.newPassword && (<p className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{errors.newPassword}</p>)}
+              <PasswordInput
+                id="new-password"
+                value={newPassword}
+                onChange={e=>{setNewPassword(e.target.value); setErrors(er=>({...er,newPassword:''}))}}
+                placeholder="Min. 8 characters"
+                autoComplete="new-password"
+                className={cn('w-full px-4 py-2.5 border rounded-xl text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500', errors.newPassword ? 'border-red-400' : 'border-gray-300 dark:border-slate-600')}
+                error={errors.newPassword}
+              />
             </div>
 
             {newPassword && (<div>
               <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Confirm New Password</label>
-              <div className="relative">
-                <input id="confirm-password" type={showConfirmPw ? 'text' : 'password'} value={confirmPassword} onChange={e=>{setConfirmPassword(e.target.value); setErrors(er=>({...er,confirmPassword:''}))}} autoComplete="new-password" className={cn('w-full px-4 py-2.5 pr-11 border rounded-xl text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500', errors.confirmPassword ? 'border-red-400' : 'border-gray-300 dark:border-slate-600')} aria-invalid={!!errors.confirmPassword} />
-                <button type="button" onClick={()=>setShowConfirmPw(s=>!s)} aria-label={showConfirmPw ? 'Hide password' : 'Show password'} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded">{showConfirmPw ? <EyeOff size={16} aria-hidden="true"/> : <Eye size={16} aria-hidden="true"/>}</button>
-              </div>
-              {errors.confirmPassword && (<p className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{errors.confirmPassword}</p>)}
+              <PasswordInput
+                id="confirm-password"
+                value={confirmPassword}
+                onChange={e=>{setConfirmPassword(e.target.value); setErrors(er=>({...er,confirmPassword:''}))}}
+                autoComplete="new-password"
+                className={cn('w-full px-4 py-2.5 border rounded-xl text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500', errors.confirmPassword ? 'border-red-400' : 'border-gray-300 dark:border-slate-600')}
+                error={errors.confirmPassword}
+              />
             </div>)}
           </div>
         </section>

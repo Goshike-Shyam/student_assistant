@@ -4,6 +4,7 @@ import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/ca
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { PasswordInput } from '@/components/shared/PasswordInput';
 
 export default function AdminSettingsPage() {
   return (
@@ -93,7 +94,7 @@ export default function AdminSettingsPage() {
             <div className="space-y-4 mt-6">
               <div>
                 <Label htmlFor="gemini-key">Gemini API Key</Label>
-                <Input id="gemini-key" type="password" placeholder="••••••••" className="mt-2" />
+                <PasswordInput id="gemini-key" placeholder="••••••••" className="mt-2" autoComplete="current-password" />
               </div>
               <div className="pt-4">
                 <Button className="bg-[#006e2f] text-white hover:bg-[#005828]">Save API Keys</Button>

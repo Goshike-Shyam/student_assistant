@@ -24,53 +24,61 @@ export async function GET(request: NextRequest) {
     since.setHours(0, 0, 0, 0)
     since.setDate(since.getDate() - (days - 1))
 
-    const [practiceAttempts, assignments, sessions] = await Promise.all([
-      prisma.practiceAttempt.findMany({
-        where: {
-          childId,
-          completedAt: { not: null, gte: since },
-        },
-        select: {
-          score: true,
-          completedAt: true,
-          marksAwarded: true,
-          marksPossible: true,
-          timeTakenSecs: true,
-          test: { select: { subject: true, topic: true } },
-        },
-        orderBy: { completedAt: 'asc' },
-      }),
-      prisma.teacherAssignmentSubmission.findMany({
-        where: {
-          childId,
-          createdAt: { gte: since },
-        },
-        select: {
-          status: true,
-          createdAt: true,
-          submittedAt: true,
-          assignment: { select: { subject: true, topic: true } },
-        },
-      }),
-      prisma.studentSession.findMany({
-        where: {
-          childId,
-          startedAt: { gte: since },
-          endedAt: { not: null },
-        },
-        select: {
-          startedAt: true,
-          durationSecs: true,
-          pageViews: true,
-        },
-      }),
-    ])
+    const researchQueries = await prisma.searchQuery.findMany({
+      where: {
+        studentId: childId,
+        createdAt: { gte: since },
+      },
+      select: {
+        createdAt: true,
+      },
+    })
+    const researchQueryCount = researchQueries.length
 
-    const totalTestsTaken = new Set(
-      practiceAttempts.map((a) => `${a.test.subject}::${a.test.topic}`),
-    ).size
+    const practiceAttempts = await prisma.practiceAttempt.findMany({
+      where: {
+        childId,
+        completedAt: { not: null, gte: since },
+      },
+      select: {
+        score: true,
+        completedAt: true,
+        timeTakenSecs: true,
+        test: { select: { subject: true, topic: true } },
+      },
+      orderBy: { completedAt: 'asc' },
+    })
+
+    const assignments = await prisma.teacherAssignmentSubmission.findMany({
+      where: {
+        childId,
+        createdAt: { gte: since },
+      },
+      select: {
+        status: true,
+        createdAt: true,
+        submittedAt: true,
+        assignment: { select: { subject: true, topic: true } },
+      },
+    })
+
+    const sessions = await prisma.studentSession.findMany({
+      where: {
+        childId,
+        startedAt: { gte: since },
+        endedAt: { not: null },
+        durationSecs: { not: null },
+      },
+      select: {
+        startedAt: true,
+        durationSecs: true,
+        pageViews: true,
+      },
+      orderBy: { startedAt: 'desc' },
+    })
 
     const totalAttempts = practiceAttempts.length
+    const totalTestsTaken = totalAttempts
     const avgScore =
       totalAttempts > 0
         ? Number(
@@ -88,26 +96,9 @@ export async function GET(request: NextRequest) {
       .map((s) => s.durationSecs ?? null)
       .filter((secs): secs is number => typeof secs === 'number' && Number.isFinite(secs) && secs > 0)
 
-    const validAttemptDurations = practiceAttempts
-      .map((a) => a.timeTakenSecs ?? null)
-      .filter((secs): secs is number => typeof secs === 'number' && Number.isFinite(secs) && secs > 0)
-
-    // Fallback for tracked sessions with missing duration: estimate active time from pageViews.
-    // Assumption: ~45 seconds active time per page view, minimum 2 minutes for a non-empty session.
-    const estimatedSessionDurations = sessions
-      .filter((s) => !s.durationSecs || s.durationSecs <= 0)
-      .map((s) => {
-        const pv = Math.max(0, s.pageViews ?? 0)
-        if (pv <= 0) return 0
-        return Math.max(120, pv * 45)
-      })
-      .filter((secs) => secs > 0)
-
-    const durationPool = [...validSessionDurations, ...validAttemptDurations, ...estimatedSessionDurations]
-
     const avgTimeSpentMinutes =
-      durationPool.length > 0
-        ? Number((durationPool.reduce((sum, secs) => sum + secs, 0) / durationPool.length / 60).toFixed(1))
+      validSessionDurations.length > 0
+        ? Number((validSessionDurations.reduce((sum, secs) => sum + secs, 0) / validSessionDurations.length / 60).toFixed(1))
         : 0
 
     const streakDateSet = new Set(
@@ -181,6 +172,10 @@ export async function GET(request: NextRequest) {
       const k = getDateKey(attempt.completedAt)
       heatMap.set(k, (heatMap.get(k) ?? 0) + 1)
     }
+    for (const query of researchQueries) {
+      const k = getDateKey(query.createdAt)
+      heatMap.set(k, (heatMap.get(k) ?? 0) + 1)
+    }
     for (const session of sessions) {
       const k = getDateKey(session.startedAt)
       heatMap.set(k, (heatMap.get(k) ?? 0) + Math.max(1, Math.floor((session.pageViews ?? 0) / 3)))
@@ -202,11 +197,12 @@ export async function GET(request: NextRequest) {
       d.setHours(0, 0, 0, 0)
       d.setDate(d.getDate() - (6 - idx))
       const key = getDateKey(d)
+      const dayQueries = researchQueries.filter((q) => getDateKey(q.createdAt) === key).length
       const dayAttempts = practiceAttempts.filter((a) => a.completedAt && getDateKey(a.completedAt) === key).length
       const dayAssignments = assignments.filter((a) => getDateKey(a.createdAt) === key).length
       return {
         day: d.toLocaleDateString('en-US', { weekday: 'short' }),
-        activity: dayAttempts + dayAssignments,
+        activity: dayAttempts + dayAssignments + dayQueries,
       }
     })
 
@@ -220,6 +216,8 @@ export async function GET(request: NextRequest) {
         assignmentsCompleted,
         assignmentsTotal,
         avgTimeSpentMinutes,
+        queryCount: researchQueryCount,
+        totalSessions: validSessionDurations.length,
       },
       charts: {
         scoreTrend,

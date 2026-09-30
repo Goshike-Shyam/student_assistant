@@ -3,8 +3,9 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { Eye, EyeOff, CheckCircle } from 'lucide-react'
+import { CheckCircle } from 'lucide-react'
 import { AppLogo } from '@/components/ui/app-logo'
+import { PasswordInput } from '@/components/shared/PasswordInput'
 
 export default function TeacherLoginPage() {
   const searchParams = useSearchParams()
@@ -23,7 +24,6 @@ export default function TeacherLoginPage() {
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showResend, setShowResend] = useState(false)
@@ -182,28 +182,17 @@ export default function TeacherLoginPage() {
                 <label htmlFor="tl-pw" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1.5">
                   Password
                 </label>
-                <div className="relative">
-                  <input
-                    id="tl-pw"
-                    type={showPassword ? 'text' : 'password'}
-                    autoComplete="current-password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    aria-required="true"
-                    className="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 rounded-lg text-gray-900 dark:text-slate-100 pr-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:border-transparent"
-                    placeholder="Your password"
-                    disabled={loading}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((v) => !v)}
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006e2f] rounded"
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" aria-hidden="true" /> : <Eye className="w-4 h-4" aria-hidden="true" />}
-                  </button>
-                </div>
+                <PasswordInput
+                  id="tl-pw"
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  aria-required="true"
+                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 rounded-lg text-gray-900 dark:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006e2f] focus-visible:border-transparent"
+                  placeholder="Your password"
+                  disabled={loading}
+                />
               </div>
 
               <button

@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { BookOpen, CheckCircle, Eye, EyeOff } from 'lucide-react'
+import { BookOpen, CheckCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { PasswordInput } from '@/components/shared/PasswordInput'
 
 export default function ParentRegisterPage() {
   const [form, setForm] = useState({
@@ -12,8 +13,6 @@ export default function ParentRegisterPage() {
     password: '',
     confirmPassword: '',
   })
-  const [showPw, setShowPw] = useState(false)
-  const [showConfirm, setShowConfirm] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -226,59 +225,35 @@ export default function ParentRegisterPage() {
               <label htmlFor="reg-password" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Password <span className="ml-1 text-red-500" aria-hidden="true">*</span>
               </label>
-              <div className="relative">
-                <input
-                  id="reg-password"
-                  type={showPw ? 'text' : 'password'}
-                  value={form.password}
-                  onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
-                  autoComplete="new-password"
-                  placeholder="Min. 8 characters"
-                  className={cn(
-                    'min-h-[44px] w-full rounded-xl border bg-white px-4 py-2.5 pr-11 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-slate-700 dark:text-gray-100',
-                    errors.password ? 'border-red-400' : 'border-gray-300 dark:border-slate-600',
-                  )}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPw((state) => !state)}
-                  aria-label={showPw ? 'Hide password' : 'Show password'}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded text-gray-400 hover:text-gray-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
-                >
-                  {showPw ? <EyeOff size={16} aria-hidden="true" /> : <Eye size={16} aria-hidden="true" />}
-                </button>
-              </div>
-              {errors.password && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.password}</p>}
+              <PasswordInput
+                id="reg-password"
+                value={form.password}
+                onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
+                autoComplete="new-password"
+                placeholder="Min. 8 characters"
+                error={errors.password}
+                className={cn(
+                  'min-h-[44px] w-full rounded-xl border bg-white px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-slate-700 dark:text-gray-100',
+                  errors.password ? 'border-red-400' : 'border-gray-300 dark:border-slate-600',
+                )}
+              />
             </div>
 
             <div>
               <label htmlFor="reg-confirm-password" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Confirm Password <span className="ml-1 text-red-500" aria-hidden="true">*</span>
               </label>
-              <div className="relative">
-                <input
-                  id="reg-confirm-password"
-                  type={showConfirm ? 'text' : 'password'}
-                  value={form.confirmPassword}
-                  onChange={(event) => setForm((prev) => ({ ...prev, confirmPassword: event.target.value }))}
-                  autoComplete="new-password"
-                  className={cn(
-                    'min-h-[44px] w-full rounded-xl border bg-white px-4 py-2.5 pr-11 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-slate-700 dark:text-gray-100',
-                    errors.confirmPassword ? 'border-red-400' : 'border-gray-300 dark:border-slate-600',
-                  )}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirm((state) => !state)}
-                  aria-label={showConfirm ? 'Hide password' : 'Show password'}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded text-gray-400 hover:text-gray-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
-                >
-                  {showConfirm ? <EyeOff size={16} aria-hidden="true" /> : <Eye size={16} aria-hidden="true" />}
-                </button>
-              </div>
-              {errors.confirmPassword && (
-                <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.confirmPassword}</p>
-              )}
+              <PasswordInput
+                id="reg-confirm-password"
+                value={form.confirmPassword}
+                onChange={(event) => setForm((prev) => ({ ...prev, confirmPassword: event.target.value }))}
+                autoComplete="new-password"
+                error={errors.confirmPassword}
+                className={cn(
+                  'min-h-[44px] w-full rounded-xl border bg-white px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-slate-700 dark:text-gray-100',
+                  errors.confirmPassword ? 'border-red-400' : 'border-gray-300 dark:border-slate-600',
+                )}
+              />
             </div>
 
             <button

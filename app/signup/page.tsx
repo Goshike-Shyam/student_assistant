@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import { AppLogo } from '@/components/ui/app-logo';
 import { SubjectSelector } from '@/components/shared/SubjectSelector';
+import { PasswordInput } from '@/components/shared/PasswordInput';
 import { getGradeBand } from '@/lib/subjects/config';
 
 const roleMap: Record<string, string> = {
@@ -248,7 +249,7 @@ export default function SignupPage() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <Label htmlFor="password" className={labelClassName}>Password</Label>
-                <Input id="password" className={fieldClassName} type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Create a strong password" />
+                <PasswordInput id="password" className={fieldClassName} value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Create a strong password" autoComplete="new-password" />
               </div>
               <div>
                 <Label htmlFor="grade" className={labelClassName}>Grade Level</Label>

@@ -26,6 +26,8 @@ interface ProgressResponse {
     assignmentsCompleted: number
     assignmentsTotal: number
     avgTimeSpentMinutes: number
+    queryCount: number
+    totalSessions: number
   }
   charts: {
     scoreTrend: Array<{ date: string; avgScore: number }>
@@ -60,6 +62,16 @@ function heatColor(intensity: number, isDark: boolean): string {
   if (intensity === 2) return 'bg-blue-300'
   if (intensity === 3) return 'bg-blue-500'
   return 'bg-blue-700'
+}
+
+function formatTime(minutes: number): string {
+  if (minutes <= 0) return 'Not yet tracked'
+  if (minutes < 60) return `${Math.round(minutes)} min`
+
+  const rounded = Math.round(minutes)
+  const hours = Math.floor(rounded / 60)
+  const mins = rounded % 60
+  return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`
 }
 
 export default function ProgressPage() {
@@ -112,17 +124,69 @@ export default function ProgressPage() {
     if (!data) return '#'
     const rows = [
       ['Metric', 'Value'],
-      ['Tests Taken', String(data.metrics.testsTaken)],
-      ['Average Score', `${data.metrics.avgScore}%`],
-      ['Total Attempts', String(data.metrics.totalAttempts)],
-      ['Current Streak', `${data.metrics.currentStreak} days`],
-      ['Assignments Completed', String(data.metrics.assignmentsCompleted)],
-      ['Assignments Total', String(data.metrics.assignmentsTotal)],
-      ['Average Time Spent (min)', String(data.metrics.avgTimeSpentMinutes)],
+      ['Research Queries', String(data.metrics.queryCount)],
+      ['Practice Tests', String(data.metrics.testsTaken)],
+      ['Average Score', data.metrics.totalAttempts > 0 ? `${data.metrics.avgScore}%` : '—'],
+      ['Practice Streak', `${data.metrics.currentStreak} days`],
+      ['Assignments Done', `${data.metrics.assignmentsCompleted}/${data.metrics.assignmentsTotal}`],
+      ['Tracked Sessions', String(data.metrics.totalSessions)],
+      ['Average Time Spent', formatTime(data.metrics.avgTimeSpentMinutes)],
     ]
     const csv = rows.map((r) => r.join(',')).join('\n')
     return `data:text/csv;charset=utf-8,${encodeURIComponent(csv)}`
   }, [data])
+
+  const metricCards = useMemo(() => {
+    if (!data) return []
+
+    const weeklyActivityTotal = data.weeklyActivity.reduce((sum, day) => sum + day.activity, 0)
+
+    return [
+      {
+        label: 'Avg Time Spent',
+        value: formatTime(data.metrics.avgTimeSpentMinutes),
+        detail:
+          data.metrics.totalSessions > 0
+            ? `Across ${data.metrics.totalSessions} tracked session${data.metrics.totalSessions === 1 ? '' : 's'}`
+            : 'No completed sessions recorded yet',
+      },
+      {
+        label: 'Research Queries',
+        value: String(data.metrics.queryCount),
+        detail: `Last ${data.rangeDays} days`,
+      },
+      {
+        label: 'Practice Tests',
+        value: String(data.metrics.testsTaken),
+        detail: `Completed in the last ${data.rangeDays} days`,
+      },
+      {
+        label: 'Avg Score',
+        value: data.metrics.totalAttempts > 0 ? `${data.metrics.avgScore}%` : '—',
+        detail: data.metrics.totalAttempts > 0 ? 'Across completed practice tests' : 'No scored practice yet',
+      },
+      {
+        label: 'Practice Streak',
+        value: `${data.metrics.currentStreak} days`,
+        detail: 'Consecutive practice days',
+      },
+      {
+        label: 'Assignments Done',
+        value: `${data.metrics.assignmentsCompleted}/${data.metrics.assignmentsTotal}`,
+        detail: `Submissions tracked in the last ${data.rangeDays} days`,
+      },
+      {
+        label: 'Weekly Activity',
+        value: String(weeklyActivityTotal),
+        detail: 'Practice and assignment actions in the last 7 days',
+      },
+      {
+        label: 'Completion Rate',
+        value: `${completionPct}%`,
+        detail: data.metrics.assignmentsTotal > 0 ? 'Based on tracked assignments' : 'No assignments in this period',
+      },
+    ]
+  }, [completionPct, data])
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 px-6 py-10">
@@ -186,19 +250,11 @@ export default function ProgressPage() {
         {!loading && !error && data && (
           <>
             <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {[
-                { label: 'Tests Taken', value: data.metrics.testsTaken },
-                { label: 'Avg Score', value: `${data.metrics.avgScore}%` },
-                { label: 'Total Attempts', value: data.metrics.totalAttempts },
-                { label: 'Current Streak', value: `${data.metrics.currentStreak} days` },
-                { label: 'Assignments Completed', value: `${data.metrics.assignmentsCompleted}/${data.metrics.assignmentsTotal}` },
-                { label: 'Weekly Activity', value: data.weeklyActivity.reduce((s, d) => s + d.activity, 0) },
-                { label: 'Avg Time Spent', value: `${data.metrics.avgTimeSpentMinutes} min` },
-                { label: 'Completion Rate', value: `${completionPct}%` },
-              ].map((item) => (
+              {metricCards.map((item) => (
                 <article key={item.label} className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4 shadow-sm">
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{item.label}</p>
                   <p className="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-1">{item.value}</p>
+                  <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">{item.detail}</p>
                 </article>
               ))}
             </section>

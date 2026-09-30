@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { AppLogo } from '@/components/ui/app-logo';
+import { PasswordInput } from '@/components/shared/PasswordInput';
 
 interface User {
   id?: string;
@@ -138,13 +139,13 @@ export default function SignInForm() {
 
           <div>
             <label htmlFor="signin-password" className="block text-sm font-semibold text-[#0b1c30] dark:text-slate-100 mb-2.5">Password</label>
-            <input
+            <PasswordInput
               id="signin-password"
-              type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder="Enter your password"
               required
+              autoComplete="current-password"
               className="w-full px-4 py-3 border-2 border-[#bccbb9] dark:border-slate-600 bg-white dark:bg-slate-900 rounded-xl text-[#0b1c30] dark:text-slate-100 placeholder-[#4B5563] dark:placeholder-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0058be] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950 focus-visible:border-[#0058be] transition-colors font-base"
             />
           </div>
