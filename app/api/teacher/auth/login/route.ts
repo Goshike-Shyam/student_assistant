@@ -50,6 +50,16 @@ export async function POST(request: NextRequest) {
 
     const teacher = await prisma.teacher.findUnique({
       where: { email: email.toLowerCase().trim() },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        passwordHash: true,
+        isActive: true,
+        emailVerified: true,
+        trialEndsAt: true,
+        subscriptionStatus: true,
+      },
     })
 
     if (!teacher || !teacher.isActive) {
@@ -82,6 +92,8 @@ export async function POST(request: NextRequest) {
       id: teacher.id,
       name: teacher.name,
       email: teacher.email,
+      trialEndsAt: teacher.trialEndsAt,
+      subscriptionStatus: teacher.subscriptionStatus,
     })
 
     return NextResponse.json({ name: teacher.name, email: teacher.email })

@@ -37,6 +37,7 @@ export async function POST(request: NextRequest) {
     }
 
     const passwordHash = await hashPassword(password)
+    const trialEndsAt = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)
     const verifyToken = generateInviteToken()
     const tokenHash = hashToken(verifyToken)
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
@@ -52,6 +53,8 @@ export async function POST(request: NextRequest) {
           mobile: mobile?.trim() ?? null,
           isActive: true,
           emailVerified: false,
+          trialEndsAt,
+          subscriptionStatus: 'TRIAL',
         },
       })
 

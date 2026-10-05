@@ -8,6 +8,8 @@ export interface ParentSessionPayload {
   name: string
   email: string
   exp: number
+  trialEndsAt?: string | null
+  subscriptionStatus?: string
 }
 
 function getSecret(): Buffer {
@@ -65,6 +67,8 @@ export async function createParentSession(parent: {
   id: string
   name: string
   email: string
+  trialEndsAt?: Date | string | null
+  subscriptionStatus?: string
 }): Promise<void> {
   const exp = getDailySessionExpiresAt()
   const token = signToken({
@@ -72,6 +76,8 @@ export async function createParentSession(parent: {
     name: parent.name,
     email: parent.email,
     exp,
+    trialEndsAt: parent.trialEndsAt ? new Date(parent.trialEndsAt).toISOString() : null,
+    subscriptionStatus: parent.subscriptionStatus ?? 'TRIAL',
   })
   const jar = await cookies()
   jar.set(COOKIE_NAME, token, {

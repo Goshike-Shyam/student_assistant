@@ -52,6 +52,7 @@ export async function POST(req: NextRequest) {
     }
 
     const passwordHash = await bcrypt.hash(password, 12)
+    const trialEndsAt = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)
 
     const created = await prisma.user.create({
       data: {
@@ -63,6 +64,8 @@ export async function POST(req: NextRequest) {
         curriculum: board,
         parentEmail,
         location: body.phone ? String(body.phone) : null,
+        trialEndsAt,
+        subscriptionStatus: 'TRIAL',
       },
       select: { id: true, email: true, name: true },
     })

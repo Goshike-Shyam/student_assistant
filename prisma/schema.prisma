@@ -52,6 +52,8 @@ model User {
   familyCodeActive     Boolean           @default(true) @map("family_code_active")
   linkedAt             DateTime?         @map("linked_at")
   subscriptionPlan     SubscriptionPlan @default(FREE)
+  trialEndsAt          DateTime?         @map("trial_ends_at")
+  subscriptionStatus   String            @default("TRIAL") @map("subscription_status") @db.VarChar(20)
 
   courses                    Course[]       @relation("InstructorCourses")
   enrollments                Enrollment[]
@@ -384,6 +386,8 @@ model Teacher {
   mobile        String?   @db.VarChar(512)
   isActive      Boolean   @default(true) @map("is_active")
   emailVerified Boolean   @default(false) @map("email_verified")
+  trialEndsAt   DateTime? @map("trial_ends_at")
+  subscriptionStatus String @default("TRIAL") @map("subscription_status") @db.VarChar(20)
   lastLogin     DateTime? @map("last_login")
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
