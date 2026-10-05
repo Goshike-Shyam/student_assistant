@@ -28,6 +28,8 @@ export interface StudentSessionPayload {
   role: 'STUDENT'
   board: string
   exp: number
+  trialEndsAt?: string | null
+  subscriptionStatus?: string
 }
 
 export const COOKIE_NAMES = {

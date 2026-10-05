@@ -65,6 +65,8 @@ export async function POST(req: NextRequest) {
       role: 'STUDENT',
       board: user.curriculum ?? 'CBSE',
       exp: getDailySessionExpiresAt(),
+      trialEndsAt: null,
+      subscriptionStatus: null,
     }), {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

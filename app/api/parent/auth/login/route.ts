@@ -29,6 +29,8 @@ export async function POST(request: NextRequest) {
         name: true,
         email: true,
         password: true,
+        trialEndsAt: true,
+        subscriptionStatus: true,
       },
     })
 
@@ -59,6 +61,8 @@ export async function POST(request: NextRequest) {
       id: parent.id,
       name: parent.name,
       email: parent.email,
+      trialEndsAt: parent.trialEndsAt,
+      subscriptionStatus: parent.subscriptionStatus,
     })
 
     return NextResponse.json({ ok: true, name: parent.name, email: parent.email })

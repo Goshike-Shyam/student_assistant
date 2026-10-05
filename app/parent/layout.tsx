@@ -4,6 +4,8 @@ import { headers } from 'next/headers'
 import { getParentSession } from '@/lib/parent-auth'
 import { ParentSidebar } from '@/components/parent/ParentSidebar'
 import { ParentTopBar } from '@/components/parent/ParentTopBar'
+import { prisma } from '@/lib/prismaClient'
+import { TrialBanner } from '@/components/shared/TrialBanner'
 
 const PUBLIC_PARENT_PATHS = [
   '/parent/login',
@@ -24,9 +26,18 @@ export default async function ParentLayout({ children }: { children: ReactNode }
     redirect('/parent/login')
   }
 
+  const parent = await prisma.user.findUnique({
+    where: { id: session.parentId },
+    select: { trialEndsAt: true, subscriptionStatus: true },
+  })
+
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       <ParentTopBar />
+      <TrialBanner
+        trialEndsAt={parent?.trialEndsAt}
+        subscriptionStatus={parent?.subscriptionStatus}
+      />
       <div className="flex flex-1 overflow-hidden min-h-0">
         <ParentSidebar />
         <main id="parent-main" className="flex-1 overflow-y-auto bg-gray-50 dark:bg-slate-900">

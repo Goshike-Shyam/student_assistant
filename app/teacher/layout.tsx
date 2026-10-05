@@ -15,6 +15,7 @@ import { prisma } from '@/lib/prismaClient'
 import { TeacherSidebar } from '@/components/teacher/TeacherSidebar'
 import { TeacherBreadcrumbs } from '@/components/teacher/TeacherBreadcrumbs'
 import { TeacherTopBar } from '@/components/teacher/TeacherTopBar'
+import { TrialBanner } from '@/components/shared/TrialBanner'
 import { ReactNode } from 'react'
 
 const PUBLIC_TEACHER_PATHS = [
@@ -68,7 +69,7 @@ export default async function TeacherLayout({ children }: TeacherLayoutProps) {
   const teacher = /^\d+$/.test(teacherId)
     ? await prisma.teacher.findUnique({
         where: { id: BigInt(teacherId) },
-        select: { schoolName: true },
+        select: { schoolName: true, trialEndsAt: true, subscriptionStatus: true },
       })
     : null
   const teacherSchool = teacher?.schoolName ?? ''
@@ -115,6 +116,10 @@ export default async function TeacherLayout({ children }: TeacherLayoutProps) {
         <TeacherTopBar
           teacherName={teacherName}
           teacherEmail={teacherEmail}
+        />
+        <TrialBanner
+          trialEndsAt={teacher?.trialEndsAt}
+          subscriptionStatus={teacher?.subscriptionStatus}
         />
         {/* Page content */}
         <main className="flex-1 overflow-auto" id="main-content">

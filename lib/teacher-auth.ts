@@ -16,6 +16,8 @@ export interface TeacherSessionPayload {
   name: string
   email: string
   exp: number
+  trialEndsAt?: string | null
+  subscriptionStatus?: string
 }
 
 function getSecret(): Buffer {
@@ -75,6 +77,8 @@ export async function createTeacherSession(teacher: {
   id: bigint
   name: string
   email: string
+  trialEndsAt?: Date | string | null
+  subscriptionStatus?: string
 }): Promise<void> {
   const exp = getDailySessionExpiresAt()
   const token = signToken({
@@ -82,6 +86,8 @@ export async function createTeacherSession(teacher: {
     name: teacher.name,
     email: teacher.email,
     exp,
+    trialEndsAt: teacher.trialEndsAt ? new Date(teacher.trialEndsAt).toISOString() : null,
+    subscriptionStatus: teacher.subscriptionStatus ?? 'TRIAL',
   })
   const jar = await cookies()
   jar.set(COOKIE_NAME, token, {

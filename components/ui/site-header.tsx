@@ -115,7 +115,14 @@ export function SiteHeader() {
   }, []);
 
   // Admin, teacher, and parent pages have their own navigation.
-  if (pathname.startsWith('/admin') || pathname.startsWith('/teacher') || pathname.startsWith('/parent')) return null;
+  // Landing and subscribe pages are standalone public pages.
+  if (
+    pathname === '/' ||
+    pathname.startsWith('/subscribe') ||
+    pathname.startsWith('/admin') ||
+    pathname.startsWith('/teacher') ||
+    pathname.startsWith('/parent')
+  ) return null;
 
   return (
     <nav className="sticky top-0 z-40 w-full h-16 bg-white border-b border-[#e5eeff] dark:bg-slate-900 dark:border-slate-700 flex items-center justify-between px-10"

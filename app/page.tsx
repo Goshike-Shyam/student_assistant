@@ -1,241 +1,210 @@
-'use client';
+'use client'
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { BookOpen, Users, TrendingUp, MessageSquare } from 'lucide-react';
-import { AppLogo } from '@/components/ui/app-logo';
+import Link from 'next/link'
+import { AppLogo } from '@/components/ui/app-logo'
 
 export default function HomePage() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userName, setUserName] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
+  const featureCards = [
+    {
+      title: 'AI Tutor',
+      subtitle: 'Explain difficult concepts in simple steps and multiple languages.',
+      icon: '✦',
+      accent: 'from-[#f59e0b] to-[#f97316]',
+    },
+    {
+      title: 'Progress Tracking',
+      subtitle: 'See strengths, weak areas, and weekly growth insights instantly.',
+      icon: '◍',
+      accent: 'from-[#0ea5e9] to-[#2563eb]',
+    },
+    {
+      title: 'Parent Dashboard',
+      subtitle: "Parents get meaningful updates, not just marks and attendance.",
+      icon: '⌁',
+      accent: 'from-[#10b981] to-[#059669]',
+    },
+    {
+      title: 'Teacher Workspace',
+      subtitle: 'Assign practice, review submissions, and guide every learner better.',
+      icon: '◇',
+      accent: 'from-[#f43f5e] to-[#e11d48]',
+    },
+  ]
 
-  useEffect(() => {
-    const userId = localStorage.getItem('userId');
-    const storedUserName = localStorage.getItem('userName');
-    
-    if (userId && storedUserName) {
-      setIsLoggedIn(true);
-      setUserName(storedUserName);
-    }
-    setIsLoading(false);
-  }, []);
+  const languagePills = [
+    'English',
+    'हिंदी',
+    'తెలుగు',
+    'বাংলা',
+    'मराठी',
+    'தமிழ்',
+  ]
 
-  if (isLoading) {
-    return null;
-  }
-
-  if (!isLoggedIn) {
-    // Show login/welcome screen for non-authenticated users
-    return (
-      <main className="min-h-screen bg-white dark:bg-slate-950 overflow-hidden">
-        <div className="flex min-h-screen">
-          {/* LEFT BRAND PANEL */}
-          <div className="hidden lg:flex lg:w-1/2 flex-col p-12 relative overflow-hidden" style={{ background: 'linear-gradient(145deg,#001d5e 0%,#003da8 45%,#0058be 100%)' }}>
-            <div className="absolute top-0 right-0 w-96 h-96 rounded-full" style={{ background: 'radial-gradient(circle,rgba(255,255,255,.12),transparent)', transform: 'translate(35%,-35%)' }}></div>
-            <div className="absolute bottom-0 left-0 w-72 h-72 rounded-full" style={{ background: 'radial-gradient(circle,rgba(34,197,94,.2),transparent)', transform: 'translate(-35%,35%)' }}></div>
-            <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 60% 50%,rgba(255,255,255,.04),transparent)' }}></div>
-
-            {/* Logo */}
-            <div className="relative z-10 flex items-center gap-3 mb-10">
-              <AppLogo
-                size={44}
-                className="rounded-2xl bg-white p-1 flex-shrink-0 shadow-xl"
-                priority
-              />
-              <div>
-                <p className="qs font-bold text-2xl text-white leading-none">Student Assistant</p>
-              <p className="text-gray-200 text-xs mt-0.5 tracking-wide">Learning Platform</p>
-              </div>
-            </div>
-
-            {/* Headline */}
-            <div className="relative z-10 mb-8">
-              <h2 className="qs font-bold text-[42px] leading-[1.2] text-white mb-4">
-                Empowering every<br />learner with a<br /><span className="text-[#6bff8f]">vibrant,<br />personalized</span><br />journey.
-              </h2>
-              <p className="text-gray-100 text-[15px] leading-relaxed max-w-sm">Adaptive learning paths, interactive quests, and real-time progress tracking — built for every grade level.</p>
-            </div>
-
-            {/* Illustration placeholder */}
-            <div className="relative z-10 flex-1 flex items-center justify-center">
-              <div className="float-slow w-[78%] aspect-[4/3] rounded-3xl border border-white/15 flex flex-col items-center justify-center relative overflow-hidden" style={{ background: 'rgba(255,255,255,.07)', backdropFilter: 'blur(10px)' }}>
-                <div className="absolute top-4 right-4 w-8 h-8 rounded-full bg-[#ff8e4d]/30 border border-[#ff8e4d]/40"></div>
-                <div className="absolute bottom-6 left-6 w-6 h-6 rounded-full bg-[#22c55e]/30 border border-[#22c55e]/40"></div>
-                <span className="mat text-white/25 text-7xl mb-2" style={{ fontVariationSettings: "'FILL' 0,'wght' 200,'GRAD' 0,'opsz' 48" }} aria-hidden="true">auto_stories</span>
-                <p className="text-gray-300 text-xs tracking-widest font-mono" aria-hidden="true">[ hero illustration ]</p>
-              </div>
-            </div>
-
-            {/* Testimonial */}
-            <div className="relative z-10 mt-6 rounded-2xl p-5 border border-white/15" style={{ background: 'rgba(255,255,255,.1)', backdropFilter: 'blur(16px)' }}>
-              <div className="flex gap-0.5 mb-3">
-                {[...Array(5)].map((_, i) => (
-                  <span key={i} className="mat-fill text-[#ff8e4d] text-base">star</span>
-                ))}
-              </div>
-              <p className="text-white text-sm leading-relaxed mb-4">"The interface is so clean, my students actually look forward to their daily lessons!"</p>
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-[#22c55e] flex items-center justify-center font-bold text-white text-sm qs">JD</div>
-                <div>
-                  <p className="text-white font-semibold text-sm leading-none">Jane Doe</p>
-                  <p className="text-gray-200 text-xs mt-0.5">Principal, Oakwood Academy</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* RIGHT FORM PANEL */}
-          <div className="flex-1 flex items-center justify-center bg-white dark:bg-slate-950 p-8 lg:p-14 overflow-y-auto">
-            <div className="w-full max-w-[420px]">
-              {/* Mobile logo */}
-              <div className="flex lg:hidden items-center gap-2 mb-8">
-                <AppLogo
-                  size={32}
-                  className="rounded-xl"
-                  priority
-                />
-                <span className="qs font-bold text-xl text-[#006e2f] dark:text-cyan-300">Student Assistant</span>
-              </div>
-
-              <div className="mb-8">
-                <h1 className="qs font-bold text-[38px] text-[#0b1c30] dark:text-slate-100 leading-tight mb-2">Welcome to Student Assistant</h1>
-                <p className="text-[#374151] dark:text-slate-400 text-base">Personalized learning, homework support, and progress tracking in one place.</p>
-              </div>
-
-              <div className="space-y-4">
-                <Link
-                  href="/login"
-                  className="w-full px-6 py-3.5 bg-[#006e2f] text-white qs font-bold rounded-xl hover:bg-[#005828] transition-colors flex items-center justify-center gap-2 text-base btn-3d-green"
-                >
-                  Sign In <span className="mat text-xl">arrow_forward</span>
-                </Link>
-
-                <Link
-                  href="/signup"
-                  className="w-full px-6 py-3.5 bg-white dark:bg-slate-900 text-[#0058be] dark:text-cyan-300 border-2 border-[#0058be] dark:border-cyan-500 qs font-bold rounded-xl hover:bg-[#f0f7ff] dark:hover:bg-slate-800 transition-colors flex items-center justify-center gap-2 text-base"
-                >
-                  Create Account <span className="mat text-xl">person_add</span>
-                </Link>
-              </div>
-
-              <div className="pt-4 border-t border-[#e5eeff] dark:border-slate-700 mt-4">
-                <p className="text-sm text-[#374151] dark:text-slate-400 text-center">
-                  Start your learning journey today
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
-    );
-  }
-
-  // Show dashboard for logged-in users
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
-      
-      {/* Main Content */}
-      <div className="pt-6 px-6 pb-12">
-        <div className="max-w-6xl mx-auto space-y-8">
-          {/* Welcome Section */}
-          <div className="space-y-3">
-            <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100">Welcome back, {userName}! 👋</h1>
-              <p className="text-lg text-slate-700 dark:text-slate-300">Continue your learning journey with personalized insights and resources.</p>
-          </div>
+    <main className="relative min-h-screen overflow-hidden bg-[#fff7ed] text-[#451a03]">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundImage:
+            'radial-gradient(circle at 12% 16%, rgba(251,191,36,.35), transparent 40%), radial-gradient(circle at 82% 18%, rgba(249,115,22,.28), transparent 35%), radial-gradient(circle at 50% 80%, rgba(245,158,11,.2), transparent 45%), linear-gradient(180deg, rgba(255,255,255,.65), rgba(255,247,237,.95))',
+        }}
+      />
 
-          {/* Quick Access Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Link href="/resources" className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-6 hover:shadow-lg transition-shadow cursor-pointer">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Research & Learning</h3>
-                <BookOpen className="w-5 h-5 text-cyan-600" />
-              </div>
-              <p className="text-sm text-slate-600 dark:text-slate-300">Ask questions and explore topics with AI tutor</p>
-            </Link>
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-25"
+        style={{
+          backgroundImage:
+            'linear-gradient(to right, rgba(180,83,9,.15) 1px, transparent 1px), linear-gradient(to bottom, rgba(180,83,9,.12) 1px, transparent 1px)',
+          backgroundSize: '28px 28px',
+          maskImage:
+            'radial-gradient(circle at center, rgba(0,0,0,0.8), rgba(0,0,0,0.25), transparent 75%)',
+        }}
+      />
 
-            <Link href="/practice" className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-6 hover:shadow-lg transition-shadow cursor-pointer">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Practice Tests</h3>
-                <TrendingUp className="w-5 h-5 text-green-600" />
-              </div>
-              <p className="text-sm text-slate-600 dark:text-slate-300">Test your knowledge with practice exercises</p>
-            </Link>
-
-            <Link href="/assignments" className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-6 hover:shadow-lg transition-shadow cursor-pointer">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Assignments</h3>
-                <Users className="w-5 h-5 text-blue-600" />
-              </div>
-              <p className="text-sm text-slate-600 dark:text-slate-300">View and submit your assignments</p>
-            </Link>
-
-            <Link href="/chat" className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-6 hover:shadow-lg transition-shadow cursor-pointer">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">AI Chat</h3>
-                <MessageSquare className="w-5 h-5 text-purple-600" />
-              </div>
-              <p className="text-sm text-slate-600 dark:text-slate-300">Chat with your personal AI tutor</p>
-            </Link>
-          </div>
-
-          {/* About Section */}
-          <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-8 space-y-6">
+      <div className="relative mx-auto flex w-full max-w-7xl flex-col px-6 pb-14 pt-8 sm:px-8 lg:px-12 lg:pt-10">
+        <header className="mb-10 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <AppLogo size={44} className="rounded-2xl shadow-[0_10px_30px_rgba(251,146,60,0.35)]" priority />
             <div>
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-3">About Student Assistant</h2>
-              <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
-                Student Assistant is an innovative learning platform designed to empower students with personalized education. Our AI-powered system adapts to each student's learning style, providing targeted support and engaging content across multiple subjects.
+              <p className="text-xs uppercase tracking-[0.28em] text-amber-700">Veda AI</p>
+              <h1 className="text-lg font-semibold tracking-tight text-amber-950">Student Assistant</h1>
+            </div>
+          </div>
+
+          <div className="hidden items-center gap-2 rounded-full border border-amber-300 bg-white/70 px-4 py-2 text-xs font-medium text-amber-900 backdrop-blur md:flex">
+            <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+            Now live for Schools, Parents and Teachers
+          </div>
+        </header>
+
+        <section className="grid items-start gap-10 lg:grid-cols-[1.15fr_.85fr]">
+          <div className="space-y-7">
+            <div className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-amber-800 shadow-sm backdrop-blur">
+              <span className="text-amber-500">✶</span>
+              Warm Amber Experience
+            </div>
+
+            <div className="space-y-5">
+              <h2 className="max-w-3xl text-balance text-4xl font-black leading-[1.05] text-amber-950 sm:text-5xl lg:text-6xl">
+                Learning that feels
+                <span className="relative mx-2 inline-block text-amber-600">
+                  human,
+                  <svg
+                    aria-hidden
+                    viewBox="0 0 210 18"
+                    className="absolute -bottom-2 left-0 h-3 w-full text-amber-400"
+                    fill="currentColor"
+                  >
+                    <path d="M2 13c31-9 60-11 95-10 35 2 71 9 111 7-37 12-76 8-112 8-35-1-62-1-94-5z" />
+                  </svg>
+                </span>
+                intelligent, and joyful.
+              </h2>
+
+              <p className="max-w-2xl text-pretty text-base leading-relaxed text-amber-900/90 sm:text-lg">
+                One platform where students ask freely, parents stay informed, and teachers mentor deeply.
+                Personalized support, clear progress, and safer AI-driven guidance for every child.
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="space-y-2">
-                <h3 className="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                  <span className="text-cyan-600">✓</span> Personalized Learning
-                </h3>
-                <p className="text-sm text-slate-600 dark:text-slate-300">Adaptive learning paths tailored to your pace and style</p>
-              </div>
-              <div className="space-y-2">
-                <h3 className="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                  <span className="text-green-600">✓</span> AI-Powered Support
-                </h3>
-                <p className="text-sm text-slate-600 dark:text-slate-300">24/7 access to intelligent tutoring and homework help</p>
-              </div>
-              <div className="space-y-2">
-                <h3 className="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                  <span className="text-blue-600">✓</span> Progress Tracking
-                </h3>
-                <p className="text-sm text-slate-600 dark:text-slate-300">Real-time insights into your learning journey</p>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/signup"
+                className="group inline-flex items-center justify-center rounded-xl bg-amber-600 px-6 py-3 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(217,119,6,.35)] transition hover:-translate-y-0.5 hover:bg-amber-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-700"
+              >
+                Start 3-Day Free Trial
+                <span className="ml-2 transition group-hover:translate-x-0.5">→</span>
+              </Link>
+
+              <Link
+                href="/login"
+                className="inline-flex items-center justify-center rounded-xl border border-amber-400 bg-white/80 px-6 py-3 text-sm font-semibold text-amber-900 transition hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-700"
+              >
+                Sign In
+              </Link>
+
+              <Link
+                href="/subscribe"
+                className="inline-flex items-center justify-center rounded-xl border border-amber-300 bg-transparent px-6 py-3 text-sm font-semibold text-amber-800 transition hover:bg-white/60"
+              >
+                View Subscription Plans
+              </Link>
+            </div>
+
+            <div className="space-y-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">
+                Language-ready learning
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {languagePills.map((lang) => (
+                  <span
+                    key={lang}
+                    className="rounded-full border border-amber-300 bg-white/75 px-3 py-1 text-xs font-medium text-amber-900 shadow-sm"
+                  >
+                    {lang}
+                  </span>
+                ))}
               </div>
             </div>
           </div>
 
-          {/* Features Section */}
-          <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-slate-900 dark:to-slate-800 rounded-lg border border-blue-200 dark:border-slate-700 p-8 space-y-4">
-            <h3 className="text-xl font-bold text-blue-900 dark:text-cyan-200">Key Features</h3>
-            <ul className="grid md:grid-cols-2 gap-3 text-sm text-blue-900 dark:text-slate-200">
-              <li className="flex items-center gap-2">
-                <span className="text-blue-600">►</span> Curriculum-aligned content for CBSE/ICSE
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-blue-600">►</span> Interactive practice tests and quizzes
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-blue-600">►</span> Research assistance with AI tutor
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-blue-600">►</span> Parent portal for progress monitoring
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-blue-600">►</span> Assignment submission and grading
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-blue-600">►</span> Multi-subject support
-              </li>
-            </ul>
+          <div className="relative">
+            <div className="absolute -left-8 top-10 hidden h-24 w-24 rounded-full bg-amber-300/40 blur-2xl lg:block" />
+            <div className="absolute -right-6 bottom-8 hidden h-28 w-28 rounded-full bg-orange-300/40 blur-2xl lg:block" />
+
+            <div className="rounded-3xl border border-amber-200 bg-white/80 p-5 shadow-[0_20px_60px_rgba(120,53,15,0.18)] backdrop-blur-xl">
+              <div className="mb-4 flex items-center justify-between">
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-700">Platform Snapshot</p>
+                <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-semibold text-amber-800">Live</span>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                {featureCards.map((card) => (
+                  <article
+                    key={card.title}
+                    className="group rounded-2xl border border-amber-100 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                  >
+                    <div className="mb-3 flex items-center justify-between">
+                      <span
+                        className={`inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br ${card.accent} text-sm font-bold text-white`}
+                      >
+                        {card.icon}
+                      </span>
+                      <span className="text-[10px] font-semibold uppercase tracking-widest text-amber-500">Core</span>
+                    </div>
+                    <h3 className="text-sm font-bold text-amber-950">{card.title}</h3>
+                    <p className="mt-1 text-xs leading-relaxed text-amber-900/80">{card.subtitle}</p>
+                  </article>
+                ))}
+              </div>
+
+              <div className="mt-4 rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-700">Why schools pick this</p>
+                <ul className="mt-2 space-y-1.5 text-sm text-amber-900">
+                  <li>• Curriculum-aware responses with safer AI moderation</li>
+                  <li>• Teacher-led workflows with assignment insights</li>
+                  <li>• Family portal with weekly digest and progress clarity</li>
+                </ul>
+              </div>
+            </div>
           </div>
-        </div>
+        </section>
+
+        <footer className="mt-10 border-t border-amber-200/80 pt-5 text-xs text-amber-700/90">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <p>Built for students, parents, and teachers who want clarity over complexity.</p>
+            <div className="flex items-center gap-3">
+              <Link href="/parent/login" className="hover:text-amber-900">Parent Portal</Link>
+              <span className="text-amber-400">•</span>
+              <Link href="/teacher/login" className="hover:text-amber-900">Teacher Portal</Link>
+              <span className="text-amber-400">•</span>
+              <Link href="/admin/login" className="hover:text-amber-900">Admin</Link>
+            </div>
+          </div>
+        </footer>
       </div>
     </main>
-  );
+  )
 }
