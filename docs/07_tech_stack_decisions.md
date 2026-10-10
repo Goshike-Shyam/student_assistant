@@ -17,7 +17,7 @@ Adopt Next.js App Router as primary web framework and runtime boundary for UI pl
   - Mixed server/client component model increases cognitive load.
   - Requires strict separation of browser-only logic and server-only secrets.
 
-## ADR-002: Prisma ORM over direct SQL
+## ADR-002: Prisma ORM Over Direct SQL
 
 ### Context
 The platform has multi-domain relational data (learning, assignments, teacher workflows, notifications, gamification) and needs type-safe access.
@@ -34,7 +34,7 @@ Use Prisma ORM and generated client for all primary DB interactions.
   - Some flows still rely on `$queryRawUnsafe`, creating localized security/maintenance risk.
   - BigInt serialization must be normalized in API responses.
 
-## ADR-003: Supabase PostgreSQL + Pooler-first runtime
+## ADR-003: Supabase PostgreSQL + Pooler-First Runtime
 
 ### Context
 Serverless deployment can exhaust DB connections without pooling.
@@ -50,7 +50,7 @@ Use Supabase PostgreSQL as primary DB and prefer pooled runtime connections (`DA
   - Migration flows still require direct connection planning.
   - Operational complexity around multiple DB URL variants.
 
-## ADR-004: Multi-provider TTS (Edge/ElevenLabs) with optional Google TTS utility
+## ADR-004: Multi-Provider TTS (Edge/ElevenLabs) With Optional Google TTS Utility
 
 ### Context
 The product requires podcast/answer audio generation with cost and availability flexibility.
@@ -72,7 +72,7 @@ Use provider-switch abstraction (`lib/tts-provider.ts`) that can route to Edge T
 Different role areas evolved with distinct auth requirements and timelines.
 
 ### Decision
-Keep teacher/admin on dedicated session cookies and maintain student-side Supabase/local identity flow.
+Keep teacher/parent/admin on dedicated session cookies and maintain student-side Supabase/local identity flow with gradual migration toward stronger server-side session checks.
 
 ### Consequences
 - Positive:
@@ -80,4 +80,4 @@ Keep teacher/admin on dedicated session cookies and maintain student-side Supaba
   - Middleware checks for privileged portals.
 - Trade-offs:
   - Inconsistent auth mechanism across roles.
-  - Student/parent APIs relying on header/query identity require stronger server-side verification roadmap.
+  - Some student APIs still rely on header/query identity and need stronger server-side verification roadmap.

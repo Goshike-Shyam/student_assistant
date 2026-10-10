@@ -690,3 +690,23 @@ model StudentPreferences {
 
   @@map("student_preferences")
 }
+
+model Feedback {
+  id             BigInt   @id @default(autoincrement()) @db.BigInt
+  userRole       String   @map("user_role") @db.VarChar(10)
+  userId         String   @map("user_id") @db.VarChar(36)
+  displayName    String   @map("display_name") @db.VarChar(100)
+  feedbackText   String   @map("feedback_text") @db.Text
+  attachmentUrl  String?  @map("attachment_url") @db.VarChar(500)
+  attachmentName String?  @map("attachment_name") @db.VarChar(200)
+  tone           String   @default("Appreciation") @db.VarChar(20)
+  showOnHomepage Boolean  @default(false) @map("show_on_homepage")
+  adminNote      String?  @map("admin_note") @db.VarChar(255)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@index([userRole, userId])
+  @@index([showOnHomepage])
+  @@index([createdAt])
+  @@map("feedback")
+}

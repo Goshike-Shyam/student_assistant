@@ -1,44 +1,72 @@
 # School Project Workspace
 
-Next.js 14 App Router starter with React, Tailwind CSS, shadcn-style UI components, Supabase client integration, Prisma ORM, and a basic Express API server.
+Production-oriented educational LMS platform with role-based experiences for students, parents, teachers, and administrators.
 
-## Setup
+## Stack
 
-1. Copy `.env.example` to `.env` and fill in your Supabase and database credentials.
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Generate Prisma client:
-   ```bash
-   npm run prisma:generate
-   ```
-4. Start the dev environment:
-   ```bash
-   npm run dev
-   ```
+- Next.js App Router + React + TypeScript
+- Tailwind CSS
+- Prisma ORM + PostgreSQL (Supabase)
+- Google Gemini integration (`@google/genai`)
+- Role-scoped auth/session flows (student, parent, teacher, admin)
+- Supplemental Express server for legacy/support endpoints
 
-## Structure
+## Major Product Areas
 
-- `app/` — Next.js App Router pages and layout
-- `components/` — UI components
-- `lib/` — shared helpers and Supabase client
-- `server/` — Express API server for supplemental endpoints
-- `prisma/` — database schema and migrations
-- `app/login` — Supabase magic-link sign-in flow
-- `app/profile` — authenticated session preview
+- Student: dashboard, practice, assignments, progress, AI tutor
+- Parent: child progress/assignments/reports/preferences
+- Teacher: classes, assignments, analytics, student tracking
+- Admin: users, credits, content/features, feedback moderation
+- Feedback and Testimonials:
+  - `/feedback` submission flow (student/parent/teacher)
+  - AI tone classification
+  - `/admin/feedback` moderation
+  - Landing page testimonials from approved records
 
-## Scripts
+## Local Setup
 
-- `npm run dev`: start both Next.js and Express servers
-- `npm run dev:web`: run only the Next.js app
-- `npm run dev:api`: run only the Express API
-- `npm run build`: build the Next.js app
-- `npm run lint`: run Next.js ESLint
-- `npm run format`: format files with Prettier
+1. Install dependencies
+```bash
+npm install
+```
+
+2. Configure environment variables
+- Create or update `.env`/`.env.local` with required DB, auth, and API keys.
+- Reference [docs/09_env_variables_reference.md](docs/09_env_variables_reference.md) for expected variables.
+
+3. Generate Prisma client
+```bash
+npm run prisma:generate
+```
+
+4. Run development servers
+```bash
+npm run dev
+```
+
+## Useful Scripts
+
+- `npm run dev`: run Next.js + Express concurrently
+- `npm run dev:web`: run Next.js app only
+- `npm run dev:api`: run Express API only
+- `npm run build`: production build (Next.js)
+- `npm run start`: start built Next.js app
+- `npm run lint`: lint project
+- `npm run format`: format repository
+- `npm run prisma:generate`: regenerate Prisma client
+- `npm run prisma:migrate`: create/apply dev migration
+- `npm run db:studio`: open Prisma Studio
+- `npm run seed:admin`: seed super-admin account
+
+## Documentation
+
+- Architecture: [docs/01_system_architecture.md](docs/01_system_architecture.md)
+- API Reference: [docs/02_api_reference.md](docs/02_api_reference.md)
+- DB Schema: [docs/03_db_schema.md](docs/03_db_schema.md)
+- Security: [docs/04_security_design.md](docs/04_security_design.md)
+- Deployment: [docs/05_deployment_checklist.md](docs/05_deployment_checklist.md)
 
 ## Notes
 
-This starter is configured for Supabase-authenticated users and Prisma-backed data storage. After installing dependencies, sign in via `/login` and verify your session at `/profile`.
-
-Replace the example schema and API routes with your custom application logic.
+- The `feedback` attachment route currently writes to `public/uploads/feedback` for dev compatibility.
+- Production rollout should migrate feedback attachments to durable object storage (Supabase Storage).

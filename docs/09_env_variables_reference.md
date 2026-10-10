@@ -26,6 +26,7 @@ Source: codebase `process.env.*`, Prisma `env("...")`, and `.env.example`.
 | `RESEND_API_KEY` | API key | Local + Vercel | Email delivery provider key | Yes |
 | `EMAIL_FROM` | Email address | Local + Vercel | Sender identity for transactional emails | No |
 | `TEACHER_SESSION_SECRET` | Long random string | Local + Vercel | HMAC secret for `sa-teacher-session` token signing | Yes |
+| `PARENT_SESSION_SECRET` | Long random string | Local + Vercel | HMAC secret for `sa-parent-session` token signing | Yes |
 | `CRON_SECRET` | Token string | Vercel + caller | Bearer secret for scheduled reminder endpoint | Yes |
 | `SUPER_ADMIN_NAME` | String | Local bootstrap + secure env | Seed script/admin bootstrap display name | No |
 | `SUPER_ADMIN_EMAIL` | Email | Local bootstrap + secure env | Seed script/admin bootstrap account email | No |
@@ -41,3 +42,4 @@ Source: codebase `process.env.*`, Prisma `env("...")`, and `.env.example`.
 - Public variables (`NEXT_PUBLIC_*`) are exposed to browser code and must never contain secrets.
 - Service account keys and API keys must be rotated if exposure is suspected.
 - Pooler URLs should include `pgbouncer=true`, `connection_limit=1`, and `sslmode=require` for serverless runtime stability.
+- Feedback attachments currently use local filesystem pathing in dev (`public/uploads/feedback`); production rollout should prefer Supabase Storage credentials already covered by `SUPABASE_SERVICE_ROLE_KEY`.

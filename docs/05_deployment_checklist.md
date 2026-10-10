@@ -13,11 +13,13 @@
 - Run production migration command before release:
   - `npx prisma migrate deploy`
 - If schema changes were made, verify generated Prisma client is up-to-date.
+- Confirm `feedback` table exists with indexes (`user_role,user_id`, `show_on_homepage`, `created_at`).
 
 ### 1.3 Secrets and Environment
 - Verify required env vars are set in Vercel project settings.
 - Confirm sensitive keys are set only in secure environment storage.
 - Confirm `CRON_SECRET` is set and matches cron caller header.
+- Confirm session secrets for all role cookies are set (`TEACHER_SESSION_SECRET`, `PARENT_SESSION_SECRET`, admin session dependencies).
 
 ## 2) Vercel and Build Config
 
@@ -71,11 +73,15 @@
 - Assignment generate and submit flows succeed.
 - Podcast access check and generation flow works for enabled users.
 - Notifications endpoints return data for each role.
+- Feedback flow works end-to-end: upload (allowed file types/size), submit, tone classification, DB persistence.
+- Admin feedback moderation works: list loads, `showOnHomepage` toggle persists.
+- Landing page testimonials consume approved feedback and fallback placeholders display when none approved.
 
 ### 5.4 Data Integrity
 - New submissions/attempts persist to database.
 - XP logs and badge writes occur after practice/assignment actions.
 - No BigInt serialization errors in API responses.
+- Feedback rows persist with expected role/user metadata and tone values.
 
 ### 5.5 Scheduled Jobs
 - Trigger or wait for cron execution and verify reminder sending metrics/logs.
@@ -84,3 +90,8 @@
 - Keep previous Vercel deployment ready for instant rollback.
 - Keep DB backup/restore strategy documented before schema-changing releases.
 - In incident mode, disable optional premium flows with feature flags/access table while root cause is fixed.
+
+## 7) Storage Note (Feedback Attachments)
+- Current feedback upload implementation writes to `public/uploads/feedback`.
+- This path is suitable for local/dev validation but not durable on serverless production runtimes.
+- Production cut should migrate feedback attachments to Supabase Storage and return stable object URLs.

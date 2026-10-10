@@ -10,7 +10,7 @@
 | Supplemental API | Express + TypeScript (`server/**`) | Legacy/supplementary REST endpoints under `/api/*` |
 | ORM | Prisma Client + Prisma Schema | PostgreSQL provider; mapped tables for teacher/admin/gamification domains |
 | Database | Supabase PostgreSQL | Runtime URL selection supports pooler and direct URL fallback |
-| Auth Provider | Supabase JS (student-side), custom cookies (teacher/admin) | Hybrid auth model |
+| Auth Provider | Supabase JS (student-side), custom cookies (teacher/parent/admin), student session cookie (`sa-user-session`) | Hybrid auth model |
 | AI/LLM | Google GenAI (`@google/genai`) | Gemini model chain with retry + fallback |
 | TTS | Provider switch (`edge` or `elevenlabs`), plus Google TTS utility | Current active provider hardcoded to `edge` in `lib/tts-provider.ts` |
 | Deployment | Vercel | Cron configured for assignment reminders |
@@ -27,6 +27,7 @@
   - `/api/teacher/*`
   - `/api/parent/*`
   - `/api/admin/*`
+  - `/api/feedback/*`
   - `/api/practice/*`, `/api/assignments/*`, `/api/podcasts/*`, `/api/subjects/*`
 - Route handlers coordinate:
   - auth/session checks,
@@ -44,7 +45,7 @@
 |---|---|---|
 | Supabase Auth/JS | Client auth/session interactions for student experience | `lib/supabaseClient.ts`, login/profile flows |
 | Supabase PostgreSQL | Primary relational datastore | Prisma datasource (`DATABASE_URL`) |
-| Supabase Storage | Audio persistence for TTS output | TTS providers/utilities |
+| Supabase Storage | Audio persistence for TTS output; recommended production target for feedback attachments | TTS providers/utilities, feedback upload roadmap |
 | Google Gemini | Content generation and AI grading workflows | `lib/ai-with-retry.ts`, assignment/practice/podcast flows |
 | ElevenLabs / Edge TTS | Podcast and answer audio generation | `lib/tts-provider.ts`, `lib/elevenlabs-tts.ts`, `lib/edge-tts.ts` |
 | Vercel Analytics | Frontend telemetry | Root layout analytics include |
@@ -53,22 +54,24 @@
 ## 4) Routing Topology
 
 ### 4.1 App Router Topology (UI)
-- Student-facing: `/dashboard`, `/assignments`, `/practice`, `/resources`, `/progress`, `/profile`, `/ai-tutor`
+- Student-facing: `/dashboard`, `/assignments`, `/practice`, `/resources`, `/progress`, `/profile`, `/ai-tutor`, `/feedback`
 - Parent-facing: `/parent/*`, `/parent-portal`
 - Teacher-facing: `/teacher/*` (dashboard, classes, assignments, analytics, students, settings)
-- Admin-facing: `/admin/*` (users, credits, progress, financials, content, settings, features)
+- Admin-facing: `/admin/*` (users, credits, progress, financials, content, settings, features, feedback)
 
 ### 4.2 API Topology
 - Core route groups under `app/api`:
   - `admin`, `teacher`, `student`, `parent`
-  - `practice`, `assignments`, `podcasts`, `subjects`, `sessions`, `auth`, `cron`, `status`
+  - `practice`, `assignments`, `podcasts`, `subjects`, `sessions`, `auth`, `feedback`, `cron`, `status`
 
 ### 4.3 Middleware Gate Topology
 - Root middleware protects selected paths by prefix.
 - Cookie guards:
   - Admin: `sa-admin-session`
   - Teacher: `sa-teacher-session`
-- Student and parent are primarily local-storage/header/query based identity in API handlers.
+  - Parent: `sa-parent-session`
+  - Student: `sa-user-session`
+- Some student routes still support local-storage/header/query identity; feedback submit resolves student via cookie first and supports header/query fallback.
 
 ## 5) Runtime Interaction Graph
 
@@ -93,3 +96,4 @@ flowchart TD
 - AI-heavy workflows with explicit retry/fallback behavior.
 - Gamification as a first-class cross-cutting concern (XP, streaks, badges, leaderboard).
 - Deployment-aware DB connection strategy for serverless pooling.
+- Feedback/testimonials pipeline with AI tone classification and admin moderation controls.

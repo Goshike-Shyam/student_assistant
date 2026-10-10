@@ -1,8 +1,8 @@
 # Student Assistant - Project Context Documentation
 
-**Last Updated:** July 20, 2026  
-**Status:** Phase 3 - Production Features Complete  
-**Current Priority:** Database connectivity validation & teacher/parent portal polish  
+**Last Updated:** October 9, 2026  
+**Status:** Active production development (student, parent, teacher, and admin flows live)  
+**Current Priority:** Feedback and testimonials rollout stabilization, documentation parity, and security hardening  
 **Team Size:** Educational LMS Development
 
 ---
@@ -22,6 +22,28 @@ Enable engaging, personalized learning experiences through AI-powered tutoring, 
 
 ### Platform Type
 Web-based SaaS educational platform (future: mobile apps planned)
+
+---
+
+## 1.1 Current Release Snapshot (October 2026)
+
+### Newly Implemented
+- Unified feedback submission page at `/feedback` for student, parent, and teacher roles.
+- AI tone classification for feedback (`Appreciation`, `Improvement`, `Frustration`) using Gemini with fail-open behavior.
+- Admin feedback moderation surface at `/admin/feedback` with homepage visibility toggle.
+- Public testimonials API and landing page integration backed by admin-approved feedback rows.
+
+### Data and APIs Added
+- New `feedback` table/model with moderation fields and role-scoped submitter metadata.
+- New APIs:
+  - `/api/feedback`
+  - `/api/feedback/upload`
+  - `/api/feedback/public`
+  - `/api/admin/feedback`
+
+### Documentation Status
+- API catalog reconciled against all current route handlers (method/route parity completed).
+- Architecture, schema, security, deployment, WCAG, ADR, data-flow, and env docs updated for feedback feature set.
 
 ---
 
@@ -1384,7 +1406,7 @@ NODE_ENV=development
 - **Priority:** Before production
 - **Estimated Effort:** 3-4 hours
 
-#### Bug 5: studentId Not Threaded to Assignment APIs
+#### Bug 5: Student ID Not Threaded to Assignment APIs
 - **Issue:** Assignment generation and submission APIs need authenticated childId from session
 - **Location:** `app/assignments/[subject]/page.tsx`, related API routes
 - **Impact:** Assignment generation may use wrong userId
@@ -1805,7 +1827,7 @@ Generate audio podcasts and educational videos from search responses to help stu
 
 ---
 
-**Document Version:** 2.0  
-**Last Updated:** July 20, 2026  
+**Document Version:** 2.1  
+**Last Updated:** October 9, 2026  
 **Owner:** Student Assistant Development Team  
-**Status:** Phase 3 Complete — Teacher Portal, Admin Security, AI Assignment Workflow implemented
+**Status:** Active production development — feedback/testimonials pipeline and documentation parity completed

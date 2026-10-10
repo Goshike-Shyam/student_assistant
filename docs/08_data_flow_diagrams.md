@@ -73,3 +73,50 @@ Student action -> XP/streak update -> student_xp_log + submissions + attempts
 Teacher portal -> /api/teacher/analytics + assignment status -> aggregates -> dashboard
 Parent portal  -> /api/parent/* + notifications -> summaries -> parent view
 ```
+
+## 4) Feedback -> Tone Classification -> Admin Moderation -> Landing Testimonials
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as Student/Parent/Teacher UI
+    participant FUI as Feedback Page (/feedback)
+    participant FAPI as Feedback APIs
+    participant AI as Gemini Service
+    participant DB as Prisma + Postgres
+    participant AUI as Admin Feedback Page
+    participant L as Landing Page (/)
+
+    U->>FUI: Open sticky footer Feedback link
+    alt Attachment provided
+        FUI->>FAPI: POST /api/feedback/upload (multipart)
+        FAPI-->>FUI: attachment url + name
+    end
+
+    FUI->>FAPI: POST /api/feedback (displayName, feedbackText, attachment*)
+    FAPI->>AI: classify tone (Appreciation/Improvement/Frustration)
+    AI-->>FAPI: one-word class
+    FAPI->>DB: Insert feedback row (showOnHomepage=false)
+    FAPI-->>FUI: success + tone
+
+    AUI->>FAPI: GET /api/admin/feedback
+    FAPI->>DB: Read feedback rows
+    DB-->>FAPI: feedback dataset
+    FAPI-->>AUI: table payload
+
+    AUI->>FAPI: PATCH /api/admin/feedback (showOnHomepage toggle)
+    FAPI->>DB: Update moderation fields
+
+    L->>FAPI: GET /api/feedback/public
+    FAPI->>DB: Read approved feedback only
+    DB-->>FAPI: approved items
+    FAPI-->>L: testimonials payload
+```
+
+### 4.1 Compact ASCII
+```text
+Role UI -> /api/feedback/upload (optional) -> local upload path
+Role UI -> /api/feedback -> AI tone classify -> feedback table (pending)
+Admin UI -> /api/admin/feedback (GET/PATCH) -> approve for homepage
+Landing -> /api/feedback/public -> approved testimonials render
+```

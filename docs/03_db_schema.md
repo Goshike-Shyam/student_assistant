@@ -6,7 +6,7 @@ Source of truth: `prisma/schema.prisma`
 
 | Enum | Values |
 |---|---|
-| `UserRole` | `STUDENT`, `INSTRUCTOR`, `ADMIN` |
+| `UserRole` | `STUDENT`, `INSTRUCTOR`, `ADMIN`, `PARENT` |
 | `AssignmentStatus` | `PENDING`, `SUBMITTED`, `GRADED` |
 | `SubscriptionPlan` | `FREE`, `PREMIUM`, `ENTERPRISE` |
 | `CurriculumType` | `CBSE`, `ICSE`, `STATE_BOARD`, `INTERNATIONAL` |
@@ -43,6 +43,7 @@ Source of truth: `prisma/schema.prisma`
 | `AssignmentReminder` | N:1 to `TeacherAssignment` |
 | `ClassInviteToken` | N:1 to `TeacherClass` |
 | `TeacherClassSubject` | N:1 to `TeacherClass` |
+| `Feedback` | Standalone moderation entity (role-scoped submitter + optional attachment + homepage approval flag) |
 
 ## 3) Data Dictionary (Complete)
 
@@ -418,6 +419,21 @@ Legend: `PK` primary key, `FK` foreign key, `UQ` unique, `IDX` index
 - `userRole String @db.VarChar(20)`
 - `feature String @db.VarChar(50)`
 - `isEnabled Boolean @default(false)`
+
+### `Feedback` (table: `feedback`)
+- `id BigInt PK @default(autoincrement())`
+- `userRole String @map("user_role") @db.VarChar(10)`
+- `userId String @map("user_id") @db.VarChar(36)`
+- `displayName String @map("display_name") @db.VarChar(100)`
+- `feedbackText String @map("feedback_text") @db.Text`
+- `attachmentUrl String? @map("attachment_url") @db.VarChar(500)`
+- `attachmentName String? @map("attachment_name") @db.VarChar(200)`
+- `tone String @default("Appreciation") @db.VarChar(20)`
+- `showOnHomepage Boolean @default(false) @map("show_on_homepage")`
+- `adminNote String? @map("admin_note") @db.VarChar(255)`
+- `createdAt DateTime @default(now()) @map("created_at")`
+- `updatedAt DateTime @updatedAt @map("updated_at")`
+- Indexes: `@@index([userRole, userId])`, `@@index([showOnHomepage])`, `@@index([createdAt])`
 - `enabledBy BigInt?`
 - `enabledAt DateTime?`
 - `notes String? @db.VarChar(500)`

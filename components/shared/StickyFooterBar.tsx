@@ -124,6 +124,18 @@ export function StickyFooterBar() {
           </span>
         ))}
 
+        <span className="flex items-center gap-1">
+          <span className="select-none text-xs text-gray-300 dark:text-slate-600" aria-hidden="true">
+            ·
+          </span>
+          <a
+            href="/feedback"
+            className="min-h-[44px] flex items-center rounded px-1 py-1 text-xs text-gray-500 transition-colors hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-gray-400 dark:hover:text-gray-200"
+          >
+            Feedback
+          </a>
+        </span>
+
         <span className="ml-2 select-none text-xs text-gray-300 dark:text-slate-600" aria-hidden="true">
           |
         </span>
