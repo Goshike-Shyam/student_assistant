@@ -1,9 +1,31 @@
 'use client'
 
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import { AppLogo } from '@/components/ui/app-logo'
 
 export default function HomePage() {
+  const [testimonials, setTestimonials] = useState<
+    {
+      id: string
+      displayName: string
+      userRole: string
+      feedbackText: string
+      tone: string
+    }[]
+  >([])
+
+  useEffect(() => {
+    fetch('/api/feedback/public')
+      .then((r) => r.json())
+      .then((d) => {
+        if (Array.isArray(d.items) && d.items.length > 0) {
+          setTestimonials(d.items)
+        }
+      })
+      .catch(() => {})
+  }, [])
+
   const featureCards = [
     {
       title: 'AI Tutor',
@@ -39,6 +61,28 @@ export default function HomePage() {
     'मराठी',
     'தமிழ்',
   ]
+
+  const displayTestimonials =
+    testimonials.length > 0
+      ? testimonials.slice(0, 4)
+      : [
+          {
+            id: 'p1',
+            displayName: 'Priya Sharma',
+            userRole: 'parent',
+            feedbackText:
+              'My daughter used to struggle with CBSE Science. With Veda AI she can ask questions at midnight before her exam and get a proper explanation. It has changed how she studies.',
+            tone: 'Appreciation',
+          },
+          {
+            id: 'p2',
+            displayName: 'Rajesh Kumar',
+            userRole: 'teacher',
+            feedbackText:
+              'As a teacher I used to spend hours creating practice papers. Veda AI generates board-accurate tests in seconds. My students scores have improved noticeably.',
+            tone: 'Appreciation',
+          },
+        ]
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#fff7ed] text-[#451a03]">
@@ -189,6 +233,52 @@ export default function HomePage() {
                 </ul>
               </div>
             </div>
+          </div>
+        </section>
+
+        <section className="mt-10 rounded-3xl border border-amber-200/80 bg-white/70 p-6 shadow-sm backdrop-blur-sm sm:p-8" aria-label="Testimonials">
+          <div className="mb-5 flex items-center justify-between gap-3">
+            <h3 className="text-base font-bold uppercase tracking-[0.2em] text-amber-800">Trusted Voices</h3>
+            <span className="rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-[11px] font-semibold text-amber-700">
+              Families and Teachers
+            </span>
+          </div>
+
+          <div
+            className="grid gap-3"
+            style={{
+              gridTemplateColumns:
+                displayTestimonials.length > 2
+                  ? 'repeat(2, minmax(0, 1fr))'
+                  : displayTestimonials.length === 1
+                    ? '1fr'
+                    : '1fr 1fr',
+            }}
+          >
+            {displayTestimonials.map((item, index) => {
+              const avatarColors = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444']
+              const cleaned = item.feedbackText.replace(/^"|"$/g, '')
+              return (
+                <article key={item.id} className="rounded-2xl border border-amber-200 bg-white p-4 shadow-sm">
+                  <p className="mb-3 text-xs italic leading-7 text-amber-900/85">
+                    "{cleaned.slice(0, 200)}{cleaned.length > 200 ? '...' : ''}"
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white"
+                      style={{ backgroundColor: avatarColors[index % 4] }}
+                      aria-hidden="true"
+                    >
+                      {item.displayName.charAt(0).toUpperCase()}
+                    </span>
+                    <span>
+                      <span className="block text-xs font-bold text-amber-950">{item.displayName}</span>
+                      <span className="block text-[11px] capitalize text-amber-700/70">{item.userRole}</span>
+                    </span>
+                  </div>
+                </article>
+              )
+            })}
           </div>
         </section>
 

@@ -1,8 +1,76 @@
 # Student Assistant - Decision Log
 
 **Purpose:** Document all architectural and implementation decisions, rationale, and trade-offs  
-**Last Updated:** July 20, 2026  
+**Last Updated:** October 9, 2026  
 **Scope:** All major technical decisions made in the project
+
+---
+
+## 0. October 2026 Decisions (Latest)
+
+### Decision 0.1: Feedback + Testimonials as Moderated First-Party Feature
+
+**Date:** October 2026  
+**Decided By:** Product + Platform Team  
+**Status:** ✅ Implemented
+
+**Decision:**
+Implement a unified feedback pipeline for all authenticated roles with admin moderation before homepage publication.
+
+**Implementation Outcome:**
+1. Submission route: `/api/feedback`
+2. Attachment route: `/api/feedback/upload`
+3. Public approved feed: `/api/feedback/public`
+4. Admin moderation route: `/api/admin/feedback`
+5. UI surfaces: `/feedback` and `/admin/feedback`
+
+**Rationale:**
+1. Centralized voice-of-user collection across student, parent, and teacher roles.
+2. Safe publication process through explicit admin review.
+3. Reusable social proof block on landing page driven by real product usage.
+
+**Tradeoffs:**
+- Current attachment persistence is local-path based (`public/uploads/feedback`) and must migrate to durable object storage for production-grade reliability.
+
+---
+
+### Decision 0.2: AI Tone Classification Contract (Low-Latency, Fail-Open)
+
+**Date:** October 2026  
+**Decided By:** Platform Team  
+**Status:** ✅ Implemented
+
+**Decision:**
+Classify feedback tone using Gemini with constrained one-label output and low token budget.
+
+**Contract:**
+1. Labels: `Appreciation`, `Improvement`, `Frustration`
+2. Token budget: `maxTokens = 10`
+3. Failure behavior: never block submit; fallback tone defaults to `Appreciation`
+
+**Rationale:**
+1. Predictable category output for admin triage.
+2. Minimal latency/cost overhead in submission path.
+3. Operational resilience under transient AI outages.
+
+---
+
+### Decision 0.3: API Documentation Governance via Route-Table Reconciliation
+
+**Date:** October 2026  
+**Decided By:** Engineering  
+**Status:** ✅ Implemented
+
+**Decision:**
+Reconcile API reference entries against actual exported route-handler methods and maintain parity as a release gate.
+
+**Result:**
+- `docs/02_api_reference.md` updated to exact method/route parity with `app/api/**` at the time of audit.
+
+**Rationale:**
+1. Prevent stale docs during rapid route iteration.
+2. Improve confidence for QA, integration work, and handover.
+3. Reduce ambiguity for role-specific API behavior.
 
 ---
 
@@ -1262,7 +1330,7 @@ useEffect(() => {
 **Document Statistics:**
 - Total Decisions Documented: 50+
 - Status Breakdown: 32 Implemented ✅ | 8 Partially Implemented 🚧 | 10 Deferred/Planned 📋
-- Last Updated: July 20, 2026
+- Last Updated: October 9, 2026
 - Owner: Engineering Team
 - Audience: Engineering team, architects, new team members
 

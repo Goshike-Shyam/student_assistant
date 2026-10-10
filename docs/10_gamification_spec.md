@@ -71,7 +71,7 @@ $$
 
 ## 6) Streak Tracking Criteria
 
-### 6.1 Login Streak (authoritative streak)
+### 6.1 Login Streak (Authoritative Streak)
 - Updated by `updateLoginStreak(childId)`.
 - Reads/writes streak values in `children` table (`login_streak`, `last_login_date`, `longest_streak`).
 - Rules:
@@ -84,7 +84,7 @@ $$
   - Exactly 30 days: `STREAK_30_DAY`
   - Exactly 100 days: `STREAK_100_DAY`
 
-### 6.2 Practice Activity Streak (analytics streak)
+### 6.2 Practice Activity Streak (Analytics Streak)
 - Calculated in `/api/practice/metrics` from consecutive dates with completed attempts.
 - Used for practice dashboard metrics; distinct from login streak storage.
 

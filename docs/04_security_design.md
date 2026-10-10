@@ -5,6 +5,7 @@
 ### 1.1 Student
 - Primary client auth is Supabase client-side session usage.
 - API identity is often resolved from `x-user-id` header or `userId/childId` query params.
+- Student session cookie (`sa-user-session`) is used by selected routes (for example feedback submit) with header/query fallback.
 - Middleware does not enforce student cookie auth.
 - Logout endpoint clears broad cookie set, and client is expected to clear local/session storage.
 
@@ -13,14 +14,21 @@
 - Token design: signed payload (`base64url.payload.signature`) using HMAC-SHA256.
 - Secret: `TEACHER_SESSION_SECRET`.
 - Session payload: `teacherId`, `name`, `email`, `exp`.
-- Lifetime: 7 days.
+- Lifetime: daily expiry (session max-age resolves to next local midnight).
 
 ### 1.3 Admin
 - Cookie: `sa-admin-session`.
 - Stored value is JSON session blob and re-validated against DB (`isActive`, role/email consistency).
-- Lifetime: 24 hours on login route.
+- Lifetime: daily expiry (session max-age resolves to next local midnight).
 
-### 1.4 Middleware Enforcement
+### 1.4 Parent
+- Cookie: `sa-parent-session`.
+- Token design: signed payload (`base64url.payload.signature`) using HMAC-SHA256.
+- Secret priority: `PARENT_SESSION_SECRET` -> `NEXTAUTH_SECRET` -> `TEACHER_SESSION_SECRET` fallback.
+- Session payload: `parentId`, `name`, `email`, `exp`.
+- Lifetime: daily expiry (session max-age resolves to next local midnight).
+
+### 1.5 Middleware Enforcement
 - Protected admin pages require `sa-admin-session` except `admin/login` and `admin/accept-invite`.
 - Protected teacher pages require `sa-teacher-session` except login/register/verify paths.
 
@@ -32,6 +40,7 @@
 | Teacher classes/assignments/analytics | Deny | Allow own scope | Deny | Oversight through admin routes | Deny |
 | Parent preferences/notifications | Deny | Deny | Allow own scope | Oversight optional | Deny |
 | Admin users/credits/feature toggles | Deny | Deny | Deny | Allow | Deny |
+| Feedback submit/public/admin moderation | Allow submit | Allow submit | Allow submit | Allow moderation | Deny |
 | Podcast generation | Feature-gated | Feature-gated | N/A | Manage access | Deny |
 | Cron reminders | Deny | Deny | Deny | Deny | Allow with `CRON_SECRET` |
 
@@ -68,6 +77,7 @@
 | Priority | Gap | Recommended Action |
 |---|---|---|
 | High | Student identity can be query/header based without strong server-side session assertion | Add server-validated student session/JWT checks for protected student APIs |
+| High | Feedback upload route currently performs file validation but no explicit auth gate | Add role session assertion in upload route (or short-lived signed upload token) before production |
 | High | Unsafe raw SQL methods in gamification/streak paths | Migrate to `prisma.$queryRaw` / typed queries where possible |
 | Medium | In-memory login rate limit is not distributed | Move to Redis/edge KV for multi-instance consistency |
 | Medium | No centralized schema validation layer | Adopt Zod schemas per route and shared validation middleware |

@@ -1,6 +1,6 @@
 # WCAG 2.1 AA Accessibility Audit
 
-Scope sampled from student, teacher, gamification, and podcast UX components.
+Scope sampled from student, teacher, parent, admin, feedback, gamification, and podcast UX components.
 
 ## 1) Summary
 
@@ -73,6 +73,15 @@ Scope sampled from student, teacher, gamification, and podcast UX components.
   - Ensure all metric cards provide explicit context for screen readers when values update asynchronously.
   - Some chart labels contain encoding artifacts (`�`) and should be normalized.
 
+### 3.4 Feedback and Testimonials
+- Strengths:
+  - Feedback form uses explicit `label` + control pairing and required-state indicators.
+  - Error blocks use `role="alert"` and action controls maintain minimum touch target sizing.
+  - Admin moderation includes labeled checkbox control for homepage visibility.
+- Gaps:
+  - File upload status/error messaging should remain screen-reader announced during async upload states.
+  - Verify testimonial truncation and role labels remain understandable when read out of visual context.
+
 ## 4) Priority Remediation List
 
 | Priority | Issue | Recommendation |
@@ -81,11 +90,13 @@ Scope sampled from student, teacher, gamification, and podcast UX components.
 | High | Malformed ARIA label strings with replacement characters | Clean and normalize all aria-label text literals |
 | Medium | No documented contrast test evidence | Add CI accessibility checks (axe/Lighthouse) and store results per release |
 | Medium | Chart accessibility depends mostly on aria labels | Provide data-table fallback or downloadable accessible summaries |
+| Medium | Async feedback upload/submission status needs consistent SR narration | Add explicit live-region updates for upload/submission progress states |
 | Low | Inconsistent field-level validation narration | Add `aria-describedby` and inline error IDs for forms |
 
 ## 5) Recommended Test Protocol
 
-1. Run keyboard-only navigation for student, teacher, parent, and admin key screens.
+1. Run keyboard-only navigation for student, teacher, parent, admin, feedback form, and admin feedback moderation screens.
 2. Run NVDA/JAWS smoke tests on podcast, practice metrics, and assignment flows.
-3. Run Lighthouse + axe for representative pages in light and dark modes.
-4. Track and fix issues before release cut.
+3. Run NVDA/JAWS smoke tests on feedback form submission and admin testimonial toggle workflow.
+4. Run Lighthouse + axe for representative pages in light and dark modes.
+5. Track and fix issues before release cut.
