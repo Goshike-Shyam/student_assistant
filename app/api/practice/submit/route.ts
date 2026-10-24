@@ -17,6 +17,7 @@ import { prisma } from '@/lib/prismaClient';
 import { callGeminiWithRetry } from '@/lib/ai-with-retry';
 import { logAiCredit } from '@/lib/ai-credit-logger';
 import { awardXP } from '@/lib/gamification/xp';
+import { savePracticeToLibrary } from '@/lib/library';
 
 const LLM_TIMEOUT_MS = 45000;
 
@@ -242,6 +243,17 @@ export async function POST(request: NextRequest) {
         completedAt: new Date(),
       },
     });
+
+    // Fire-and-forget: never block the primary practice submission response.
+    savePracticeToLibrary({
+      grade: String(grade ?? 10),
+      board: String(board ?? 'CBSE'),
+      subjectId: String(practiceTest.subject ?? 'general'),
+      topic: String(practiceTest.topic ?? practiceTest.subject ?? 'Practice Test'),
+      questions: questions as Array<Record<string, unknown>>,
+      totalMarks: questions.length,
+      practiceId: savedAttempt.id,
+    }).catch(console.error);
 
     awardXP(practiceTest.childId, 'PRACTICE_COMPLETE', savedAttempt.id.toString()).catch(() => {});
     if (normalizedScore === 100) {
