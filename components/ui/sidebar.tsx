@@ -6,6 +6,7 @@ import { GAMIFICATION_ENABLED } from '@/lib/gamification/config';
 
 const STUDENT_NAV = [
   { href: '/dashboard',   icon: 'home',            label: 'Home' },
+  { href: '/library',     icon: 'menu_book',       label: 'Library' },
   { href: '/resources',   icon: 'science',          label: 'Research' },
   { href: '/assignments', icon: 'assignment',        label: 'Assignments' },
   { href: '/practice',    icon: 'auto_stories',      label: 'Practice' },

@@ -9,6 +9,7 @@ import { startSession, trackPageView } from '@/lib/session-tracker'
 /** Paths that show the student sidebar */
 const STUDENT_SIDEBAR_PATHS = [
   '/dashboard',
+  '/library',
   '/assignments',
   '/practice',
   '/resources',

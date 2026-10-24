@@ -24,6 +24,7 @@ export function AdminSidebar() {
     { id: 'link-parent', label: 'Link Parent-Child', icon: 'link', href: '/admin/link-parent' as Route },
     { id: 'podcast-access', label: 'Podcast Access', icon: <Volume2 size={18} aria-hidden="true" />, href: '/admin/features/podcast' as Route },
     { id: 'credits', label: 'Credit Tracking', icon: 'bolt', href: '/admin/credits' as Route },
+    { id: 'library', label: 'Library', icon: 'menu_book', href: '/admin/library' as Route },
     { id: 'content', label: 'Content Library', icon: 'library_books', href: '/admin/content' as Route },
     { id: 'settings', label: 'Settings', icon: 'settings', href: '/admin/settings' as Route },
   ];

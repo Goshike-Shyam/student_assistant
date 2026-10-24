@@ -322,6 +322,43 @@ model AdminInvite {
   @@map("admin_invites")
 }
 
+model LibraryItem {
+  id               BigInt   @id @default(autoincrement()) @db.BigInt
+  itemType         String   @map("item_type") @db.VarChar(20)
+  grade            String   @db.VarChar(10)
+  board            String   @db.VarChar(30)
+  subjectId        String   @map("subject_id") @db.VarChar(60)
+  topic            String   @db.VarChar(200)
+  contentJson      String   @map("content_json") @db.Text
+  sourceQueryId    String?  @map("source_query_id") @db.VarChar(36)
+  sourcePracticeId String?  @map("source_practice_id") @db.VarChar(36)
+  isVisible        Boolean  @default(true) @map("is_visible")
+  isFeatured       Boolean  @default(false) @map("is_featured")
+  isImported       Boolean  @default(false) @map("is_imported")
+  importFileUrl    String?  @map("import_file_url") @db.VarChar(500)
+  importFileName   String?  @map("import_file_name") @db.VarChar(200)
+  adminNote        String?  @map("admin_note") @db.VarChar(500)
+  viewCount        Int      @default(0) @map("view_count")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@index([grade, board], name: "idx_lib_grade_board")
+  @@index([subjectId], name: "idx_lib_subject")
+  @@index([itemType], name: "idx_lib_type")
+  @@index([isVisible], name: "idx_lib_visible")
+  @@index([isFeatured, createdAt], name: "idx_lib_featured")
+  @@map("library_items")
+}
+
+model LibraryConfig {
+  id          BigInt   @id @default(autoincrement()) @db.BigInt
+  configKey   String   @unique @map("config_key") @db.VarChar(100)
+  configValue String   @map("config_value") @db.VarChar(500)
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("library_config")
+}
+
 // ─── AI-Generated Practice Tests ─────────────────────────────────────────────
 // PRACTICE ROUTE CONTRACT
 // Prisma models: prisma.practiceTest    (@@map "practice_tests")

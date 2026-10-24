@@ -11,6 +11,7 @@ import { logAiCredit } from '../lib/ai-credit-logger.js';
 import { callGeminiWithRetry } from '../lib/ai-with-retry.js';
 import { awardXP } from '../lib/gamification/xp.js';
 import { updateLoginStreak } from '../lib/gamification/streak.js';
+import { saveResearchToLibrary } from '../lib/library.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -838,6 +839,21 @@ Rules for sources:
           sourceLinks: sources.map((source) => source.url),
         },
       });
+
+      const child = await prisma.user.findUnique({
+        where: { id: String(studentId) },
+        select: { grade: true, curriculum: true },
+      });
+
+      // Fire-and-forget: library writes must not affect search response latency.
+      saveResearchToLibrary({
+        grade: String(child?.grade ?? 10),
+        board: String(child?.curriculum ?? 'CBSE'),
+        subjectId: String(subject || 'general'),
+        query: String(query),
+        response: String(response),
+        queryId: savedQuery.id,
+      }).catch(console.error);
     }
 
     res.status(201).json({
